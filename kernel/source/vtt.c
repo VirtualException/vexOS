@@ -1,7 +1,7 @@
 #include <libc/stdio.h>
 #include <libc/stdlib.h>
 #include <libc/vargs.h>
-#include <libc/mem.h>
+#include <libc/string.h>
 
 #include <kernel/vtt.h>
 #include <kernel/draw.h>
@@ -23,8 +23,7 @@
                                         ((((c)%FONT_BMP_WDTH)) * FONT_WDTH),\
                                         ((((c)-(((c)%FONT_BMP_WDTH)))/FONT_BMP_WDTH) * FONT_HGHT),\
                                         FONT_BMP_WDTH * FONT_WDTH)\
-                                        +\
-                                        UID_w(x, y, FONT_BMP_WDTH * FONT_WDTH))
+                                        + UID_w(x, y, FONT_BMP_WDTH * FONT_WDTH))
 
 // Max terminal dimensions
 #define M_COLS (unsigned)(M_RESX / C_WDTH)
@@ -47,6 +46,7 @@ color_t col_fg;
 color_t col_bg;
 
 bool    cursor;
+bool    blink;
 
 pixel_t* font;
 
@@ -75,7 +75,8 @@ init_terminal(uint32_t x_res, uint32_t y_res, pixel_t* font_bitmap) {
 
     resetcolor();
 
-    cursor = true;
+    cursor  = true;
+    blink   = true;
 
     return;
 }
@@ -83,12 +84,34 @@ init_terminal(uint32_t x_res, uint32_t y_res, pixel_t* font_bitmap) {
 void
 newline() {
 
-    if (CURY > ROWS-1) {
+    if (CURY >= ROWS-1) {
         scroll(1);
     }
     else CURY++;
 
     CURX = 0;
+
+    return;
+}
+
+void
+tab() {
+    puts("    ");
+}
+
+void
+delete() {
+
+    if (CURX < 1) {
+        if (CURY > 1) {
+            CURY--;
+            CURX = COLS-1;
+        }
+    }
+    else CURX--;
+
+    termbuff[UIDC(CURX, CURY)] = voidchar;
+
 
     return;
 }
@@ -104,35 +127,56 @@ scroll(uint32_t lines) {
         }
     }
 
-    /*//???????
-    for (size_t i = 0; i < COLS; i++) {
-        termbuff[UIDC(i, ROWS-1)] = voidchar;
+    for (size_t x = 0; x < COLS; x++) {
+        termbuff[UIDC(x, ROWS-1)] = voidchar;
     }
-    for (size_t i = 0; i < COLS; i++) {
-        termbuff[UIDC(i, ROWS)] = voidchar;
-    }*/
 
     CURY--;
 
     return;
 }
 
+void setcurpos(uint32_t  x, uint32_t y) {
+
+    if (x > COLS || y > ROWS) {
+        return;
+    }
+
+    CURX = x;
+    CURY = y;
+
+    return;
+}
+
+void setcur(bool state) {
+
+    blink = (cursor = state);
+
+    return;
+}
+
 void
 resetcolor() {
+
     col_fg = (color_t) { 180, 180, 180 };
     col_bg = (color_t) { 0, 0, 0 };
+
     return;
 }
 
 void
 setfgcolor(uint8_t r, uint8_t g, uint8_t b) {
+
     col_fg = (color_t) { b, g, r};
+
     return;
 }
 
 void
 setbgcolor(uint8_t r, uint8_t g, uint8_t b) {
+
     col_bg = (color_t) { b, g, r};
+
     return;
 }
 
@@ -144,7 +188,7 @@ renderterm(pixel_t* bbuff) {
 
             drawchar(x * C_WDTH, y * C_HGHT, &termbuff[UIDC(x, y)], bbuff);
 
-            if(x == CURX && y == CURY) {
+            if(x == CURX && y == CURY && blink && (cursor=!cursor)) {
                 rendercur(x * C_WDTH, y * C_HGHT, bbuff);
             }
         }
@@ -176,12 +220,6 @@ drawchar(uint32_t x, uint32_t y, tchar_t* c, pixel_t* bbuff) {
 void
 rendercur(uint x, uint y, pixel_t* bbuff) {
 
-    cursor = !cursor;
-
-    if (cursor) {
-        return;
-    }
-
     for (size_t dy = 0; dy < C_HGHT; dy++) {
         for (size_t dx = 0; dx < C_WDTH; dx++) {
 
@@ -199,6 +237,18 @@ rendercur(uint x, uint y, pixel_t* bbuff) {
 }
 
 int
+puts(char* str) {
+
+    if (str == NULL) return -1;
+
+    for (size_t i = 0; str[i] != '\0'; i++) {
+        putchar(str[i]);
+    }
+
+    return 0;
+}
+
+int
 vprintf(const char* fmt, va_list vargs) {
 
     char buff[1048] = { 0 };
@@ -206,16 +256,6 @@ vprintf(const char* fmt, va_list vargs) {
     for (size_t i = 0; fmt[i] != '\0'; i++) {
 
         switch (fmt[i]) {
-
-        case '\n':
-
-            newline();
-            break;
-
-        case '\t':
-
-            printf("    ");
-            break;
 
         case '%':
 
@@ -236,10 +276,18 @@ vprintf(const char* fmt, va_list vargs) {
             case 'd':
             case 'D':
 
-                itoa(va_arg(vargs), buff);
-                printf(buff);
+                int d = va_arg(vargs);
+
+                itoa(d, buff);
+
+                puts(buff);
 
                 break;
+
+            case 's':
+            case 'S':
+
+                puts((char*) va_arg(vargs));
 
             default:
 
@@ -274,35 +322,33 @@ printf(const char* fmt, ...) {
 }
 
 int
-printfat(unsigned int x, unsigned int y, const char* fmt, ...) {
-
-    va_list vargs;
-    va_start(vargs);
-
-    if (x > COLS || y > ROWS) {
-        return -1;
-    }
-
-    CURX = x;
-    CURY = y;
-
-    vprintf(fmt, vargs);
-
-    va_end(vargs);
-
-    return 0;
-}
-
-int
 putchar(char c) {
 
-    if (CURX >= COLS) {
+    if (CURX >= COLS-1) {
         newline();
     }
+    if (CURY >= ROWS-1) {
+        scroll(1);
+    }
 
-    termbuff[UIDC(CURX, CURY)] = (tchar_t) { .c = c, .fg = col_fg, .bg = col_bg };
+    switch (c) {
 
-    CURX++;
+        case '\n':
+
+            newline();
+            break;
+
+        case '\t':
+
+            tab();
+            break;
+
+        default:
+
+            termbuff[UIDC(CURX, CURY)] = (tchar_t) { c, col_fg, col_bg };
+            CURX++;
+            break;
+    }
 
     return EXIT_SUCCESS;
 }

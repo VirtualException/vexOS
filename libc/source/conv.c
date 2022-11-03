@@ -1,18 +1,27 @@
 #include <libc/stdlib.h>
+#include <libc/stdbool.h>
 #include <libc/string.h>
 
-char* itoa(int n, char* str) {
+char*
+itoa(int n, char* str) {
 
     int i = 0;
-    int sign = n;
+    bool neg = 0;
 
-    if (sign < 0) n = -n;
-
-    while ((n /= 10) > 0) {
-        str[i++] = n % 10 + '0';
+    if (n < 0) {
+         n = -n;
+         neg = 1;
     }
 
-    if (sign < 0) str[i++] = '-';
+    i = 0;
+
+    do {
+         str[i++] = n % 10 + '0';
+    } while ((n /= 10) > 0);
+
+    if (neg) {
+         str[i++] = '-';
+    }
 
     str[i] = '\0';
 

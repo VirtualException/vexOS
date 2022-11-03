@@ -1,4 +1,4 @@
-#include <osvx_uefi/utils.h>
+#include <vexos_uefi/utils.h>
 
 #define _FONTDATA
 #include "../../font.h"

@@ -8,8 +8,7 @@
 #include <efi/efi.h>
 #include <efi/efilib.h>
 
-#include <osvx_uefi/efi_video_info.h>
-#include <osvx_uefi/efi_kinfo.h>
+#include <vexos_uefi/efi_kinfo.h>
 
 #include <elf.h>
 

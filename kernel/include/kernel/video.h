@@ -2,8 +2,7 @@
 #define _VIDEO_H
 
 #include <libc/stdlib.h>
-#include <kernel/video_info.h>
-
+#include <kernel/vinfo.h>
 
 typedef struct {
 

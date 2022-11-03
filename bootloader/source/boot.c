@@ -5,9 +5,8 @@
 #define PREF_RES_Y 1080
 
 
-#include <osvx_uefi/utils.h>
-#include <osvx_uefi/efi_video_info.h>
-#include <osvx_uefi/efi_kinfo.h>
+#include <vexos_uefi/utils.h>
+#include <vexos_uefi/efi_kinfo.h>
 
 
 KernelEntry kmain;

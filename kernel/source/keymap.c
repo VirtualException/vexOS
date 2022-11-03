@@ -4,7 +4,7 @@
 // This array is intended to transform every PRESS keycode into the correspondent ASCII character
 // If 0 is the value returned, any ascii character is avaiable for that key or combination
 
-static char PS2_KEYMAP_US[0x38] = {
+static char PS2_KEYMAP_US[0x3A] = {
     '\0',
     '\0',
     '1',
@@ -61,18 +61,22 @@ static char PS2_KEYMAP_US[0x38] = {
     '/',
     '\0',
     '*',
+    '\0',
+    ' ',
 };
 
-char ps2ascii(int scancode) {
+char ps2ascii(int scancode, bool shift) {
 
     char c;
 
-    if (scancode <= 0x38) {
+    if (scancode <= 0x3A) {
 
         c = PS2_KEYMAP_US[scancode];
 
+        if (c > 96 && c < 123 && shift) c -= 32;
+
     }
-    else c = 0;
+    else c = '\0';
 
     return c;
 }

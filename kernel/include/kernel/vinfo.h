@@ -1,7 +1,5 @@
-#ifndef _VIDEO_INFO_H
-#define _VIDEO_INFO_H
-
-#include <libc/types.h>
+#ifndef _VINFO_H
+#define _VINFO_H
 
 typedef struct {
 

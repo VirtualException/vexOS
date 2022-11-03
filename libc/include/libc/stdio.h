@@ -10,9 +10,9 @@
 #define ISBITSET(byte, n) ((status & (128 >> n)) == 1)
 
 
+int puts(char* str);
 int vprintf(const char* fmt, va_list vargs);
 int printf(const char* fmt, ...);
-int printfat(unsigned int x, unsigned int y, const char* fmt, ...);
 int putchar(char c);
 
 #endif

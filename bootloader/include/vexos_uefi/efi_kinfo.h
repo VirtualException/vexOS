@@ -1,7 +1,7 @@
 #ifndef _KINFO_H
 #define _KINFO_H
 
-#include <osvx_uefi/efi_video_info.h>
+#include <efi/efi.h>
 
 typedef
 EFI_STATUS (EFIAPI *EfiResetFunction) (
@@ -10,6 +10,26 @@ EFI_STATUS (EFIAPI *EfiResetFunction) (
     UINTN           DataSize,
     CHAR16*         ResetData
 );
+
+typedef struct {
+
+    char R;
+    char G;
+    char B;
+
+    char _Reserved;
+
+} PIXEL;
+
+typedef struct {
+
+    UINT32 XRes;
+    UINT32 YRes;
+
+    UINT64 VMem;
+    UINT64 VMem_Size;
+
+} VIDEO_INFO;
 
 typedef struct {
 

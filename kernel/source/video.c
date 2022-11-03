@@ -1,4 +1,3 @@
-#include <libc/mem.h>
 #include <kernel/video.h>
 
 int

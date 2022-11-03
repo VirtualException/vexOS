@@ -1,5 +1,5 @@
-#include <libc/mem.h>
 #include <libc/stdlib.h>
+#include <libc/string.h>
 
 bool
 memcmp(const void* aptr, const void* bptr, size_t len) {

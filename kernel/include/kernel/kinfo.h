@@ -1,7 +1,8 @@
 #ifndef _KINFO_H
 #define _KINFO_H
 
-#include <kernel/video_info.h>
+#include <libc/types.h>
+#include <kernel/video.h>
 
 typedef
 uint64_t (__attribute__((ms_abi)) *EfiResetFunction) (

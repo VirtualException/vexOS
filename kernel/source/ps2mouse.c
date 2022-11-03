@@ -1,31 +1,32 @@
 #include <kernel/ps2.h>
 
-BYTE mouse_cycle = 0;
-SBYTE mouse_byte[4];
-SBYTE mouse_dx = 0;
-SBYTE mouse_dy = 0;
+BYTE ps2_mouse_cycle = 0;
+
+SBYTE ps2_mouse_byte[4];
+SBYTE ps2_mouse_dx = 0;
+SBYTE ps2_mouse_dy = 0;
 
 //Mouse functions
 void
 ps2_mouse_handler() {
 
-    switch(mouse_cycle) {
+    switch(ps2_mouse_cycle) {
 
         case 0:
-            mouse_byte[0] = inportb(PS2_IO_CONTROL_PORT);
-            mouse_cycle++;
+            ps2_mouse_byte[0] = inportb(PS2_IO_CONTROL_PORT);
+            ps2_mouse_cycle++;
         break;
 
     case 1:
-      mouse_byte[1] = inportb(PS2_IO_CONTROL_PORT);
-      mouse_cycle++;
+      ps2_mouse_byte[1] = inportb(PS2_IO_CONTROL_PORT);
+      ps2_mouse_cycle++;
       break;
 
     case 2:
-      mouse_byte[2] = inportb(PS2_IO_CONTROL_PORT);
-      mouse_dx = mouse_byte[1];
-      mouse_dy = mouse_byte[2];
-      mouse_cycle = 0;
+      ps2_mouse_byte[2] = inportb(PS2_IO_CONTROL_PORT);
+      ps2_mouse_dx = ps2_mouse_byte[1];
+      ps2_mouse_dy = ps2_mouse_byte[2];
+      ps2_mouse_cycle = 0;
       break;
   }
 }

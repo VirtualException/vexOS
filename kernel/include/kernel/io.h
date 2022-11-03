@@ -1,10 +1,12 @@
 #ifndef _IO_H
 #define _IO_H
 
-unsigned char inportb(unsigned short port);
-void outportb(unsigned short port, unsigned char data);
+#include <libc/types.h>
 
-unsigned int inportd(unsigned char port);
-void outportd(unsigned short port, unsigned short data);
+extern uint8_t  inportb(uint16_t port);
+extern void     outportb(uint16_t port, uint8_t data);
+
+extern uint32_t inportd(uint16_t port); // ?
+extern void     outportd(uint16_t port, uint16_t data);
 
 #endif
