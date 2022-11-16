@@ -2,7 +2,7 @@
 #define _PS2_H
 
 #include <libc/types.h>
-#include <kernel/io.h>
+#include <vexos/io.h>
 
 #define PS2_IO_CONTROL_PORT 0x60
 #define PS2_EX_CONTROL_PORT 0x64

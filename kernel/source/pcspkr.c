@@ -1,5 +1,5 @@
 #include <libc/types.h>
-#include <kernel/pcspkr.h>
+#include <vexos/pcspkr.h>
 
 void
 beep(int freq) {

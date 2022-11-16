@@ -2,7 +2,7 @@
 #define _KINFO_H
 
 #include <libc/types.h>
-#include <kernel/video.h>
+#include <vexos/video.h>
 
 typedef
 uint64_t (__attribute__((ms_abi)) *efi_reset_function) (

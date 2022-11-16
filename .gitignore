@@ -1,6 +1,3 @@
-.vscode/
-./copy.sh
-*/*/*.o
-*/*/*.a
-*/*/*.EFI
-*/out
+.vscode
+mount_and_copy.sh
+**/out

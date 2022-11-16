@@ -1,4 +1,4 @@
-#include <kernel/ps2.h>
+#include <vexos/ps2.h>
 
 BYTE ps2_mouse_cycle = 0;
 

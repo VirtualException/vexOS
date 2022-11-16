@@ -2,7 +2,7 @@
 #define _VIDEO_H
 
 #include <libc/stdlib.h>
-#include <kernel/vinfo.h>
+#include <vexos/vinfo.h>
 
 typedef struct {
 

@@ -7,9 +7,9 @@
 
 #include <libc/stdbool.h>
 
-#include <kernel/kinfo.h>
-#include <kernel/vinfo.h>
-#include <kernel/video.h>
+#include <vexos/kinfo.h>
+#include <vexos/vinfo.h>
+#include <vexos/video.h>
 
 #define RGBCOL(r, g, b)     ((color_t) {b, g, r})
 #define COL2PIXEL(color)    ((pixel_t) {(color).b, (color).g, (color).r, 0})

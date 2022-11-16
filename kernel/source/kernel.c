@@ -3,16 +3,16 @@
 #include <libc/stdbool.h>       //
 #include <libc/string.h>        //
 
-#include <kernel/vtt.h>         // Console
+#include <vexos/vtt.h>         // Console
 
-#include <kernel/shell.h>       // Shell
+#include <vexos/shell.h>       // Shell
 
-#include <kernel/draw.h>        // Drawing
+#include <vexos/draw.h>        // Drawing
 
-#include <kernel/ps2.h>         // Keyboard-related
-#include <kernel/keymap.h>      //
+#include <vexos/ps2.h>         // Keyboard-related
+#include <vexos/keymap.h>      //
 
-#include <kernel/kinfo.h>       // Kernel information
+#include <vexos/kinfo.h>       // Kernel information
 
 #define VERSION "0.5.1"
 #define ARCH    "x86_64"
@@ -20,7 +20,7 @@
 
 /* TODO
  *  - Implement a better stdout/stderr/stdin model
- *  - Magikly create an Intel video driver for non-2-fps rendering
+ *  - Magickly create an Intel video driver for non-2-fps rendering
  *  - Better shell (or just a working shell)
 */
 
@@ -29,7 +29,7 @@ start_kernel(kinfo_t* kinfo) {
 
     srand((uint64_t) kinfo->back_buffer);
 
-    vtt_setup(kinfo, 90, 30);
+    vtt_setup(kinfo, 80, 40);
 
     printk("Starting vexOS %s (%s, UEFI)\n", VERSION, ARCH);
     printk("[Build timestamp: %s]\n", __TIMESTAMP__);

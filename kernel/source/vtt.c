@@ -3,10 +3,10 @@
 #include <libc/vargs.h>
 #include <libc/string.h>
 
-#include <kernel/vtt.h>
-#include <kernel/draw.h>
-#include <kernel/ps2.h>
-#include <kernel/keymap.h>
+#include <vexos/vtt.h>
+#include <vexos/draw.h>
+#include <vexos/ps2.h>
+#include <vexos/keymap.h>
 
 #define UID(x, y)           ((x) + ((y) * RESX))
 #define UIDC(x, y)          ((x) + ((y) * COLS))
@@ -23,7 +23,7 @@ uint32_t RESX;
 uint32_t RESY;
 
 pixel_t* font;
-pixel_t* bbuff;
+pixel_t* vbuff;
 
 size_t vttcurrterm;
 
@@ -42,7 +42,7 @@ vtt_setup(kinfo_t* kinfo, uint32_t cols, uint32_t rows) {
         rows = M_ROWS;
     }
 
-    bbuff = (pixel_t*) kinfo->video_info.vmem;
+    vbuff = (pixel_t*) kinfo->video_info.vmem;
 
     font = kinfo->font_bitmap;
 
@@ -70,8 +70,6 @@ vtt_init_term(vtt* term, uint32_t cols, uint32_t rows) {
     term->col_bg    = RGBCOL(0x05, 0x13, 0x0a);
     term->defchar   = (tchar_t) {'\0', term->col_fg, term->col_bg};
 
-    memset(term->termbuff, M_COLS * M_ROWS * sizeof(tchar_t), 0x0);
-
     term->clear     = vtt_clear;
     term->newline   = vtt_newline;
     term->tab       = vtt_tab;
@@ -84,6 +82,8 @@ vtt_init_term(vtt* term, uint32_t cols, uint32_t rows) {
     term->resetcol  = vtt_resetcol;
     term->setfgcol  = vtt_setfgcol;
     term->setbgcol  = vtt_setbgcol;
+
+    memset(term->termbuff, M_COLS * M_ROWS * sizeof(tchar_t), 0x0);
 
     term->clear(term);
 
@@ -299,7 +299,7 @@ vtt_renderterm() {
     for (size_t y = 0; y < term->rows; y++) {
         for (size_t x = 0; x < term->cols; x++) {
 
-            drawchar(x * C_WDTH, y * C_HGHT, &term->termbuff[UIDw(x, y, term->cols)], bbuff);
+            drawchar(x * C_WDTH, y * C_HGHT, &term->termbuff[UIDw(x, y, term->cols)], vbuff);
 
             if(x == term->curx && y == term->cury && term->blink && (term->cursor = !term->cursor)) {
                 vtt_drawcur(term, x * C_WDTH, y * C_HGHT);
@@ -313,7 +313,7 @@ vtt_renderterm() {
 void
 vtt_drawcur(vtt* term, uint x, uint y) {
 
-    drawchar(x, y, &(tchar_t) {CURSOR, term->col_fg, term->col_bg}, bbuff);
+    drawchar(x, y, &(tchar_t) {CURSOR, term->col_fg, term->col_bg}, vbuff);
 
     return;
 }
@@ -367,9 +367,9 @@ putchark(char c) {
 /* draw implementation */
 
 void
-drawpixel(uint32_t x, uint32_t y, pixel_t* bbuff, color_t col) {
+drawpixel(uint32_t x, uint32_t y, pixel_t* vbuff, color_t col) {
 
-    pixel_t* pixel = &bbuff[UID(x, y)];
+    pixel_t* pixel = &vbuff[UID(x, y)];
 
     pixel->r = col.r;
     pixel->g = col.g;
@@ -378,13 +378,13 @@ drawpixel(uint32_t x, uint32_t y, pixel_t* bbuff, color_t col) {
 }
 
 void
-drawchar(uint32_t x, uint32_t y, tchar_t* tc, pixel_t* bbuff) {
+drawchar(uint32_t x, uint32_t y, tchar_t* tc, pixel_t* vbuff) {
 
     for (size_t dy = 0; dy < C_HGHT; dy++) {
         for (size_t dx = 0; dx < C_WDTH; dx++) {
 
             uint64_t index = GET_FONT_PIXEL_INDEX(tc->c, dx, dy);
-            pixel_t* pixel = &bbuff[UID(x + dx, y + dy)];
+            pixel_t* pixel = &vbuff[UID(x + dx, y + dy)];
 
             *pixel = COL2PIXEL((font[index].r == 0xFF) ? tc->fg : tc->bg);
 

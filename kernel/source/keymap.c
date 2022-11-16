@@ -1,5 +1,5 @@
-#include <kernel/ps2.h>
-#include <kernel/keymap.h>
+#include <vexos/ps2.h>
+#include <vexos/keymap.h>
 
 /* This array is intended to transform every PRESS keycode (everything before caps lock,
  * wich may be printable) into the correspondent ASCII character.
