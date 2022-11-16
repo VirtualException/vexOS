@@ -5,7 +5,7 @@
 #include <kernel/video.h>
 
 typedef
-uint64_t (__attribute__((ms_abi)) *EfiResetFunction) (
+uint64_t (__attribute__((ms_abi)) *efi_reset_function) (
     uint32_t reset_type,
     uint64_t reset_status,
     uint64_t data_dize,
@@ -23,10 +23,10 @@ typedef struct {
     // Heap-allocated pixel buffer
     pixel_t* back_buffer;
 
-    EfiResetFunction reset;
+    efi_reset_function reset;
 
     pixel_t* font_bitmap;
 
-} KInfo;
+} kinfo_t;
 
 #endif

@@ -7,12 +7,14 @@
 
 #define NULL ((void *)0)
 
-#define ISBITSET(byte, n) ((status & (128 >> n)) == 1)
-
-
-int puts(char* str);
 int vprintf(const char* fmt, va_list vargs);
 int printf(const char* fmt, ...);
+int puts(const char* str);
 int putchar(char c);
+
+int vprintk(const char* fmt, va_list vargs);
+int printk(const char* fmt, ...);
+int putsk(const char* str);
+int putchark(char c);
 
 #endif

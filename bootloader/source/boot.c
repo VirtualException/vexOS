@@ -9,7 +9,7 @@
 #include <vexos_uefi/efi_kinfo.h>
 
 
-KernelEntry kmain;
+KernelEntry StartKernel;
 KINFO*      KInfo;
 CHAR16*     KernelPath = L"\\"KERNELNAME;
 UINTN       MapKey;
@@ -57,7 +57,7 @@ efi_main(EFI_HANDLE ImageHandle, EFI_SYSTEM_TABLE* ST) {
 
     // Setup, video configuration and info dump
 
-    Print(WARNINGTXT L"\n[ ... ]\n" NORMALTXT);
+    Print(WARNINGTXT L"\n[ STARTING... ]\n" NORMALTXT);
 
     SetupEnv(&KInfo, PREF_RES_X, PREF_RES_Y);
     GetMemMapKey(&MapKey);
@@ -65,9 +65,9 @@ efi_main(EFI_HANDLE ImageHandle, EFI_SYSTEM_TABLE* ST) {
 
     // Kernel loading and end of efi application
 
-    kmain = SetupKernel(NULL, KernelPath, ImageHandle);
+    StartKernel = SetupKernel(NULL, KernelPath, ImageHandle);
 
-    if (kmain == NULL) {
+    if (StartKernel == NULL) {
 
         PrintPause(WARNINGTXT L"Press any key to restart" NORMALTXT);
         ST->RuntimeServices->ResetSystem(EfiResetWarm, EFI_ABORTED, 0, NULL);
@@ -80,7 +80,7 @@ efi_main(EFI_HANDLE ImageHandle, EFI_SYSTEM_TABLE* ST) {
         ST->BootServices->ExitBootServices(ImageHandle, MapKey);
     #endif
 
-    kmain(KInfo);
+    StartKernel(KInfo);
 
     return EFI_SUCCESS;
 }

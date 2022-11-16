@@ -146,7 +146,6 @@ SetupEnv(KINFO** KInfo, UINT32 PrefResX, UINT32 PrefResY) {
     UINTN InfoSize, MaxMode;
 
     ST->BootServices->LocateProtocol(&gopGuid, NULL, (void**)&gop);
-    ST->BootServices->LocateProtocol(&rngGuid, NULL, (void**)&rng);
 
     gop->QueryMode(gop, 0, &InfoSize, &gopInfo);
 

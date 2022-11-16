@@ -3,11 +3,11 @@
 
 #include <kernel/video.h>
 
-void drawchar(uint32_t x, uint32_t y, tchar_t* c, pixel_t* bbuff);
+void drawpixel(uint32_t x, uint32_t y, pixel_t* bbuff, color_t col);
+void drawchar(uint32_t x, uint32_t y, tchar_t* tc, pixel_t* bbuff);
 
 void drawline();
 void drawrect();
 void fillrect();
-
 
 #endif

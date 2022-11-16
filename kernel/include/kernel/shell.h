@@ -2,8 +2,10 @@
 #define _SHELL_H
 
 #include <kernel/kinfo.h>
+#include <kernel/vtt.h>
 
-int vex_shell(KInfo* kinfo);
-int event_key(char* c, uint8_t* eky);
+int vex_shell(kinfo_t* kinfo, vtt* term);
+int eventskb(char* c, uint8_t* eky);
+int execshellcmd(char* cmd);
 
 #endif

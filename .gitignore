@@ -1,8 +1,6 @@
 .vscode/
-copy.sh
+./copy.sh
+*/*/*.o
+*/*/*.a
+*/*/*.EFI
 */out
-*.o
-*.a
-*.EFI
-
-vexos64kernel

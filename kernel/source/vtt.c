@@ -5,191 +5,304 @@
 
 #include <kernel/vtt.h>
 #include <kernel/draw.h>
+#include <kernel/ps2.h>
+#include <kernel/keymap.h>
 
-#define UID(x, y)       ((x) + ((y) * RESX))
-#define UIDC(x, y)      ((x) + ((y) * COLS))
-#define UID_w(x, y, w)  ((x) + ((y) * (w)))
-
-// Max resolution
-#define M_RESX 1920
-#define M_RESY 1080
-
-// Character width
-#define C_WDTH 10
-#define C_HGHT 16
+#define UID(x, y)           ((x) + ((y) * RESX))
+#define UIDC(x, y)          ((x) + ((y) * COLS))
+#define UIDw(x, y, w)       ((x) + ((y) * (w)))
 
 // Thanks claudipunchi for macro magic!
-#define GET_FONT_PIXEL_INDEX(c, x, y)   (UID_w(\
+#define GET_FONT_PIXEL_INDEX(c, x, y)   (UIDw(\
                                         ((((c)%FONT_BMP_WDTH)) * FONT_WDTH),\
                                         ((((c)-(((c)%FONT_BMP_WDTH)))/FONT_BMP_WDTH) * FONT_HGHT),\
                                         FONT_BMP_WDTH * FONT_WDTH)\
-                                        + UID_w(x, y, FONT_BMP_WDTH * FONT_WDTH))
+                                        + UIDw(x, y, FONT_BMP_WDTH * FONT_WDTH))
 
-// Max terminal dimensions
-#define M_COLS (unsigned)(M_RESX / C_WDTH)
-#define M_ROWS (unsigned)(M_RESY / C_HGHT)
-
-// Current resolution
 uint32_t RESX;
 uint32_t RESY;
 
-// Current terminal dimensions
-uint32_t COLS;
-uint32_t ROWS;
-
-// Current cursor position
-uint32_t CURX;
-uint32_t CURY;
-
-// Current color
-color_t col_fg;
-color_t col_bg;
-
-bool    cursor;
-bool    blink;
-
 pixel_t* font;
+pixel_t* bbuff;
 
-tchar_t termbuff[M_COLS * M_ROWS];
+size_t vttcurrterm;
 
-tchar_t voidchar;
-
-
-void
-init_terminal(uint32_t x_res, uint32_t y_res, pixel_t* font_bitmap) {
-
-    RESX = x_res;
-    RESY = y_res;
-
-    COLS = RESX / C_WDTH;
-    ROWS = RESY / C_HGHT;
-
-    CURX = 0;
-    CURY = 0;
-
-    font = font_bitmap;
-
-    memset(termbuff, M_COLS * M_ROWS * sizeof(tchar_t), 0x0);
-
-    memset(&voidchar, sizeof(tchar_t), 0x0);
-
-    resetcolor();
-
-    cursor  = true;
-    blink   = true;
-
-    return;
-}
+vtt vtts[VTTS_N];
 
 void
-newline() {
+vtt_setup(kinfo_t* kinfo, uint32_t cols, uint32_t rows) {
 
-    if (CURY >= ROWS-1) {
-        scroll(1);
+    RESX = kinfo->video_info.x_res;
+    RESY = kinfo->video_info.y_res;
+
+    if (cols == 0 || cols > RESX / C_WDTH) {
+        cols = M_COLS;
     }
-    else CURY++;
+    if (rows == 0 || rows > RESY / C_HGHT) {
+        rows = M_ROWS;
+    }
 
-    CURX = 0;
+    bbuff = (pixel_t*) kinfo->video_info.vmem;
+
+    font = kinfo->font_bitmap;
+
+    for (size_t i = 0; i < VTTS_N; i++) {
+        vtt_init_term(&vtts[i], cols, rows);
+    }
+
+    memset((void*) kinfo->video_info.vmem, kinfo->video_info.vmem_size, 0x00);
+
+    vtt_switch_to(VTTS_KLOG);
 
     return;
 }
 
 void
-tab() {
-    puts("    ");
+vtt_init_term(vtt* term, uint32_t cols, uint32_t rows) {
+
+    term->cols      = cols;
+    term->rows      = rows;
+    term->curx      = 0;
+    term->cury      = 0;
+    term->cursor    = false;
+    term->blink     = true;
+    term->col_fg    = RGBCOL(0x43, 0xf0, 0x83);
+    term->col_bg    = RGBCOL(0x05, 0x13, 0x0a);
+    term->defchar   = (tchar_t) {'\0', term->col_fg, term->col_bg};
+
+    memset(term->termbuff, M_COLS * M_ROWS * sizeof(tchar_t), 0x0);
+
+    term->clear     = vtt_clear;
+    term->newline   = vtt_newline;
+    term->tab       = vtt_tab;
+    term->delete    = vtt_delete;
+    term->scroll    = vtt_scroll;
+    term->forward   = vtt_forward;
+    term->backward  = vtt_backward;
+    term->setcurpos = vtt_setcurpos;
+    term->setcur    = vtt_setcur;
+    term->resetcol  = vtt_resetcol;
+    term->setfgcol  = vtt_setfgcol;
+    term->setbgcol  = vtt_setbgcol;
+
+    term->clear(term);
+
+    return;
 }
 
 void
-delete() {
+vtt_clear(vtt* term) {
 
-    if (CURX < 1) {
-        if (CURY > 1) {
-            CURY--;
-            CURX = COLS-1;
+    for (size_t y = 0; y < term->rows; y++) {
+        for (size_t x = 0; x < term->cols; x++) {
+            term->termbuff[UIDw(x, y, term->cols)] = term->defchar;
         }
     }
-    else CURX--;
-
-    termbuff[UIDC(CURX, CURY)] = voidchar;
-
 
     return;
 }
 
 void
-scroll(uint32_t lines) {
+vtt_switch_to(size_t vtt_num) {
+
+    vttcurrterm = vtt_num;
+
+    return;
+
+}
+
+int
+vtt_handle() {
+
+    char c          = 0;
+    uint8_t kcode   = 0;
+    int ret         = 0;
+
+    get_kbd_input(&c, &kcode);
+
+    if (!kcode) return ret;
+    if (c) putchar(c);
+
+    vtt* term = &vtts[vttcurrterm];
+
+    switch (kcode) {
+    case PS2_F1_Pressed:
+        vtt_switch_to(0);
+        break;
+
+    case PS2_F2_Pressed:
+        vtt_switch_to(1);
+        break;
+
+    case PS2_F3_Pressed:
+        vtt_switch_to(2);
+        break;
+
+    case PS2_F4_Pressed:
+        vtt_switch_to(3);
+        break;
+
+    case PS2_Tab_Pressed:
+        term->tab(term);
+        break;
+
+    case PS2_Enter_Pressed:
+        term->newline(term);
+        break;
+
+    case PS2_Backspace_Pressed:
+        term->delete(term);
+        break;
+
+    case PS2_Esc_Released:
+        ret = 1;
+
+    default:
+        break;
+    }
+
+    return ret;
+}
+
+void
+vtt_newline(vtt* term) {
+
+    if (term->cury >= term->rows-1) {
+        term->scroll(term, 1);
+    }
+    else term->cury++;
+
+    term->curx = 0;
+
+    return;
+}
+
+void
+vtt_tab(vtt* term) {
+
+    for (size_t i = 0; i < TAB_SIZE; i++) {
+        term->forward(term);
+    }
+
+    return;
+}
+
+void
+vtt_delete(vtt* term) {
+
+    term->backward(term);
+
+    term->termbuff[UIDw(term->curx, term->cury, term->cols)] = term->defchar;
+
+    return;
+}
+
+void
+vtt_scroll(vtt* term, uint32_t lines) {
 
     for (size_t l = 0; l < lines; l++) {
-        for (size_t y = 1; y < ROWS; y++) {
-            for (size_t x = 0; x < COLS; x++) {
-                termbuff[UIDC(x, y-1)] = termbuff[UIDC(x, y)];
+        for (size_t y = 0; y < term->rows-1; y++) {
+            for (size_t x = 0; x < term->cols; x++) {
+                term->termbuff[UIDw(x, y, term->cols)] = term->termbuff[UIDw(x, y+1, term->cols)];
             }
         }
     }
 
-    for (size_t x = 0; x < COLS; x++) {
-        termbuff[UIDC(x, ROWS-1)] = voidchar;
+    for (size_t x = 0; x < term->cols; x++) {
+        term->termbuff[UIDw(x, term->rows-1, term->cols)] = (tchar_t) {'\0', term->col_fg, term->col_bg};
     }
-
-    CURY--;
 
     return;
 }
 
-void setcurpos(uint32_t  x, uint32_t y) {
+void
+vtt_forward(vtt* term) {
 
-    if (x > COLS || y > ROWS) {
+    if (term->curx >= term->cols-1) {
+        term->newline(term);
+        term->curx = 0;
+    }
+    else term->curx++;
+
+    if (term->cury >= term->rows) {
+        term->scroll(term, 1);
+        term->cury--;
+    }
+
+    return;
+}
+
+void
+vtt_backward(vtt* term) {
+
+    if (term->curx < 1) {
+        if (term->cury > 1) {
+            term->cury--;
+            term->curx = term->cols-1;
+        }
+    }
+    else term->curx--;
+
+}
+
+void
+vtt_setcurpos(vtt* term, uint32_t  x, uint32_t y) {
+
+    if (x > term->cols || y > term->rows) {
         return;
     }
 
-    CURX = x;
-    CURY = y;
-
-    return;
-}
-
-void setcur(bool state) {
-
-    blink = (cursor = state);
+    term->curx = x;
+    term->cury = y;
 
     return;
 }
 
 void
-resetcolor() {
+vtt_setcur(vtt* term, bool state) {
 
-    col_fg = (color_t) { 180, 180, 180 };
-    col_bg = (color_t) { 0, 0, 0 };
-
-    return;
-}
-
-void
-setfgcolor(uint8_t r, uint8_t g, uint8_t b) {
-
-    col_fg = (color_t) { b, g, r};
+    term->blink = (term->cursor = state);
 
     return;
 }
 
 void
-setbgcolor(uint8_t r, uint8_t g, uint8_t b) {
+vtt_setfgcol(vtt* term, uint8_t r, uint8_t g, uint8_t b) {
 
-    col_bg = (color_t) { b, g, r};
+    term->col_fg = RGBCOL(r, g, b);
 
     return;
 }
 
 void
-renderterm(pixel_t* bbuff) {
+vtt_setbgcol(vtt* term, uint8_t r, uint8_t g, uint8_t b) {
 
-    for (size_t y = 0; y < ROWS; y++) {
-        for (size_t x = 0; x < COLS; x++) {
+    term->col_bg = RGBCOL(r, g, b);
 
-            drawchar(x * C_WDTH, y * C_HGHT, &termbuff[UIDC(x, y)], bbuff);
+    return;
+}
 
-            if(x == CURX && y == CURY && blink && (cursor=!cursor)) {
-                rendercur(x * C_WDTH, y * C_HGHT, bbuff);
+void
+vtt_resetcol(vtt* term) {
+
+    term->col_fg = term->defchar.fg;
+    term->col_bg = term->defchar.bg;
+
+    return;
+}
+
+void
+vtt_renderterm() {
+
+    vtt* term = &vtts[vttcurrterm];
+
+    for (size_t y = 0; y < term->rows; y++) {
+        for (size_t x = 0; x < term->cols; x++) {
+
+            drawchar(x * C_WDTH, y * C_HGHT, &term->termbuff[UIDw(x, y, term->cols)], bbuff);
+
+            if(x == term->curx && y == term->cury && term->blink && (term->cursor = !term->cursor)) {
+                vtt_drawcur(term, x * C_WDTH, y * C_HGHT);
             }
         }
     }
@@ -198,157 +311,85 @@ renderterm(pixel_t* bbuff) {
 }
 
 void
-drawchar(uint32_t x, uint32_t y, tchar_t* c, pixel_t* bbuff) {
+vtt_drawcur(vtt* term, uint x, uint y) {
 
-    for (size_t dy = 0; dy < C_HGHT; dy++) {
-        for (size_t dx = 0; dx < C_WDTH; dx++) {
-
-            pixel_t* pixel = &bbuff[UID(x + dx, y + dy)];
-            uint64_t index = GET_FONT_PIXEL_INDEX(c->c, dx, dy);
-
-            if (font[index].r == 0xFF) {
-                *pixel = *(pixel_t*) &c->fg;
-            }
-            else *pixel = *(pixel_t*) &c->bg;
-
-        }
-    }
+    drawchar(x, y, &(tchar_t) {CURSOR, term->col_fg, term->col_bg}, bbuff);
 
     return;
 }
 
 void
-rendercur(uint x, uint y, pixel_t* bbuff) {
-
-    for (size_t dy = 0; dy < C_HGHT; dy++) {
-        for (size_t dx = 0; dx < C_WDTH; dx++) {
-
-            pixel_t* pixel = &bbuff[UID(x + dx, y + dy)];
-            uint64_t index = GET_FONT_PIXEL_INDEX(CURSOR, dx, dy);
-
-            if (font[index].r == 0xFF) {
-                *pixel = *(pixel_t*) &col_fg;
-            }
-
-        }
-    }
-
-    return;
-}
-
-int
-puts(char* str) {
-
-    if (str == NULL) return -1;
-
-    for (size_t i = 0; str[i] != '\0'; i++) {
-        putchar(str[i]);
-    }
-
-    return 0;
-}
-
-int
-vprintf(const char* fmt, va_list vargs) {
-
-    char buff[1048] = { 0 };
-
-    for (size_t i = 0; fmt[i] != '\0'; i++) {
-
-        switch (fmt[i]) {
-
-        case '%':
-
-            switch (fmt[i+1]) {
-
-            case '%':
-
-                putchar('%');
-                break;
-
-            case 'c':
-            case 'C':
-
-                putchar(va_arg(vargs));
-
-                break;
-
-            case 'd':
-            case 'D':
-
-                int d = va_arg(vargs);
-
-                itoa(d, buff);
-
-                puts(buff);
-
-                break;
-
-            case 's':
-            case 'S':
-
-                puts((char*) va_arg(vargs));
-
-            default:
-
-                break;
-
-            }
-
-            i++;
-            break;
-
-        default:
-            putchar(fmt[i]);
-            break;
-        }
-    }
-
-    return 0;
-
-}
-
-int
-printf(const char* fmt, ...) {
-
-    va_list vargs;
-    va_start(vargs);
-
-    vprintf(fmt, vargs);
-
-    va_end(vargs);
-
-    return EXIT_SUCCESS;
-}
-
-int
-putchar(char c) {
-
-    if (CURX >= COLS-1) {
-        newline();
-    }
-    if (CURY >= ROWS-1) {
-        scroll(1);
-    }
+vtt_putchar(vtt* term, char c) {
 
     switch (c) {
 
         case '\n':
-
-            newline();
+            term->newline(term);
             break;
 
         case '\t':
+            term->tab(term);
+            break;
 
-            tab();
+        case '\0':
             break;
 
         default:
+            term->termbuff[UIDw(term->curx, term->cury, term->cols)] = (tchar_t) { c, term->col_fg, term->col_bg };
+            term->forward(term);
 
-            termbuff[UIDC(CURX, CURY)] = (tchar_t) { c, col_fg, col_bg };
-            CURX++;
             break;
     }
 
-    return EXIT_SUCCESS;
+    return;
+}
+
+/* stdio implementation (very cranky and creepy for now) */
+
+int
+putchar(char c) {
+
+    vtt_putchar(&vtts[vttcurrterm], c);
+
+    return c;
+
+}
+
+int
+putchark(char c) {
+
+    vtt_putchar(&vtts[VTTS_KLOG], c);
+
+    return c;
+
+}
+
+/* draw implementation */
+
+void
+drawpixel(uint32_t x, uint32_t y, pixel_t* bbuff, color_t col) {
+
+    pixel_t* pixel = &bbuff[UID(x, y)];
+
+    pixel->r = col.r;
+    pixel->g = col.g;
+    pixel->b = col.b;
+
+}
+
+void
+drawchar(uint32_t x, uint32_t y, tchar_t* tc, pixel_t* bbuff) {
+
+    for (size_t dy = 0; dy < C_HGHT; dy++) {
+        for (size_t dx = 0; dx < C_WDTH; dx++) {
+
+            uint64_t index = GET_FONT_PIXEL_INDEX(tc->c, dx, dy);
+            pixel_t* pixel = &bbuff[UID(x + dx, y + dy)];
+
+            *pixel = COL2PIXEL((font[index].r == 0xFF) ? tc->fg : tc->bg);
+
+        }
+    }
+
+    return;
 }

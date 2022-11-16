@@ -14,29 +14,35 @@
 
 #include <kernel/kinfo.h>       // Kernel information
 
-#define STOP    while(1)
+#define VERSION "0.5.1"
+#define ARCH    "x86_64"
 
-#define VERSION 1.0
-#define ARCH    "x86-64"
 
+/* TODO
+ *  - Implement a better stdout/stderr/stdin model
+ *  - Magikly create an Intel video driver for non-2-fps rendering
+ *  - Better shell (or just a working shell)
+*/
 
 int
-kmain(KInfo* kinfo) {
+start_kernel(kinfo_t* kinfo) {
 
     srand((uint64_t) kinfo->back_buffer);
 
-    init_terminal(kinfo->video_info.x_res, kinfo->video_info.y_res, kinfo->font_bitmap);
+    vtt_setup(kinfo, 90, 30);
 
-    printf("Welcome to vexOS! %c (%s, UEFI) %c\n[Build timestamp: %s]\n\n", FONT_TULI_LOGO, ARCH, FONT_SMILE_WHITE, __TIMESTAMP__);
+    printk("Starting vexOS %s (%s, UEFI)\n", VERSION, ARCH);
+    printk("[Build timestamp: %s]\n", __TIMESTAMP__);
 
-    setbgcolor(0x50, 0xC2, 0xF7);
-    setfgcolor(0, 0, 0);
+    printk("Random seed: %d\n", kinfo->back_buffer);
 
-    printf("The quick brown fox jumps over the lazy dog\n\n");
+    printk("Welcome vexOS! %c\n\n", FONT_TULI_LOGO);
 
-    resetcolor();
+    while (!vtt_handle()) {
 
-    vex_shell(kinfo);
+        vtt_renderterm();
+
+    }
 
     kinfo->reset(0, 0, 0, NULL);
 

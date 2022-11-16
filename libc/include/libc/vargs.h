@@ -1,11 +1,11 @@
 #ifndef _VARGS_H
 #define _VARGS_H
 
-/*      !!!!! WARNING !!!!!
+/*          !!!!! WARNING !!!!!
 *
 *   This is a CUSTOM implementation for
 *   variadic functions, supporting only
-*   SysV ABI calling convention on x86_64 
+*   SysV ABI calling convention on x86_64
 *   machines.
 *
 */
