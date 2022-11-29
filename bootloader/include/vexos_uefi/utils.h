@@ -8,7 +8,7 @@
 #include <efi/efi.h>
 #include <efi/efilib.h>
 
-#include <vexos_uefi/efi_kinfo.h>
+#include <vexos_uefi/efi_info.h>
 
 #include <elf.h>
 
@@ -32,12 +32,12 @@
 
 typedef
 int (SYSVABI *KernelEntry) (
-    KINFO*          KInfo
+    KERNEL_INFO*          KInfo
 );
 
 
 KernelEntry SetupKernel(EFI_FILE* Directory, CHAR16* KernelPath, EFI_HANDLE ImageHandle);
 EFI_STATUS  GetMemMapKey(UINTN* MapKey);
-EFI_STATUS  SetupEnv(KINFO** KInfo, UINT32 PrefResX, UINT32 PrefResY);
+EFI_STATUS  SetupEnv(KERNEL_INFO** KInfo, UINT32 PrefResX, UINT32 PrefResY);
 
 #endif

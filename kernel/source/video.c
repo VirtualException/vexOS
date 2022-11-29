@@ -1,7 +1,7 @@
 #include <vexos/video.h>
 
 int
-swapbuff(videoinfo_t* vinfo, pixel_t* buff) {
+swapbuff(video_info_t* vinfo, pixel_t* buff) {
 
     size_t          len = vinfo->vmem_size;
     uint8_t*        d   = (uint8_t*) vinfo->vmem;

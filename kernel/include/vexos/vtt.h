@@ -3,16 +3,12 @@
 
 #define PREVENT_WRITES_TO_VMEM 0
 
-#include "../../font.h"
-
 #include <libc/stdbool.h>
 
 #include <vexos/kinfo.h>
-#include <vexos/vinfo.h>
-#include <vexos/video.h>
-
-#define RGBCOL(r, g, b)     ((color_t) {b, g, r})
-#define COL2PIXEL(color)    ((pixel_t) {(color).b, (color).g, (color).r, 0})
+#include <vexos/font.h>
+#undef  _FONTDATA
+#include "../../vga8x16.h"
 
 #define M_RESX 1920
 #define M_RESY 1080
@@ -25,7 +21,7 @@
 
 #define TAB_SIZE 4
 
-#define VTTS_N      1
+#define VTTS_N      4
 #define VTTS_KLOG   0
 
 typedef struct _vtt vtt;
@@ -59,10 +55,10 @@ typedef struct _vtt {
     uint32_t curx;
     uint32_t cury;
 
+    tchar_t defchar;
+
     color_t col_fg;
     color_t col_bg;
-
-    tchar_t defchar;
 
     bool cursor;
     bool blink;
@@ -80,11 +76,15 @@ typedef struct _vtt {
     VttSetBgCol     setbgcol;
     VttResetCol     resetcol;
 
+    /*vxshell shell;*/
+
     tchar_t termbuff[M_COLS * M_ROWS];
 
 } vtt;
 
-void vtt_setup(kinfo_t* kinfo, uint32_t cols, uint32_t rows);
+extern size_t vttcurrterm;
+
+void vtt_setup(kernel_info_t* kernel_info, uint32_t cols, uint32_t rows);
 void vtt_init_term(vtt* term, uint32_t cols, uint32_t rows);
 void vtt_switch_to(size_t vtt_num);
 
@@ -106,6 +106,7 @@ void vtt_setbgcol(vtt* term, uint8_t r, uint8_t g, uint8_t b);
 
 void vtt_renderterm();
 void vtt_drawcur(vtt* term, uint32_t x, uint32_t y);
+void vtt_drawchar(uint32_t x, uint32_t y, tchar_t* tc);
 
 void vtt_putchar(vtt* term, char c);
 

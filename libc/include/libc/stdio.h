@@ -1,7 +1,7 @@
 #ifndef _STDIO_H
 #define _STDIO_H
 
-#include <libc/types.h>
+#include <libc/stdint.h>
 #include <libc/stddef.h>
 #include <libc/vargs.h>
 

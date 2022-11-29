@@ -1,6 +1,18 @@
 #ifndef _VINFO_H
 #define _VINFO_H
 
+#include <libc/stdint.h>
+
+typedef struct {
+
+    uint8_t b;
+    uint8_t g;
+    uint8_t r;
+
+    uint8_t _reserved;
+
+} pixel_t;
+
 typedef struct {
 
     uint32_t x_res;
@@ -9,6 +21,6 @@ typedef struct {
     uint64_t vmem;
     uint64_t vmem_size;
 
-} videoinfo_t;
+} video_info_t;
 
 #endif

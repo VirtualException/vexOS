@@ -4,26 +4,24 @@
 #define PREF_RES_X 1920
 #define PREF_RES_Y 1080
 
-
 #include <vexos_uefi/utils.h>
-#include <vexos_uefi/efi_kinfo.h>
 
-
-KernelEntry StartKernel;
-KINFO*      KInfo;
-CHAR16*     KernelPath = L"\\"KERNELNAME;
-UINTN       MapKey;
+KernelEntry     StartKernel;
+KERNEL_INFO*    KInfo;
+CHAR16*         KernelPath = L"\\"KERNELNAME;
+UINTN           MapKey;
 
 
 EFI_STATUS PrintInfo() {
 
     Print(  WARNINGTXT
-            " ██████╗ ███████╗██╗   ██╗██╗  ██╗         ██████╗ ██╗  ██╗    UEFI\n"
-            "██╔═══██╗██╔════╝██║   ██║╚██╗██╔╝        ██╔════╝ ██║  ██║\n"
-            "██║   ██║███████╗██║   ██║ ╚███╔╝         ███████╗ ███████║\n"
-            "██║   ██║╚════██║╚██╗ ██╔╝ ██╔██╗         ██╔═══██╗╚════██║\n"
-            "╚██████╔╝███████║ ╚████╔╝ ██╔╝ ██╗███████╗╚██████╔╝     ██║\n"
-            " ╚═════╝ ╚══════╝  ╚═══╝  ╚═╝  ╚═╝╚══════╝ ╚═════╝      ╚═╝\n\n\n");
+            "                 ____   _____          __ _  _\n"
+            "                / __ \\ / ____|        / /| || |\n"
+            "__   _______  _| |  | | (___   __  __/ /_| || |_\n"
+            "\\ \\ / / _ \\ \\/ / |  | |\\___ \\  \\ \\/ / '_ \\__   _|\n"
+            " \\ V /  __/>  <| |__| |____) |  >  <| (_) | | |\n"
+            "  \\_/ \\___/_/\\_\\\\____/|_____/  /_/\\_\\\\___/  |_|\n\n\n"
+        );
 
     Print(  WARNINGTXT
             "PC Info:\n"
@@ -55,7 +53,7 @@ efi_main(EFI_HANDLE ImageHandle, EFI_SYSTEM_TABLE* ST) {
 
     InitializeLib(ImageHandle, ST);
 
-    // Setup, video configuration and info dump
+    /* Setup, video configuration and info dump */
 
     Print(WARNINGTXT L"\n[ STARTING... ]\n" NORMALTXT);
 
@@ -63,7 +61,7 @@ efi_main(EFI_HANDLE ImageHandle, EFI_SYSTEM_TABLE* ST) {
     GetMemMapKey(&MapKey);
     PrintInfo();
 
-    // Kernel loading and end of efi application
+    /* Kernel loading and end of efi application */
 
     StartKernel = SetupKernel(NULL, KernelPath, ImageHandle);
 

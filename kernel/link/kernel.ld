@@ -5,19 +5,20 @@ SECTIONS
 {
     .text :
     {
-        *(kmain);
-        *(.text*);
+        *(start_kernel);
+        *(.text);
+        *(.rodata);
+    }
+    .rodata :
+    {
+        *(.rodata);
     }
     .data :
     {
         *(.data);
     }
-    .rodata :
-    {
-        *(.rodata*);
-    }
     .bss :
     {
-        *(.bss*);
+        *(.bss);
     }
 }

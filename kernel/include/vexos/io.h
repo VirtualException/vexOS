@@ -1,7 +1,7 @@
 #ifndef _IO_H
 #define _IO_H
 
-#include <libc/types.h>
+#include <libc/stdint.h>
 
 extern uint8_t  inportb(uint16_t port);
 extern void     outportb(uint16_t port, uint8_t data);

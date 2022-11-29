@@ -1,13 +1,13 @@
 #include <vexos/ps2.h>
-#include <vexos/keymap.h>
+#include <vexos/keyboard.h>
 
 /* This array is intended to transform every PRESS keycode (everything before caps lock,
  * wich may be printable) into the correspondent ASCII character.
  * If 0 is the value returned, any ascii character is avaiable for that key or combination
  */
 
-char PS2_KEYMAP_US[0x3A][2] = {
-
+char PS2_KEYMAP_US[0x3A][2] =
+{
     {'\0'},
     {'\0'},
 
@@ -29,7 +29,7 @@ char PS2_KEYMAP_US[0x3A][2] = {
     {'\0'},
 
     {'q', 'Q'},
-    {'w', 'Q'},
+    {'w', 'W'},
     {'e', 'E'},
     {'r', 'R'},
     {'t', 'T'},
@@ -81,14 +81,22 @@ char PS2_KEYMAP_US[0x3A][2] = {
     {'\0'},
 
     {' ', ' '}
-
 };
 
-uint8_t scancode    = 0;
-uint8_t oldscancode = 0;
-bool shift          = 0;
+uint8_t scancode;
+uint8_t oldscancode;
+bool shift;
 
-char ps2ascii(int scancode, bool shift) {
+void kbd_setup() {
+
+    scancode    = 0;
+    oldscancode = 0;
+    shift       = 0;
+
+    return;
+}
+
+char kbd_ps2ascii(int scancode, bool shift) {
 
     char c = 0;
 
@@ -103,7 +111,7 @@ char ps2ascii(int scancode, bool shift) {
 }
 
 int
-get_kbd_input(char* c, uint8_t* kcode) {
+kbd_get_input(char* c, uint8_t* kcode) {
 
     scancode = inportb(PS2_IO_CONTROL_PORT);
 
@@ -122,7 +130,7 @@ get_kbd_input(char* c, uint8_t* kcode) {
     if (scancode == PS2_LeftShift_Pressed || scancode == PS2_RightShift_Pressed)        shift = true;
     else if (scancode == PS2_LeftShift_Released || scancode == PS2_RightShift_Released) shift = false;
     else {
-        *c = ps2ascii(scancode, shift);
+        *c = kbd_ps2ascii(scancode, shift);
         return 0;
     }
 

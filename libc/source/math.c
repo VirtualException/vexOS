@@ -1,4 +1,4 @@
-#include <libc/types.h>
+#include <libc/stdint.h>
 #include <libc/math.h>
 
 float cos(float x) {

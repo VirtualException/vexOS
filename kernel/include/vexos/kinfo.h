@@ -1,8 +1,9 @@
 #ifndef _KINFO_H
 #define _KINFO_H
 
-#include <libc/types.h>
+#include <libc/stdint.h>
 #include <vexos/video.h>
+#include <vexos/font.h>
 
 typedef
 uint64_t (__attribute__((ms_abi)) *efi_reset_function) (
@@ -18,15 +19,15 @@ typedef struct {
     //short int* kernel_path;
 
     // Set of video-related data
-    videoinfo_t video_info;
+    video_info_t video_info;
 
     // Heap-allocated pixel buffer
     pixel_t* back_buffer;
 
     efi_reset_function reset;
 
-    pixel_t* font_bitmap;
+    font_t font;
 
-} kinfo_t;
+} kernel_info_t;
 
 #endif

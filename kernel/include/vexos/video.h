@@ -4,15 +4,8 @@
 #include <libc/stdlib.h>
 #include <vexos/vinfo.h>
 
-typedef struct {
-
-    uint8_t b;
-    uint8_t g;
-    uint8_t r;
-
-    uint8_t _reserved;
-
-} pixel_t;
+#define RGBCOL(r, g, b)     ((color_t) {b, g, r})
+#define COL2PIXEL(color)    ((pixel_t) {(color).b, (color).g, (color).r, 0})
 
 typedef struct  {
 
@@ -33,6 +26,6 @@ typedef struct {
 } colorwa_t;
 
 
-int swapbuff(videoinfo_t* vinfo, pixel_t* buff);
+int swapbuff(video_info_t* vinfo, pixel_t* buff);
 
 #endif

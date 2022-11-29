@@ -1,8 +1,7 @@
 #include <vexos_uefi/utils.h>
 
 #define _FONTDATA
-#include "../../font.h"
-
+#include "../../vga8x16.h"
 
 EFI_GRAPHICS_OUTPUT_PROTOCOL*   gop;
 EFI_RNG_PROTOCOL*               rng;
@@ -33,7 +32,7 @@ SetupKernel(EFI_FILE* Directory, CHAR16* KernelPath, EFI_HANDLE ImageHandle) {
         FileSystem->OpenVolume(FileSystem, &Directory);
     }
 
-    Print(L"[ OPENING OSVX-KERNEL FROM: %s ]\n", KernelPath);
+    Print(L"[ OPENING VEXOS-KERNEL FROM: %s ]\n", KernelPath);
 
     if (Directory->Open(Directory, &Kernel, KernelPath, EFI_FILE_MODE_READ, EFI_FILE_READ_ONLY)) {
         Print(L"[ ERROR WHILE OPENING DIRECTORY ]\n");
@@ -41,10 +40,10 @@ SetupKernel(EFI_FILE* Directory, CHAR16* KernelPath, EFI_HANDLE ImageHandle) {
     }
 
     if (Kernel==NULL) {
-        Print(L"[ ERROR OPENING OSVX-KERNEL ]\n");
+        Print(L"[ ERROR OPENING VEXOS-KERNEL ]\n");
         return NULL;
     }
-    else Print(L"[ LOADING OSVX-KERNEL ]\n");
+    else Print(L"[ LOADING VEXOS-KERNEL ]\n");
 
     // Create entry point of the kernel
 
@@ -63,11 +62,11 @@ SetupKernel(EFI_FILE* Directory, CHAR16* KernelPath, EFI_HANDLE ImageHandle) {
                 KernelHeader.e_type               != ET_EXEC          ||
                 KernelHeader.e_machine            != EM_X86_64        ||
                 KernelHeader.e_version            != EV_CURRENT ) {
-        Print(L"[ OSVX-KERNEL FORMAT IS UNSUPPORTED OR CORRUPTED ]\n");
+        Print(L"[ VEXOS-KERNEL FORMAT IS UNSUPPORTED OR CORRUPTED ]\n");
         return NULL;
     }
     else {
-        Print(L"[ OSVX-KERNEL HEADER SUCCESSFULLY VERIFIED ] : (Executable file, elf-x64_64, Little Endian)\n");
+        Print(L"[ VEXOS-KERNEL HEADER SUCCESSFULLY VERIFIED ] : (Executable file, elf-x64_64, Little Endian)\n");
     }
 
     // Allocate kernel entry memory
@@ -140,7 +139,7 @@ GetMemMapKey(UINTN* MapKey) {
 }
 
 EFI_STATUS
-SetupEnv(KINFO** KInfo, UINT32 PrefResX, UINT32 PrefResY) {
+SetupEnv(KERNEL_INFO** KInfo, UINT32 PrefResX, UINT32 PrefResY) {
 
     EFI_GRAPHICS_OUTPUT_MODE_INFORMATION* gopInfo;
     UINTN InfoSize, MaxMode;
@@ -150,6 +149,11 @@ SetupEnv(KINFO** KInfo, UINT32 PrefResX, UINT32 PrefResY) {
     gop->QueryMode(gop, 0, &InfoSize, &gopInfo);
 
     MaxMode = gop->Mode->MaxMode;
+
+    if (PrefResX == 0 || PrefResY == 0) {
+        gop->SetMode(gop, gop->Mode->Mode);
+        goto skip_video_setup;
+    }
 
     for (UINT32 i = 0; i < MaxMode; gop->QueryMode(gop, i++, &InfoSize, &gopInfo)) {
 
@@ -162,9 +166,9 @@ SetupEnv(KINFO** KInfo, UINT32 PrefResX, UINT32 PrefResY) {
         }
     }
 
-    *KInfo                  = AllocateZeroPool(sizeof(VIDEO_INFO));
+skip_video_setup:
 
-    (*KInfo)->FontBitmap    = AllocateZeroPool(FONT_SIZE);
+    *KInfo                  = AllocateZeroPool(sizeof(VIDEO_INFO));
 
     (*KInfo)->BackBuffer    = AllocateZeroPool(gop->Mode->FrameBufferSize);
 
@@ -177,7 +181,14 @@ SetupEnv(KINFO** KInfo, UINT32 PrefResX, UINT32 PrefResY) {
 
     (*KInfo)->Reset         = RT->ResetSystem;
 
-    CopyMem((*KInfo)->FontBitmap, FontBitmap, FONT_SIZE);
+    (*KInfo)->Font          = (FONT) {
+                                FONT_BMP_WDTH, FONT_BMP_HGHT, FONT_WDTH, FONT_HGHT, FONT_BPP,
+                                AllocateZeroPool(FONT_SIZE),
+                            };
+
+    CopyMem((*KInfo)->Font.Bmp, font_data, FONT_SIZE);
+
+    //(*KInfo)->Font.Bmp = (PIXEL*) font_data;
 
     return EFI_SUCCESS;
 }

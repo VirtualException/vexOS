@@ -23,6 +23,20 @@ typedef struct {
 
 typedef struct {
 
+    unsigned int BmpWdth;
+    unsigned int BmpHght;
+
+    unsigned int Wdth;
+    unsigned int Hght;
+
+    unsigned int Bpp;
+
+    PIXEL* Bmp;
+
+} FONT;
+
+typedef struct {
+
     UINT32 XRes;
     UINT32 YRes;
 
@@ -44,8 +58,8 @@ typedef struct {
 
     EfiResetFunction Reset;
 
-    PIXEL* FontBitmap;
+    FONT Font;
 
-} KINFO;
+} KERNEL_INFO;
 
 #endif

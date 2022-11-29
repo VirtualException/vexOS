@@ -1,4 +1,4 @@
-#include <libc/types.h>
+#include <libc/stdint.h>
 #include <vexos/pcspkr.h>
 
 void
@@ -9,7 +9,7 @@ beep(int freq) {
 
     // Set the PIT to the desired frequency
 
-    div = 0x1234DC / freq;
+    div = PIT_FREQ / freq;
     outportb(PIT_CONTROL_PORT_3, 0xB6);
     outportb(PIT_CONTROL_PORT_2, (BYTE)(div));
     outportb(PIT_CONTROL_PORT_2, (BYTE)(div >> 8));

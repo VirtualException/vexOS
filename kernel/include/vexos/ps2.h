@@ -1,7 +1,7 @@
 #ifndef _PS2_H
 #define _PS2_H
 
-#include <libc/types.h>
+#include <libc/stdint.h>
 #include <vexos/io.h>
 
 #define PS2_IO_CONTROL_PORT 0x60
@@ -103,6 +103,8 @@ enum PS2_Keycodes {
     DEF_PS2_KEY(Undefined3)
     DEF_PS2_KEY(F11)
     DEF_PS2_KEY(F12)
+
+    /* TODO: Media keys support*/
 
 };
 

@@ -6,51 +6,46 @@
 #include <vexos/vtt.h>
 #include <vexos/draw.h>
 #include <vexos/ps2.h>
-#include <vexos/keymap.h>
+#include <vexos/keyboard.h>
 
-#define UID(x, y)           ((x) + ((y) * RESX))
-#define UIDC(x, y)          ((x) + ((y) * COLS))
 #define UIDw(x, y, w)       ((x) + ((y) * (w)))
-
-// Thanks claudipunchi for macro magic!
-#define GET_FONT_PIXEL_INDEX(c, x, y)   (UIDw(\
-                                        ((((c)%FONT_BMP_WDTH)) * FONT_WDTH),\
-                                        ((((c)-(((c)%FONT_BMP_WDTH)))/FONT_BMP_WDTH) * FONT_HGHT),\
-                                        FONT_BMP_WDTH * FONT_WDTH)\
-                                        + UIDw(x, y, FONT_BMP_WDTH * FONT_WDTH))
 
 uint32_t RESX;
 uint32_t RESY;
 
-pixel_t* font;
-pixel_t* vbuff;
+kernel_info_t* kinfo;
+pixel_t* video_buff;
 
 size_t vttcurrterm;
 
-vtt vtts[VTTS_N];
+extern vtt vtts[VTTS_N];
 
 void
-vtt_setup(kinfo_t* kinfo, uint32_t cols, uint32_t rows) {
+vtt_setup(kernel_info_t* kernel_info, uint32_t cols, uint32_t rows) {
+
+/* TODO: Fix resolutions */
+
+    kinfo = kernel_info;
 
     RESX = kinfo->video_info.x_res;
     RESY = kinfo->video_info.y_res;
 
     if (cols == 0 || cols > RESX / C_WDTH) {
-        cols = M_COLS;
+        cols = RESX / C_WDTH;
     }
     if (rows == 0 || rows > RESY / C_HGHT) {
-        rows = M_ROWS;
+        rows = RESY / C_HGHT;
     }
 
-    vbuff = (pixel_t*) kinfo->video_info.vmem;
-
-    font = kinfo->font_bitmap;
+    video_buff = (pixel_t*) kinfo->video_info.vmem;
 
     for (size_t i = 0; i < VTTS_N; i++) {
         vtt_init_term(&vtts[i], cols, rows);
     }
 
     memset((void*) kinfo->video_info.vmem, kinfo->video_info.vmem_size, 0x00);
+
+    kbd_setup();
 
     vtt_switch_to(VTTS_KLOG);
 
@@ -66,9 +61,9 @@ vtt_init_term(vtt* term, uint32_t cols, uint32_t rows) {
     term->cury      = 0;
     term->cursor    = false;
     term->blink     = true;
-    term->col_fg    = RGBCOL(0x43, 0xf0, 0x83);
-    term->col_bg    = RGBCOL(0x05, 0x13, 0x0a);
-    term->defchar   = (tchar_t) {'\0', term->col_fg, term->col_bg};
+    term->defchar   = (tchar_t) { '\0', RGBCOL(0xAA, 0xAA, 0xAA), RGBCOL(0x00, 0x00, 0x00) };
+    term->col_fg    = term->defchar.fg;
+    term->col_bg    = term->defchar.bg;
 
     term->clear     = vtt_clear;
     term->newline   = vtt_newline;
@@ -118,12 +113,12 @@ vtt_handle() {
     uint8_t kcode   = 0;
     int ret         = 0;
 
-    get_kbd_input(&c, &kcode);
+    vtt* term = &vtts[vttcurrterm];
+
+    kbd_get_input(&c, &kcode);
 
     if (!kcode) return ret;
-    if (c) putchar(c);
-
-    vtt* term = &vtts[vttcurrterm];
+    if (c) vtt_putchar(term, c);
 
     switch (kcode) {
     case PS2_F1_Pressed:
@@ -147,6 +142,7 @@ vtt_handle() {
         break;
 
     case PS2_Enter_Pressed:
+        /**/
         term->newline(term);
         break;
 
@@ -154,8 +150,13 @@ vtt_handle() {
         term->delete(term);
         break;
 
+    case PS2_NumLock_Released:
+        printf("%d", (unsigned int) rand());
+        break;
+
     case PS2_Esc_Released:
         ret = 1;
+        break;
 
     default:
         break;
@@ -299,7 +300,7 @@ vtt_renderterm() {
     for (size_t y = 0; y < term->rows; y++) {
         for (size_t x = 0; x < term->cols; x++) {
 
-            drawchar(x * C_WDTH, y * C_HGHT, &term->termbuff[UIDw(x, y, term->cols)], vbuff);
+            vtt_drawchar(x * C_WDTH, y * C_HGHT, &term->termbuff[UIDw(x, y, term->cols)]);
 
             if(x == term->curx && y == term->cury && term->blink && (term->cursor = !term->cursor)) {
                 vtt_drawcur(term, x * C_WDTH, y * C_HGHT);
@@ -311,12 +312,22 @@ vtt_renderterm() {
 }
 
 void
-vtt_drawcur(vtt* term, uint x, uint y) {
+vtt_drawcur(vtt* term, uint32_t x, uint32_t y) {
 
-    drawchar(x, y, &(tchar_t) {CURSOR, term->col_fg, term->col_bg}, vbuff);
+    vtt_drawchar(x, y, &(tchar_t) {CURSOR, term->col_fg, term->col_bg});
 
     return;
 }
+
+void
+vtt_drawchar(uint32_t x, uint32_t y, tchar_t* tc) {
+
+    drawchar(x, y, tc->c, tc->fg, tc->bg, &kinfo->font, &kinfo->video_info);
+
+    return;
+}
+
+int handle_escape = 0;
 
 void
 vtt_putchar(vtt* term, char c) {
@@ -334,17 +345,20 @@ vtt_putchar(vtt* term, char c) {
         case '\0':
             break;
 
+        case '\x1B':
+            handle_escape = c;
+            break;
+
         default:
             term->termbuff[UIDw(term->curx, term->cury, term->cols)] = (tchar_t) { c, term->col_fg, term->col_bg };
             term->forward(term);
-
             break;
     }
 
     return;
 }
 
-/* stdio implementation (very cranky and creepy for now) */
+/* stdio implementation, inside vtt for now (very creepy) */
 
 int
 putchar(char c) {
@@ -362,34 +376,4 @@ putchark(char c) {
 
     return c;
 
-}
-
-/* draw implementation */
-
-void
-drawpixel(uint32_t x, uint32_t y, pixel_t* vbuff, color_t col) {
-
-    pixel_t* pixel = &vbuff[UID(x, y)];
-
-    pixel->r = col.r;
-    pixel->g = col.g;
-    pixel->b = col.b;
-
-}
-
-void
-drawchar(uint32_t x, uint32_t y, tchar_t* tc, pixel_t* vbuff) {
-
-    for (size_t dy = 0; dy < C_HGHT; dy++) {
-        for (size_t dx = 0; dx < C_WDTH; dx++) {
-
-            uint64_t index = GET_FONT_PIXEL_INDEX(tc->c, dx, dy);
-            pixel_t* pixel = &vbuff[UID(x + dx, y + dy)];
-
-            *pixel = COL2PIXEL((font[index].r == 0xFF) ? tc->fg : tc->bg);
-
-        }
-    }
-
-    return;
 }

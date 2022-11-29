@@ -3,16 +3,12 @@
 #include <libc/stdbool.h>       //
 #include <libc/string.h>        //
 
-#include <vexos/vtt.h>         // Console
+#include <vexos/kinfo.h>        // Kernel information
 
-#include <vexos/shell.h>       // Shell
+#include <vexos/vtt.h>          // Console
 
-#include <vexos/draw.h>        // Drawing
-
-#include <vexos/ps2.h>         // Keyboard-related
-#include <vexos/keymap.h>      //
-
-#include <vexos/kinfo.h>       // Kernel information
+#include <vexos/ps2.h>          // Devices
+#include <vexos/pcspkr.h>       //
 
 #define VERSION "0.5.1"
 #define ARCH    "x86_64"
@@ -25,9 +21,9 @@
 */
 
 int
-start_kernel(kinfo_t* kinfo) {
+start_kernel(kernel_info_t* kinfo) {
 
-    srand((uint64_t) kinfo->back_buffer);
+    srand((uint64_t) start_kernel);
 
     vtt_setup(kinfo, 80, 40);
 
@@ -37,6 +33,10 @@ start_kernel(kinfo_t* kinfo) {
     printk("Random seed: %d\n", kinfo->back_buffer);
 
     printk("Welcome vexOS! %c\n\n", FONT_TULI_LOGO);
+
+    //char buffer[4096] = { 0 };
+    //printk("%d\n", testasm(buffer));
+    //printf("->%c<-", buffer[0]);
 
     while (!vtt_handle()) {
 
