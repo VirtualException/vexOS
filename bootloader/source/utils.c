@@ -181,6 +181,8 @@ skip_video_setup:
 
     (*KInfo)->Reset         = RT->ResetSystem;
 
+    (*KInfo)->GetTime       = ST->RuntimeServices->GetTime;
+
     (*KInfo)->Font          = (FONT) {
                                 FONT_BMP_WDTH, FONT_BMP_HGHT, FONT_WDTH, FONT_HGHT, FONT_BPP,
                                 AllocateZeroPool(FONT_SIZE),

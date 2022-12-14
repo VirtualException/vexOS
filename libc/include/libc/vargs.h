@@ -12,15 +12,16 @@
 
 typedef struct {
 
-    unsigned long int args[5];
-    unsigned int index;
+    unsigned long int args[7];
+    unsigned long int index;
 
 } va_list;
 
-extern void va_save(va_list* vargs);
+extern void     va_save(va_list* vargs);
+extern uint64_t va_next(va_list* vargs);
 
 #define va_start(vargs)     va_save(&(vargs))
-#define va_arg(vargs)       ((vargs).args[(vargs).index++])
+#define va_arg(vargs)       va_next(&(vargs))
 #define va_end(vargs)       /* Do nothing */
 
 #endif

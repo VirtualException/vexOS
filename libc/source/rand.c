@@ -1,25 +1,18 @@
 #include <libc/stdlib.h>
 
-static int _seed = 0;
+static unsigned long int holdrand = 1;
 
 void
 srand(unsigned int seed) {
-	_seed = seed;
+	holdrand = seed;
 }
 
 int
-rand(void) {
+rand() {
+	return (((holdrand = holdrand * 214013L + 2531011L) >> 16) & 0x7fff);
+}
 
-	long unsigned int hi = 0;
-	long unsigned int lo = 0;
-
-	lo = 16807 * (_seed & 0xFFFF);
-	hi = 16807 * (_seed >> 16);
-
-	lo += (hi & 0x5FFF) << 16;
-	lo += hi >> 15;
-
-	if (lo > 0x7FFFFFFF) lo -= 0x7FFFFFFF;
-
-	return (_seed = lo);
+unsigned int
+getseed() {
+	return holdrand;
 }

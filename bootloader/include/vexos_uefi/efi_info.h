@@ -11,6 +11,12 @@ EFI_STATUS (EFIAPI *EfiResetFunction) (
     CHAR16*         ResetData
 );
 
+typedef
+EFI_STATUS (EFIAPI *EfiGetTime) (
+    EFI_TIME*               Time,
+    EFI_TIME_CAPABILITIES*  Capabilities
+);
+
 typedef struct {
 
     char R;
@@ -47,16 +53,16 @@ typedef struct {
 
 typedef struct {
 
-    // Path of the kernel file (in unicode)
-    //CHAR16* KernelPath;
-
     // Set of video-related data
     VIDEO_INFO VideoInfo;
 
     // Heap-allocated pixel buffer
     PIXEL* BackBuffer;
 
-    EfiResetFunction Reset;
+    EFI_TIME Time;
+
+    EfiResetFunction    Reset;
+    EfiGetTime          GetTime;
 
     FONT Font;
 

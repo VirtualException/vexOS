@@ -8,10 +8,10 @@
 
 #define RAND_MAX 32767
 
-#define ISBITSET(byte, n) ((status & (128 >> n)) == 1)
-
 void    srand(unsigned int seed);
 int     rand(void);
+
+unsigned int getseed();
 
 char*   itoa(int n, char* str);
 int     atoi(const char* str);

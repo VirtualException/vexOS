@@ -150,10 +150,6 @@ vtt_handle() {
         term->delete(term);
         break;
 
-    case PS2_NumLock_Released:
-        printf("%d", (unsigned int) rand());
-        break;
-
     case PS2_Esc_Released:
         ret = 1;
         break;
