@@ -3,22 +3,24 @@ OUTPUT_FORMAT(elf64-x86-64)
 
 SECTIONS
 {
-    .text :
+    .text ALIGN(0x1000) :
     {
-        *(start_kernel);
         *(.text);
+        *(.data);
         *(.rodata);
     }
-    .rodata :
-    {
-        *(.rodata);
-    }
-    .data :
+    .data ALIGN(0x1000) :
     {
         *(.data);
     }
-    .bss :
+    .rodata ALIGN(0x1000) :
     {
-        *(.bss);
+        *(.rodata);
     }
+    .bss ALIGN(0x1000) :
+    {
+        *(.bss)
+        *(.COMMON)
+    }
+
 }

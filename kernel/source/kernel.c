@@ -1,51 +1,79 @@
-#include <libc/stdio.h>         // Standard libraries
-#include <libc/stdlib.h>        //
-#include <libc/stdbool.h>       //
-#include <libc/string.h>        //
+#include <vlibc/stdlib.h>
+#include <vlibc/stdbool.h>
+#include <vlibc/string.h>
 
-#include <vexos/dt.h>           // Descriptor tables (GDT, IDT)
+#undef QEMU
 
-#include <vexos/kinfo.h>        // Kernel information
+#include <vexos/info/kinfo.h>           // Kernel information
 
-#include <vexos/vtt.h>          // Console
+#include <vexos/vtt.h>                  // Console
 
-#include <vexos/ps2.h>          // Devices
-#include <vexos/pcspkr.h>       //
+#include <vexos/printk.h>               // Kernel console print
 
-#define VERSION "0.6.0"
+#include <vexos/arch/x86_64/gdt.h>      // GDT
+#include <vexos/arch/x86_64/idt.h>      // IDT
+
+#include <vexos/arch/x86_64/syscall.h>  // System calls
+
+#include <vexos/arch/x86_64/mem.h>      // Memory manager
+
+#include <vexos/utils/macros.h>         // Extra macros
+
+#include <vexos/dev/ps2.h>              // PS2 I/O
+#include <vexos/dev/pcspkr.h>           // PC Speacker
+#include <vexos/dev/keyboard.h>         // Keyboard
+
+#define VERSION "0.8.9"
 #define ARCH    "x86_64"
 
-#define ISBITSET(byte, n) ((status & (128 >> n)) == 1)
 
 /* TODO
- *  - Descriptor Tables (GDT, IDT, blahblah)
- *  - Implement a better stdout/stderr/stdin model
- *  - Magickly create an Intel video driver for non-2-fps rendering
+ *  - FIX THE FUCKING VARGS PROBLEM
+ *  - Memory Allocation (in progress)
+ *  - Final font
+ *  - Working Descriptor Tables (GDT, IDT, blahblah)
+ *  - Better stdout/stderr/stdin model
+ *  - Magickly create an Intel video driver for non-2-fps rendering, DONE! haha no, but we have +60 fps in vtt
  *  - Better shell (or just a working shell)
 */
 
-int
-start_kernel(kernel_info_t* kinfo) {
 
-    //gdt_setup();
-    //idt_setup();
+void memory_review();
+
+kernel_info_t* kinfo;
+
+static unsigned int seed = 0;
+
+int
+start_kernel(kernel_info_t* kernelinfo) {
+
+    kinfo = kernelinfo;
+
+    vtt_setup(0, 0);
+
+    gdt_setup();
+    idt_setup();
+
+    mem_setup();
+
+    syscall_setup();
+
+    kbd_setup();
 
     uefi_time time;
     kinfo->get_time(&time, NULL);
+    srand(seed = time.second + time.minute + time.hour + time.day * time.month * time.year);
 
-    srand(time.second + 60 * time.minute + 3600 * time.hour + 86400 * time.day + 2592000 * time.month);
+    printk(KERN_LOG "Random seed: %d\n", seed);
+    printk(KERN_LOG "Time & date: %d:%d:%d %d/%d %d\n", time.hour, time.minute, time.second, time.day, time.month, time.year);
+    printk(KERN_LOG "Build Timestamp: %s\n", __TIMESTAMP__);
+    printk(KERN_LOG "Booted vexOS %s (%s, UEFI)\n", VERSION, ARCH);
 
-    vtt_setup(kinfo, 80, 40);
+    printk("\nWelcome to vexOS!\n\n");
 
-    printk("Starting vexOS %s (%s, UEFI)\n", VERSION, ARCH);
-    printk("[Build timestamp: %s]\n", __TIMESTAMP__);
+    memory_review();
 
-    printk("Random seed: %d\n", getseed());
-    printk("Time: %d/%d %d:%d:%d %d\n", time.day, time.month, time.hour, time.minute, time.second, time.year);
-
-    printk("Welcome vexOS! %c\n\n", FONT_TULI_LOGO);
-
-    /* Implement custom emojis! + final font */
+    /* */
 
     while (!vtt_handle()) {
 
@@ -56,4 +84,33 @@ start_kernel(kernel_info_t* kinfo) {
     kinfo->reset(0, 0, 0, NULL);
 
     return EXIT_SUCCESS;
+}
+
+void
+memory_review() {
+
+    /* Memory review */
+
+    uefi_memory_descriptor* desc = kinfo->meminfo.map;
+    uint64_t entries = kinfo->meminfo.map_size / kinfo->meminfo.desc_size;
+
+    printk(KERN_LOG "Memory Map Info (%d entries):\n", entries);
+
+    for (size_t i = 0; i < entries; i++) {
+
+        if ((desc->type == mem_type_boot_services_code || desc->type == mem_type_boot_services_data) && i != 0) goto skip;
+
+        printk("Entry No %d: \t%s  \t%d KB  at \t0x%x %c\n",
+                i,
+                uefi_memory_types_str[desc->type],
+                BYTES2KB(PAGES2B(desc->number_of_pages)),
+                desc->physical_start,
+                (desc->type == mem_type_conventional_memory) ? '*' : ' '
+            );
+skip:
+        desc = NEXT_MEMORY_DESCRIPTOR(desc, kinfo->meminfo.desc_size);
+
+    }
+
+    return;
 }

@@ -1,14 +1,12 @@
-#ifndef TERM_H
-#define TERM_H
+#ifndef _TERM_H
+#define _TERM_H
 
-#define PREVENT_WRITES_TO_VMEM 0
+#include <vlibc/stdbool.h>
 
-#include <libc/stdbool.h>
-
-#include <vexos/kinfo.h>
-#include <vexos/font.h>
+#include <vexos/info/kinfo.h>
+#include <vexos/info/font.h>
 #undef  _FONTDATA
-#include "../../vga8x16.h"
+#include "../../ter10x16.h"
 
 #define M_RESX 1920
 #define M_RESY 1080
@@ -19,9 +17,9 @@
 #define M_COLS (M_RESX / C_WDTH)
 #define M_ROWS (M_RESY / C_HGHT)
 
-#define TAB_SIZE 4
+#define TAB_SIZE 8
 
-#define VTTS_N      4
+#define VTTS_N      3
 #define VTTS_KLOG   0
 
 typedef struct _vtt vtt;
@@ -44,6 +42,8 @@ typedef struct {
     char    c;
     color_t fg;
     color_t bg;
+
+    bool updated;
 
 } tchar_t;
 
@@ -76,19 +76,19 @@ typedef struct _vtt {
     VttSetBgCol     setbgcol;
     VttResetCol     resetcol;
 
-    /*vxshell shell;*/
-
     tchar_t termbuff[M_COLS * M_ROWS];
 
 } vtt;
 
+extern vtt vtts[VTTS_N];
 extern size_t vttcurrterm;
 
-void vtt_setup(kernel_info_t* kernel_info, uint32_t cols, uint32_t rows);
+void vtt_setup(uint32_t cols, uint32_t rows);
 void vtt_init_term(vtt* term, uint32_t cols, uint32_t rows);
 void vtt_switch_to(size_t vtt_num);
+void vtt_update_set(vtt* term);
 
-int vtt_handle();
+int vtt_handle(void);
 
 void vtt_clear(vtt* term);
 void vtt_newline(vtt* term);
@@ -97,16 +97,15 @@ void vtt_delete(vtt* term);
 void vtt_scroll(vtt* term, uint32_t lines);
 void vtt_forward(vtt* term);
 void vtt_backward(vtt* term);
-void vtt_getcurpos(vtt* term, uint32_t* x, uint32_t* y);
 void vtt_setcurpos(vtt* term, uint32_t x, uint32_t y);
 void vtt_setcur(vtt* term, bool state);
 void vtt_resetcol(vtt* term);
 void vtt_setfgcol(vtt* term, uint8_t r, uint8_t g, uint8_t b);
 void vtt_setbgcol(vtt* term, uint8_t r, uint8_t g, uint8_t b);
 
-void vtt_renderterm();
+void vtt_renderterm(void);
 void vtt_drawcur(vtt* term, uint32_t x, uint32_t y);
-void vtt_drawchar(uint32_t x, uint32_t y, tchar_t* tc);
+void vtt_drawtchar(uint32_t x, uint32_t y, tchar_t* tc);
 
 void vtt_putchar(vtt* term, char c);
 

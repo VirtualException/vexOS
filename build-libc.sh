@@ -1,18 +1,18 @@
 set -e
 
-LIBNAME="libc"
+LIBNAME="vlibc"
 
 CEXT="c"
 ASMEXT="asm"
 
-SRCDIR="libc/source/"
-OUTDIR="libc/out/"
+SRCDIR="vlibc/source/"
+OUTDIR="vlibc/out/"
 
 
 CFILES="${SRCDIR}*.${CEXT}"
 ASMFILES="${SRCDIR}*.${ASMEXT}"
 
-GCCARGS="-c -Wall -Wextra -fno-stack-protector -fno-builtin -fno-stack-check -fshort-wchar -mno-red-zone -m64 -I libc/include/"
+GCCARGS="-c -Ofast -Wall -Wextra -fno-stack-protector -fno-builtin -fno-stack-check -fshort-wchar -mno-red-zone -m64 -I vlibc/include/"
 NASMARGS="-f elf64"
 
 tput bold

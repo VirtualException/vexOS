@@ -1,7 +1,7 @@
 #include <vexos_uefi/utils.h>
 
 #define _FONTDATA
-#include "../../vga8x16.h"
+#include "../../ter10x16.h"
 
 EFI_GRAPHICS_OUTPUT_PROTOCOL*   gop;
 EFI_RNG_PROTOCOL*               rng;
@@ -11,6 +11,11 @@ EFI_GUID rngGuid = EFI_RNG_PROTOCOL_GUID;
 
 EFI_FILE*   Kernel;
 Elf64_Ehdr  KernelHeader;
+
+EFI_MEMORY_DESCRIPTOR* MemMap;
+UINT32  MemDescVersion;
+UINTN   MemDescSize;
+UINTN   MemMapSize;
 
 KernelEntry
 SetupKernel(EFI_FILE* Directory, CHAR16* KernelPath, EFI_HANDLE ImageHandle) {
@@ -66,7 +71,7 @@ SetupKernel(EFI_FILE* Directory, CHAR16* KernelPath, EFI_HANDLE ImageHandle) {
         return NULL;
     }
     else {
-        Print(L"[ VEXOS-KERNEL HEADER SUCCESSFULLY VERIFIED ] : (Executable file, elf-x64_64, Little Endian)\n");
+        Print(L"[ VEXOS-KERNEL HEADER SUCCESSFULLY VERIFIED ] : (Executable file, x64_64, Little Endian)\n");
     }
 
     // Allocate kernel entry memory
@@ -89,7 +94,7 @@ SetupKernel(EFI_FILE* Directory, CHAR16* KernelPath, EFI_HANDLE ImageHandle) {
             case PT_LOAD:
             Elf64_Xword pages = (phdr->p_memsz + 0x1000 - 1) / 0x1000;
             Elf64_Addr segment = phdr->p_paddr;
-            ST->BootServices->AllocatePages(AllocateAddress, EfiLoaderData, pages, &segment);
+            ST->BootServices->AllocatePages(AllocateMaxAddress, EfiLoaderData, pages, &segment);
 
             Kernel->SetPosition(Kernel, phdr->p_offset);
             UINTN size = phdr->p_filesz;
@@ -108,31 +113,27 @@ SetupKernel(EFI_FILE* Directory, CHAR16* KernelPath, EFI_HANDLE ImageHandle) {
 }
 
 EFI_STATUS
-GetMemMapKey(UINTN* MapKey) {
+SetupMemMap(UINTN* MapKey) {
 
-    EFI_MEMORY_DESCRIPTOR* MemMap = NULL;
-    EFI_STATUS Status   = EFI_SUCCESS;
+    EFI_STATUS Status = EFI_SUCCESS;
 
-    UINT32  Ver         = 0;
-    UINTN   DescSize    = 0;
-    UINTN   MemMapSize  = 0;
-
-    Status = BS->GetMemoryMap(&MemMapSize, MemMap, MapKey, &DescSize, &Ver);
+    Status = BS->GetMemoryMap(&MemMapSize, MemMap, MapKey, &MemDescSize, &MemDescVersion);
 
     if (Status == EFI_BUFFER_TOO_SMALL) {
 
-        UINTN encompassing_size = MemMapSize + (2 * DescSize);
-        void *buffer = NULL;
+        UINTN NewSize   = MemMapSize + (2 * MemDescSize);
+        VOID* Buffer    = NULL;
 
-        Status = BS->AllocatePool(EfiLoaderData, encompassing_size, &buffer);
+        Status = BS->AllocatePool(EfiLoaderData, NewSize, &Buffer);
 
-        MemMap      = (EFI_MEMORY_DESCRIPTOR*) buffer;
-        MemMapSize  = encompassing_size;
-        Status      = BS->GetMemoryMap(&MemMapSize, MemMap, MapKey, &DescSize, &Ver);
+        MemMap      = (EFI_MEMORY_DESCRIPTOR*) Buffer;
+        MemMapSize  = NewSize;
+
+        Status = BS->GetMemoryMap(&MemMapSize, MemMap, MapKey, &MemDescSize, &MemDescVersion);
 
     }
-    else if (Status == EFI_SUCCESS) {
-        Print(L"GetMemoryMap error\n");
+    else {
+        Print(WARNINGTXT L"[ GetMemoryMap ERROR ]\n" NORMALTXT);
     }
 
     return Status;
@@ -179,6 +180,13 @@ skip_video_setup:
                                 gop->Mode->FrameBufferSize,
                             };
 
+    (*KInfo)->MemInfo       = (MEMORY_INFO) {
+                                MemMap,
+                                MemMapSize,
+                                MemDescSize,
+                                MemDescVersion,
+                            };
+
     (*KInfo)->Reset         = RT->ResetSystem;
 
     (*KInfo)->GetTime       = ST->RuntimeServices->GetTime;
@@ -189,8 +197,6 @@ skip_video_setup:
                             };
 
     CopyMem((*KInfo)->Font.Bmp, font_data, FONT_SIZE);
-
-    //(*KInfo)->Font.Bmp = (PIXEL*) font_data;
 
     return EFI_SUCCESS;
 }

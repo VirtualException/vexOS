@@ -1,8 +1,8 @@
 #ifndef _VIDEO_H
 #define _VIDEO_H
 
-#include <libc/stdlib.h>
-#include <vexos/vinfo.h>
+#include <vlibc/stdlib.h>
+#include <vexos/info/vinfo.h>
 
 #define RGBCOL(r, g, b)     ((color_t) {b, g, r})
 #define COL2PIXEL(color)    ((pixel_t) {(color).b, (color).g, (color).r, 0})

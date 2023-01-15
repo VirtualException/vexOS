@@ -17,13 +17,23 @@ EFI_STATUS (EFIAPI *EfiGetTime) (
     EFI_TIME_CAPABILITIES*  Capabilities
 );
 
+
 typedef struct {
 
-    char R;
-    char G;
-    char B;
+    EFI_MEMORY_DESCRIPTOR* Map;
+    UINTN MapSize;
+    UINTN DescSize;
+    UINTN DescVersion;
 
-    char _Reserved;
+} MEMORY_INFO;
+
+typedef struct {
+
+    CHAR8 R;
+    CHAR8 G;
+    CHAR8 B;
+
+    CHAR8 _Reserved;
 
 } PIXEL;
 
@@ -46,8 +56,8 @@ typedef struct {
     UINT32 XRes;
     UINT32 YRes;
 
-    UINT64 VMem;
-    UINT64 VMem_Size;
+    UINTN VMem;
+    UINTN VMem_Size;
 
 } VIDEO_INFO;
 
@@ -56,10 +66,10 @@ typedef struct {
     // Set of video-related data
     VIDEO_INFO VideoInfo;
 
+    MEMORY_INFO MemInfo;
+
     // Heap-allocated pixel buffer
     PIXEL* BackBuffer;
-
-    EFI_TIME Time;
 
     EfiResetFunction    Reset;
     EfiGetTime          GetTime;

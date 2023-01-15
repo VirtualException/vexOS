@@ -5,15 +5,17 @@ KNAME="vexos64kernel"
 CEXT="c"
 ASMEXT="asm"
 
+EXCLUDE_OPT="printk.c"
+
 SRCDIR="kernel/source/"
 OUTDIR="kernel/out/"
 
-LIBS="libc/out/libc.a"
+LIBS="vlibc/out/vlibc.a"
 
-CFILES="${SRCDIR}*.${CEXT}"
-ASMFILES="${SRCDIR}*.${ASMEXT}"
+CFILES="$(find ${SRCDIR} -name \*.${CEXT})"
+ASMFILES="$(find ${SRCDIR} -name \*.${ASMEXT})"
 
-GCCARGS="-c -O2 -Wall -Wextra -fno-stack-protector -fno-builtin -fno-stack-check -fno-pic -fPIE -fshort-wchar -mcmodel=large -mno-red-zone -m64 -I kernel/include -I libc/include"
+GCCARGS="-c -O3 -mgeneral-regs-only -Wall -Wextra -fno-stack-protector -fno-stack-check -fno-builtin -fno-pic -fPIE -fshort-wchar -mno-red-zone -m64 -I kernel/include -I vlibc/include/"
 NASMARGS="-f elf64"
 LDARGS="-nostdlib -static -T kernel/link/kernel.ld"
 
@@ -26,7 +28,12 @@ tput sgr0
 echo "Compiling..."
 
 for f in $CFILES; do
-    gcc "$f" $GCCARGS -o "${OUTDIR}$(basename ${f%.${CEXT}}.o)"
+    if [ "$EXCLUDE_OPT" = "$(basename ${f})" ]
+    then
+        gcc "$f" $GCCARGS "-O0" -o "${OUTDIR}$(basename ${f%.${CEXT}}.o)"
+    else
+        gcc "$f" $GCCARGS -o "${OUTDIR}$(basename ${f%.${CEXT}}.o)"
+    fi
 done
 
 for f in $ASMFILES; do

@@ -37,7 +37,7 @@ int (SYSVABI *KernelEntry) (
 
 
 KernelEntry SetupKernel(EFI_FILE* Directory, CHAR16* KernelPath, EFI_HANDLE ImageHandle);
-EFI_STATUS  GetMemMapKey(UINTN* MapKey);
+EFI_STATUS  SetupMemMap(UINTN* MapKey);
 EFI_STATUS  SetupEnv(KERNEL_INFO** KInfo, UINT32 PrefResX, UINT32 PrefResY);
 
 #endif

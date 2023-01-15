@@ -2,7 +2,7 @@
 #define _DRAW_H
 
 #include <vexos/video.h>
-#include <vexos/font.h>
+#include <vexos/info/font.h>
 
 #define UIDw(x, y, w)       ((x) + ((y) * (w)))
 
@@ -14,10 +14,10 @@
                                             + UIDw(x, y, font->bmp_wdth * font->wdth))
 
 void drawpixel(uint32_t x, uint32_t y, color_t col, video_info_t* vinfo);
-void drawchar(uint32_t x, uint32_t y, char c, color_t fg, color_t bg, font_t* font, video_info_t* vinfo);
+void drawchar(uint32_t x, uint32_t y, uint c, color_t fg, color_t bg, font_t* font, video_info_t* vinfo);
 
-void drawline();
-void drawrect();
-void fillrect();
+//void drawline(void);
+//void drawrect(void);
+//void fillrect(void);
 
 #endif
