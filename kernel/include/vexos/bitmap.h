@@ -1,7 +1,7 @@
 #ifndef _BITMAP_H
 #define _BITMAP_H
 
-#include <vlibc/stdbool.h>
+#include <vexos/lib/bool.h>
 
 typedef unsigned char* bitmap_t;
 

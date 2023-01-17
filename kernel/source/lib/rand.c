@@ -1,4 +1,4 @@
-#include <vlibc/stdlib.h>
+#include <vexos/lib/rand.h>
 
 static unsigned long int holdrand = 1;
 

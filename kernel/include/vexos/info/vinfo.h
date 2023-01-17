@@ -1,7 +1,7 @@
 #ifndef _VINFO_H
 #define _VINFO_H
 
-#include <vlibc/stdint.h>
+#include <vexos/lib/types.h>
 
 typedef struct {
 

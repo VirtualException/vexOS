@@ -1,10 +1,10 @@
 #ifndef _TERM_H
 #define _TERM_H
 
-#include <vlibc/stdbool.h>
-
 #include <vexos/info/kinfo.h>
 #include <vexos/info/font.h>
+#include <vexos/lib/bool.h>
+
 #undef  _FONTDATA
 #include "../../ter10x16.h"
 

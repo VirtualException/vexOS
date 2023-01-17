@@ -1,12 +1,8 @@
-#ifndef _STRING_H
-#define _STRING_H
+#ifndef _MEMORY_H
+#define _MEMORY_H
 
-#include <vlibc/stddef.h>
-#include <vlibc/stdbool.h>
-
-size_t  strlen(const char* str);
-void    strrev(char* str);
-char*   strcat(char *dest, const char *src);
+#include <vexos/lib/types.h>
+#include <vexos/lib/bool.h>
 
 bool        memcmp(const void* aptr, const void* bptr, size_t len);
 int         memcpy(const void* src, void* dest, size_t len);

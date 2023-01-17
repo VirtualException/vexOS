@@ -1,5 +1,4 @@
-#include <vlibc/stdlib.h>
-#include <vlibc/string.h>
+#include <vexos/lib/memory.h>
 
 bool
 memcmp(const void* aptr, const void* bptr, size_t len) {
@@ -11,7 +10,7 @@ memcmp(const void* aptr, const void* bptr, size_t len) {
         if      (a[i] < b[i])   return -1;
         else if (a[i] > b[i])   return 1;
     }
-    return EXIT_SUCCESS;
+    return 0;
 }
 
 int
@@ -24,5 +23,5 @@ memcpy(const void* src, void* dest, size_t len) {
         *d++ = *s++;
     }
 
-    return EXIT_SUCCESS;
+    return 0;
 }

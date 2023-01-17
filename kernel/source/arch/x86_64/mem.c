@@ -1,5 +1,7 @@
 #include <vexos/arch/x86_64/mem.h>
 #include <vexos/printk.h>
+#include <vexos/lib/bool.h>
+#include <vexos/lib/def.h>
 
 
 char uefi_memory_types_str[14][256] = {

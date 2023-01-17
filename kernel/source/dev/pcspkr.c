@@ -1,6 +1,6 @@
-#include <vlibc/stdint.h>
+#include <vexos/lib/types.h>
 #include <vexos/dev/pcspkr.h>
-#include <vexos/utils/extra_types.h>
+#include <vexos/lib/extra_types.h>
 
 void
 beep(int freq) {

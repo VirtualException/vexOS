@@ -1,7 +1,7 @@
 #ifndef _KEYMAP_H
 #define _KEYMAP_H
 
-#include <vlibc/stdbool.h>
+#include <vexos/lib/bool.h>
 
 /* qemu (machine-specific)*/
 #ifdef QEMU

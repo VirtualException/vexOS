@@ -4,7 +4,7 @@ extern memset     ; 1 byte
 extern memset32   ; 4 bytes
 
 memset:
-    mov rcx, rsi        ; size (vmem size / 1)
+    mov rcx, rsi
 l8:
     mov [rdi], dl
     inc rdi

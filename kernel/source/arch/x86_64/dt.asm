@@ -2,9 +2,6 @@ bits 64
 
 extern gdt_load
 extern idt_load
-extern syscall_setup
-extern syscall
-extern syscall_handler
 
 section .text
 

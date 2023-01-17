@@ -1,16 +1,15 @@
-#include <vlibc/stdio.h>
-#include <vlibc/stdlib.h>
-#include <vlibc/vargs.h>
-#include <vlibc/string.h>
-
 #include <vexos/vtt.h>
 #include <vexos/printk.h>
 #include <vexos/draw.h>
 #include <vexos/dev/ps2.h>
 #include <vexos/dev/keyboard.h>
 #include <vexos/arch/x86_64/syscall.h>
+#include <vexos/lib/memory.h>
+#include <vexos/lib/vargs.h>
+#include <vexos/lib/string.h>
 
 #define UIDw(x, y, w) ((x) + ((y) * (w)))
+
 
 vtt vtts[VTTS_N] = { 0 };
 size_t vttcurrterm;
@@ -171,7 +170,8 @@ vtt_handle() {
         break;
 
     case PS2_F10_Pressed:
-        syscall(0x00);
+        //syscall(0x00);
+        ASM("int $0x77");
         break;
     case PS2_F11_Pressed:
         syscall(0x01);

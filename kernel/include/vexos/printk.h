@@ -1,7 +1,7 @@
 #ifndef _PRINTK_H
 #define _PRINTK_H
 
-#include <vlibc/vargs.h>
+#include <vexos/lib/vargs.h>
 
 #define KERN_LOG_ASCII  '\1'
 #define KERN_LOG        "\1"

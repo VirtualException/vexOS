@@ -1,4 +1,5 @@
 #include <vexos/video.h>
+#include <vexos/lib/def.h>
 
 int
 swapbuff(video_info_t* vinfo, pixel_t* buff) {

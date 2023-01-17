@@ -1,10 +1,10 @@
 #ifndef _KINFO_H
 #define _KINFO_H
 
-#include <vlibc/stdint.h>
+#include <vexos/lib/types.h>
 #include <vexos/video.h>
 #include <vexos/font.h>
-#include <vexos/utils/macros.h>
+#include <vexos/lib/macros.h>
 
 typedef struct {
 

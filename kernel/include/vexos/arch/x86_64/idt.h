@@ -1,22 +1,22 @@
 #ifndef _IDT_H
 #define _IDT_H
 
-#include <vlibc/stdint.h>
-#include <vexos/utils/macros.h>
-
-#define IDT_PAGE_FAULT          0xE
-
+#include <vexos/lib/types.h>
+#include <vexos/lib/macros.h>
 
 #define IDT_TA_INTERRUPTGATE    0b10001110
 #define IDT_TA_CALLGATE         0b10001100
 #define IDT_TA_TRAPGATE         0b10001111
 
-#define IDT_DESCRIPTORS 256
+#define IDT_DESCRIPTORS     0x100
+#define IDT_DESCRIPTORS_EXC 0x20
 
-typedef
-void (__sysv_abi *interrupt) (
-    void*  time
-);
+#define IDTDESC(offset, type, selector) (idt_desc)  { \
+                                                    (((uint64_t)offset) & 0x000000000000ffff), selector, 0x0, type, \
+                                                    (((uint64_t)offset) & 0x00000000ffff0000) >> 16, \
+                                                    (((uint64_t)offset) & 0xffffffff00000000) >> 32, \
+                                                    0x0 \
+                                                    }
 
 typedef struct __packed {
 
@@ -44,12 +44,5 @@ extern void idt_load(idt_ptr* idt);
 void        idt_create_desc(idt_desc* idt, uint64_t index, uint64_t type, uint64_t selector, uint64_t offset);
 void        idt_set_offset(idt_desc* idt, uint64_t offset);
 uint64_t    idt_get_offset(idt_desc* idt);
-
-struct interrupt_frame;
-
-__interrupt
-void
-int_handler(struct interrupt_frame* intframe);
-
 
 #endif

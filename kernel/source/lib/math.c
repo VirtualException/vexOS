@@ -1,5 +1,5 @@
-#include <vlibc/stdint.h>
-#include <vlibc/math.h>
+#include <vexos/lib/math.h>
+#include <vexos/lib/types.h>
 
 float cos(float x) {
 

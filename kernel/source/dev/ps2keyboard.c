@@ -1,6 +1,6 @@
 #include <vexos/dev/ps2.h>
 #include <vexos/dev/keyboard.h>
-#include <vexos/utils/macros.h>
+#include <vexos/lib/macros.h>
 #include <vexos/printk.h>
 
 /* This array is intended to transform every PRESS keycode (everything before caps lock,

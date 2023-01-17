@@ -1,7 +1,7 @@
 #ifndef _VARGS_H
 #define _VARGS_H
 
-#include <vlibc/stdint.h>
+#include <vexos/lib/types.h>
 
 /*          !!!!! WARNING !!!!!
 *

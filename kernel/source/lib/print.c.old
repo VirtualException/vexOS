@@ -1,7 +1,4 @@
-#include <vlibc/stdio.h>
-#include <vlibc/stdlib.h>
-#include <vlibc/string.h>
-
+#include <vexos/lib/stdio.h>
 
 int vsprintf(char *str, const char *fmt, va_list vargs) {
 

@@ -1,9 +1,9 @@
 #ifndef _PS2_H
 #define _PS2_H
 
-#include <vlibc/stdint.h>
+#include <vexos/lib/types.h>
 #include <vexos/arch/x86_64/io.h>
-#include <vexos/utils/extra_types.h>
+#include <vexos/lib/extra_types.h>
 
 #define PS2_IO_CONTROL_PORT 0x60
 #define PS2_EX_CONTROL_PORT 0x64

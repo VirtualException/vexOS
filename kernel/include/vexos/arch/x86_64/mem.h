@@ -1,7 +1,7 @@
 #ifndef _MEMMNGR_H
 #define _MEMMNGR_H
 
-#include <vlibc/stdint.h>
+#include <vexos/lib/types.h>
 #include <vexos/info/kinfo.h>
 
 #define NEXT_MEMORY_DESCRIPTOR(ptr, size) ((uefi_memory_descriptor*) (((uint8_t*) ptr) + size)) /* from gnu-efi */

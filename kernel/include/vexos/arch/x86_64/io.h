@@ -1,7 +1,7 @@
 #ifndef _IO_H
 #define _IO_H
 
-#include <vlibc/stdint.h>
+#include <vexos/lib/types.h>
 
 extern uint8_t  inportb(uint16_t port);
 extern void     outportb(uint16_t port, uint8_t data);
@@ -9,6 +9,7 @@ extern void     outportb(uint16_t port, uint8_t data);
 extern uint32_t inportd(uint16_t port);
 extern void     outportd(uint16_t port, uint16_t data);
 
-void readmsr(unsigned int msr, unsigned int *lo, unsigned int *hi);
+extern uint32_t rdmsr(uint32_t msr);
+extern void     wrmsr(uint32_t msr, uint64_t val);
 
 #endif

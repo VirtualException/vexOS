@@ -1,29 +1,24 @@
 #include <vexos/arch/x86_64/idt.h>
-#include <vexos/arch/x86_64/syscall.h>
+#include <vexos/interrupt.h>
 #include <vexos/printk.h>
 #include <vexos/vtt.h>
 
-#include <vlibc/string.h>
-#include <vexos/info/kinfo.h>
-
-
 __aligned(0x1000)
-idt_desc idt_table[IDT_DESCRIPTORS] = { 0 };
+idt_desc    idt_table[IDT_DESCRIPTORS] = { 0 };
+idt_ptr     idt = { sizeof(idt_table) - 1, (uint64_t) idt_table };
 
 static bool done_setup = false;
 
 uint64_t
 idt_setup(void) {
 
-    if (done_setup) return 1;
+    if (done_setup) return (done_setup = 1);
 
     printk(KERN_LOG "Setting up IDT...\n");
 
-    idt_ptr idt = { sizeof(idt_table) - 1, (uint64_t) idt_table };
-
-    /* Assign all exceptions to the int_handler() function */
-    for (size_t i = 0; i < IDT_DESCRIPTORS; i++) {
-        idt_create_desc(idt_table, i, IDT_TA_INTERRUPTGATE, 0x08, (uint64_t) int_handler);
+    /* Assign all exceptions to the int_divzero() function */
+    for (size_t i = 0; i < IDT_DESCRIPTORS_EXC; i++) {
+        idt_table[i] = IDTDESC(exc_table[i], IDT_TA_INTERRUPTGATE, 0x08);
     }
 
     IRQ_OFF;
@@ -64,15 +59,4 @@ idt_get_offset(idt_desc* idt) {
 
     return offset;
 
-}
-
-__interrupt
-void
-int_handler(struct interrupt_frame* intframe) {
-
-    printk("#XX EXCEPTION HANDLER : 0x%x\n", intframe);
-
-    while (1) { };
-
-    return;
 }

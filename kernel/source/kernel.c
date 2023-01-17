@@ -1,38 +1,31 @@
-#include <vlibc/stdlib.h>
-#include <vlibc/stdbool.h>
-#include <vlibc/string.h>
-
 #undef QEMU
 
-#include <vexos/info/kinfo.h>           // Kernel information
+#include <vexos/info/kinfo.h>           /* Kernel information */
+#include <vexos/vtt.h>                  /* Console */
+#include <vexos/printk.h>               /* Kernel console print */
 
-#include <vexos/vtt.h>                  // Console
+#include <vexos/arch/x86_64/gdt.h>      /* GDT */
+#include <vexos/arch/x86_64/idt.h>      /* IDT */
+#include <vexos/arch/x86_64/syscall.h>  /* System calls */
+#include <vexos/arch/x86_64/mem.h>      /* Memory manager */
 
-#include <vexos/printk.h>               // Kernel console print
+#include <vexos/dev/ps2.h>              /* PS2 I/O */
+#include <vexos/dev/pcspkr.h>           /* PC Speacker */
+#include <vexos/dev/keyboard.h>         /* Keyboard */
 
-#include <vexos/arch/x86_64/gdt.h>      // GDT
-#include <vexos/arch/x86_64/idt.h>      // IDT
+#include <vexos/lib/macros.h>           /* Extra macros */
+#include <vexos/lib/def.h>              /* "Standard" definitions */
+#include <vexos/lib/rand.h>             /* RNG */
 
-#include <vexos/arch/x86_64/syscall.h>  // System calls
-
-#include <vexos/arch/x86_64/mem.h>      // Memory manager
-
-#include <vexos/utils/macros.h>         // Extra macros
-
-#include <vexos/dev/ps2.h>              // PS2 I/O
-#include <vexos/dev/pcspkr.h>           // PC Speacker
-#include <vexos/dev/keyboard.h>         // Keyboard
 
 #define VERSION "0.8.9"
 #define ARCH    "x86_64"
 
 
 /* TODO
- *  - FIX THE FUCKING VARGS PROBLEM
+ *  - Move VlibC into kernel code... ->->->-> Ok, done, but maybe put rand, math, etc... outside lib folder?
  *  - Memory Allocation (in progress)
- *  - Final font
- *  - Working Descriptor Tables (GDT, IDT, blahblah)
- *  - Better stdout/stderr/stdin model
+ *  - Implement c library? (stdio, etc...)
  *  - Magickly create an Intel video driver for non-2-fps rendering, DONE! haha no, but we have +60 fps in vtt
  *  - Better shell (or just a working shell)
 */

@@ -1,6 +1,5 @@
-#include <vlibc/stdlib.h>
-#include <vlibc/stdbool.h>
-#include <vlibc/string.h>
+#include <vexos/lib/conv.h>
+#include <vexos/lib/string.h>
 
 char*
 itoa(long long int n, char* str) {

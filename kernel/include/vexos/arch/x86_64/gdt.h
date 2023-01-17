@@ -1,8 +1,8 @@
 #ifndef _GDT_H
 #define _GDT_H
 
-#include <vlibc/stdint.h>
-#include <vexos/utils/macros.h>
+#include <vexos/lib/types.h>
+#include <vexos/lib/macros.h>
 
 #define SEG_DESCTYPE(x)     ((x) << 0x04)           // Descriptor type (0 for system, 1 for code/data)
 #define SEG_PRES(x)         ((x) << 0x07)           // Present

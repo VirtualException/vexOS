@@ -1,11 +1,11 @@
-#include <vlibc/stdlib.h>
-#include <vlibc/string.h>
-
 #include <vexos/vtt.h>
 #include <vexos/printk.h>
+#include <vexos/lib/memory.h>
+#include <vexos/lib/string.h>
+#include <vexos/lib/def.h>
+#include <vexos/lib/conv.h>
 
-
-char LOGFMT[] = "[VexOS KRNL %d:%d:%d]: ";
+char *LOGFMT = "[VexOS KRNL %d:%d:%d]: ";
 
 
 int

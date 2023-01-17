@@ -1,7 +1,7 @@
 #ifndef _VIDEO_H
 #define _VIDEO_H
 
-#include <vlibc/stdlib.h>
+#include <vexos/lib/types.h>
 #include <vexos/info/vinfo.h>
 
 #define RGBCOL(r, g, b)     ((color_t) {b, g, r})

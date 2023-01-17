@@ -1,4 +1,4 @@
-#include <vlibc/string.h>
+#include <vexos/lib/string.h>
 
 size_t
 strlen(const char* str) {
