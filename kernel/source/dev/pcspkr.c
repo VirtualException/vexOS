@@ -1,4 +1,5 @@
 #include <vexos/lib/types.h>
+#include <vexos/arch/io.h>
 #include <vexos/dev/pcspkr.h>
 #include <vexos/lib/extra_types.h>
 

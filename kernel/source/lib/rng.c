@@ -1,13 +1,13 @@
-#include <vexos/lib/rand.h>
+#include <vexos/lib/rng.h>
 
 static unsigned long int holdrand = 1;
 
 void
-srand(unsigned int seed) {
+rng_sets(unsigned long int seed) {
 	holdrand = seed;
 }
 
 int
-rand() {
+rng_rand(void) {
 	return (((holdrand = holdrand * 214013L + 2531011L) >> 16) & 0x7fff);
 }

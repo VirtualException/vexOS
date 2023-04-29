@@ -1,11 +1,15 @@
 #include <vexos/vtt.h>
 #include <vexos/printk.h>
-#include <vexos/lib/memory.h>
+#include <vexos/memory.h>
 #include <vexos/lib/string.h>
-#include <vexos/lib/def.h>
 #include <vexos/lib/conv.h>
+#include <vexos/lib/def.h>
+#include <vexos/info/kinfo.h>
+#include <vexos/info/kinfo.h>
+#include <vexos/arch/serial.h>
 
-char *LOGFMT = "[VexOS KRNL %d:%d:%d]: ";
+
+char LOGFMT[DEF_STR_LEN] = "[VexOS KRNL %d:%d:%d]: ";
 
 
 int
@@ -13,8 +17,7 @@ vsprintk(char* str, const char* fmt, va_list vargs) {
 
     do { /* while (*fmt++ != '\0') */
 
-    char buff[256];
-    memset(buff, 255, 0);
+    char buff[256] = { 0 };
 
     /* Format-only handeling */
     switch (*fmt) {
@@ -153,21 +156,30 @@ printk(const char* fmt, ...) {
     va_list vargs;
     va_start(vargs);
 
-    char logheader[256] = { 0 };
-    uefi_time time = { 0 };
+    bool kern_log = false;
+
+    char out_buff[DEF_STR_LEN] = { 0 };
+    char logheader[DEF_STR_LEN] = { 0 };
+
+    uefi_time time;
 
     if (*fmt == KERN_LOG_ASCII) {
 
+        kern_log = true;
         fmt++;
 
         kinfo->get_time(&time, 0);
         sprintk(logheader, LOGFMT, time.hour, time.minute, time.second);
 
         putsk(logheader);
+        serial_print(logheader);
 
     }
 
-    vprintk(fmt, vargs);
+    vsprintk(out_buff, fmt, vargs);
+
+    vprintk(out_buff, vargs);
+    if (kern_log) serial_print(out_buff);
 
     va_end(vargs);
 

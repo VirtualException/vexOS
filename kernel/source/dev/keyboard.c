@@ -1,9 +1,10 @@
-#include <vexos/dev/ps2.h>
+#include <vexos/dev/ps2def.h>
 #include <vexos/dev/keyboard.h>
 #include <vexos/lib/macros.h>
 #include <vexos/printk.h>
 
-/* This array is intended to transform every PRESS keycode (everything before caps lock,
+/*
+ * This array is intended to transform every PRESS keycode (everything before caps lock,
  * wich may be printable) into the correspondent ASCII character.
  * If 0 is the value returned, any ascii character is avaiable for that key or combination
  */
@@ -85,34 +86,12 @@ char PS2_KEYMAP_US[0x3A][2] =
     {' ', ' '}
 };
 
-uint8_t     scancode;
-uint8_t     oldscancode;
-uint32_t    timeout;
-uint32_t    first_timeout;
+uint8_t     scancode        = 0;
+uint8_t     oldscancode     = 0;
+/*uint32_t    timeout         = KBD_TIMEOUT;*/
+/*uint32_t    first_timeout   = KBD_FIRST_TIMEOUT;*/
 
-bool shift;
-
-void
-kbd_setup(void) {
-
-    printk(KERN_LOG "Setting up PS2 keyboard...\n");
-
-    scancode    = 0;
-    oldscancode = 0;
-    shift       = 0;
-
-    first_timeout   = KBD_FIRST_TIMEOUT;
-    timeout         = KBD_TIMEOUT;
-
-    printk(KERN_LOG "Keyboard setup correctly \n");
-
-    return;
-}
-
-void 
-kbd_reset_timeout(void) {
-    timeout         = KBD_TIMEOUT;
-}
+bool shift = 0;
 
 char
 kbd_ps2ascii(int _scancode, bool _shift) {
@@ -135,22 +114,22 @@ kbd_get_input(char* c, uint8_t* kcode) {
     oldscancode = scancode;
     scancode    = inportb(PS2_IO_CONTROL_PORT);
 
-    *kcode      = PS2_Null_Pressed;
-    *c          = '\0';
-
     /* Repeated key handler */
 
-    if (oldscancode == scancode) {
+//    if (oldscancode == scancode) {
+//
+//        /* Repeat rate check */
+//
+//        if (first_timeout)  return first_timeout--;
+//        else if (timeout)   return timeout--;
+//
+//        timeout = KBD_TIMEOUT;
+//
+//    } else first_timeout = KBD_FIRST_TIMEOUT;
 
-        /* Repeat rate check */
 
-        if (first_timeout)  return first_timeout--;
-        else if (timeout)   return timeout--;
-
-        timeout = KBD_TIMEOUT;
-
-    } else first_timeout = KBD_FIRST_TIMEOUT;
-
+    *kcode  = scancode;
+    *c      = '\0';
 
     switch (*kcode = scancode) {
 

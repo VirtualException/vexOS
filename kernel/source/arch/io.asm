@@ -1,9 +1,12 @@
-extern inportb
-extern outportb
-extern inportd
-extern outportd
-extern rdmsr
-extern wrmsr
+bits 64
+
+extern inportb:     function
+extern outportb:    function
+extern inportd:     function
+extern outportd:    function
+extern io_wait:     function
+extern rdmsr:       function
+extern wrmsr:       function
 
 section .text
 
@@ -20,17 +23,12 @@ outportb:
     out dx, al
     ret
 
-inportd:
-    mov dx, di
+io_waitport:
 
-    in eax, dx
-    ret
+    mov dx, 0x80
+    mov al, 0
 
-outportd:
-    mov dx, di
-    mov eax, esi
-
-    out dx, eax
+    out dx, al
     ret
 
 ; Read from Model Specific Register

@@ -1,12 +1,14 @@
 #include <vexos/vtt.h>
 #include <vexos/printk.h>
 #include <vexos/draw.h>
-#include <vexos/dev/ps2.h>
+#include <vexos/info/kinfo.h>
+#include <vexos/dev/ps2def.h>
 #include <vexos/dev/keyboard.h>
-#include <vexos/arch/x86_64/syscall.h>
-#include <vexos/lib/memory.h>
-#include <vexos/lib/vargs.h>
+#include <vexos/arch/syscall.h>
+#include <vexos/memory.h>
 #include <vexos/lib/string.h>
+#include <vexos/lib/vargs.h>
+
 
 #define UIDw(x, y, w) ((x) + ((y) * (w)))
 
@@ -18,6 +20,12 @@ uint32_t RESX;
 uint32_t RESY;
 
 pixel_t* video_buff;
+
+char c = 0;
+uint8_t kcode = 0;
+
+int ret;
+
 
 void
 vtt_setup(uint32_t cols, uint32_t rows) {
@@ -41,6 +49,10 @@ vtt_setup(uint32_t cols, uint32_t rows) {
     }
 
     memset((void*) kinfo->video_info.vmem, kinfo->video_info.vmem_size, 0x00);
+
+    c       = '\0';
+    kcode   = PS2_Null_Pressed;
+    ret     = 0;
 
     vtt_switch_to(VTTS_KLOG);
 
@@ -121,21 +133,16 @@ vtt_update_set(vtt* term) {
 int
 vtt_handle() {
 
-    char c          = 0;
-    uint8_t kcode   = 0;
-    int ret         = 0;
-
     vtt* term = &vtts[vttcurrterm];
 
-    kbd_get_input(&c, &kcode);
+    term->cursor = !term->cursor;
 
     if (!kcode) return ret;
     if (c) vtt_putchar(term, c);
 
     switch (kcode) {
-    case PS2_F1_Pressed:
-    case PS2_F2_Pressed:
-    case PS2_F3_Pressed:
+
+    case PS2_F1_Pressed ... PS2_F1_Pressed + VTTS_MAX:
         vtt_switch_to(kcode - PS2_F1_Pressed);
         printk(KERN_LOG "Switched to vtt %d\n", kcode - PS2_F1_Pressed);
         break;
@@ -169,22 +176,25 @@ vtt_handle() {
         ret = 1;
         break;
 
-    case PS2_F10_Pressed:
-        //syscall(0x00);
-        ASM("int $0x77");
-        break;
-    case PS2_F11_Pressed:
-        syscall(0x01);
-        break;
-    case PS2_F12_Pressed:
-        syscall(0x02);
+    case PS2_X_Pressed:
         break;
 
     default:
         break;
     }
 
+    c       = '\0';
+    kcode   = PS2_Null_Pressed;
+
     return ret;
+}
+
+void
+vtt_handle_key() {
+
+    kbd_get_input(&c, &kcode);
+
+    return;
 }
 
 void
@@ -329,13 +339,15 @@ vtt_renderterm() {
 
             tchar_t* tc = &term->termbuff[UIDw(x, y, term->cols)];
 
+IRQ_OFF;
             if (tc->updated == true) {
                 vtt_drawtchar(x * C_WDTH, y * C_HGHT, tc);
             }
 
-            if (x == term->curx && y == term->cury && term->blink && (term->cursor = !term->cursor)) {
+            if (x == term->curx && y == term->cury && term->blink && !term->cursor) {
                 vtt_drawcur(term, x * C_WDTH, y * C_HGHT);
             }
+IRQ_ON;
 
         }
     }
@@ -379,7 +391,7 @@ vtt_putchar(vtt* term, char c) {
         case '\0':
             break;
 
-        case '\x1B':
+        case KERN_TERM_ESC_ASCII:
             handle_escape = c;
             break;
 
@@ -391,7 +403,7 @@ vtt_putchar(vtt* term, char c) {
             break;
     }
 
-    vtt_renderterm();
+    vtt_renderterm(); /* ...meh */
 
     return;
 }

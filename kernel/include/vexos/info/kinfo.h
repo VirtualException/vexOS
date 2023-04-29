@@ -2,9 +2,14 @@
 #define _KINFO_H
 
 #include <vexos/lib/types.h>
-#include <vexos/video.h>
-#include <vexos/font.h>
+#include <vexos/info/video.h>
+#include <vexos/info/font.h>
 #include <vexos/lib/macros.h>
+
+#define RESET_REBOOT_COLD   0
+#define RESET_REBOOT_WARM   1
+#define RESET_SHUTDOWN      2
+
 
 typedef struct {
 

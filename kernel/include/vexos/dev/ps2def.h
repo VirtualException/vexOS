@@ -2,7 +2,7 @@
 #define _PS2_H
 
 #include <vexos/lib/types.h>
-#include <vexos/arch/x86_64/io.h>
+#include <vexos/arch/io.h>
 #include <vexos/lib/extra_types.h>
 
 #define PS2_IO_CONTROL_PORT 0x60
@@ -108,18 +108,5 @@ enum PS2_Keycodes {
     /* TODO: Media keys support*/
 
 };
-
-extern BYTE ps2_mouse_cycle;
-
-extern SBYTE ps2_mouse_byte[4];
-extern SBYTE ps2_mouse_dx;
-extern SBYTE ps2_mouse_dy;
-
-void ps2_mouse_handler(void);
-void ps2_mouse_wait(BYTE t);
-void ps2_mouse_write(BYTE data);
-BYTE ps2_mouse_read(void);
-void ps2_mouse_init(void);
-void ps2_mouse_disable(void);
 
 #endif

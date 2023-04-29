@@ -9,13 +9,13 @@ tput sgr0
 echo "Compiling..."
 
 gcc     bootloader/source/boot.c \
-        -c -Wall -Wextra -m64 -fpic -fno-stack-protector -fno-builtin -fshort-wchar -mno-red-zone \
+        -Ofast -c -Wall -Wextra -m64 -fpic -fno-stack-protector -fno-builtin -fshort-wchar -mno-red-zone \
         -DEFI_FUNCTION_WRAPPER \
         -I bootloader/include \
         -o bootloader/out/boot.o
 
 gcc     bootloader/source/utils.c \
-        -c -Wall -Wextra -m64 -fpic -fno-stack-protector -fno-builtin -fshort-wchar -mno-red-zone \
+        -Ofast -c -Wall -Wextra -m64 -fpic -fno-stack-protector -fno-builtin -fshort-wchar -mno-red-zone \
         -I bootloader/include \
         -o bootloader/out/utils.o
 

@@ -24,6 +24,8 @@
 #error Unsupported architecture
 #endif
 
+#define PAGE_SIZE 4096
+
 #if defined(_DEBUG)
 #define BUILDNUM    L"1.2-Debug"
 #else

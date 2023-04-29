@@ -1,5 +1,5 @@
-#define EXIT_BOOT_SERVICES 1
 #define KERNELNAME L"vexos64kernel"
+#define EXIT_BOOT_SERVICES 1
 
 #define PREF_RES_X 1920
 #define PREF_RES_Y 1080
@@ -79,7 +79,8 @@ efi_main(EFI_HANDLE ImageHandle, EFI_SYSTEM_TABLE* ST) {
 
     }
 
-    PrintPause(WARNINGTXT L"[ BAILING OUT. GOOD LUCK! ]\n\nPress any key to continue" NORMALTXT);
+    Print(WARNINGTXT L"[ BAILING OUT. GOOD LUCK! ]\n" NORMALTXT);
+    PrintPause(WARNINGTXT "\nPress any key to continue\n\r\n\r" NORMALTXT);
 
     #if EXIT_BOOT_SERVICES
         ST->BootServices->ExitBootServices(ImageHandle, MapKey);

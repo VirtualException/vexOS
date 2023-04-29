@@ -1,7 +1,7 @@
 bits 64
 
-extern gdt_load
-extern idt_load
+extern gdt_load:    function
+extern idt_load:    function
 
 section .text
 
@@ -22,6 +22,7 @@ gdt_load:
     mov rax, 0x08
     push rax
     push rdi
+
     retfq
 
 ; Load IDT

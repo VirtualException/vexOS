@@ -1,7 +1,7 @@
 #ifndef _DRAW_H
 #define _DRAW_H
 
-#include <vexos/video.h>
+#include <vexos/info/video.h>
 #include <vexos/info/font.h>
 
 #define UIDw(x, y, w)       ((x) + ((y) * (w)))

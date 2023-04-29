@@ -1,8 +1,8 @@
 #ifndef _TERM_H
 #define _TERM_H
 
-#include <vexos/info/kinfo.h>
-#include <vexos/info/font.h>
+#include <vexos/info/video.h>
+
 #include <vexos/lib/bool.h>
 
 #undef  _FONTDATA
@@ -20,6 +20,7 @@
 #define TAB_SIZE 8
 
 #define VTTS_N      3
+#define VTTS_MAX    (VTTS_N-1)
 #define VTTS_KLOG   0
 
 typedef struct _vtt vtt;
@@ -83,12 +84,13 @@ typedef struct _vtt {
 extern vtt vtts[VTTS_N];
 extern size_t vttcurrterm;
 
+int vtt_handle(void);
+
 void vtt_setup(uint32_t cols, uint32_t rows);
 void vtt_init_term(vtt* term, uint32_t cols, uint32_t rows);
 void vtt_switch_to(size_t vtt_num);
 void vtt_update_set(vtt* term);
-
-int vtt_handle(void);
+void vtt_handle_key();
 
 void vtt_clear(vtt* term);
 void vtt_newline(vtt* term);

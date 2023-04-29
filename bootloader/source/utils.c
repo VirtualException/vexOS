@@ -71,7 +71,7 @@ SetupKernel(EFI_FILE* Directory, CHAR16* KernelPath, EFI_HANDLE ImageHandle) {
         return NULL;
     }
     else {
-        Print(L"[ VEXOS-KERNEL HEADER SUCCESSFULLY VERIFIED ] : (Executable file, x64_64, Little Endian)\n");
+        Print(L"[ VEXOS-KERNEL HEADER SUCCESSFULLY VERIFIED ] : (Executable file, x86_64, Little Endian)\n");
     }
 
     // Allocate kernel entry memory
@@ -92,7 +92,7 @@ SetupKernel(EFI_FILE* Directory, CHAR16* KernelPath, EFI_HANDLE ImageHandle) {
         switch (phdr->p_type) {
 
             case PT_LOAD:
-            Elf64_Xword pages = (phdr->p_memsz + 0x1000 - 1) / 0x1000;
+            Elf64_Xword pages = (phdr->p_memsz + PAGE_SIZE - 1) / PAGE_SIZE;
             Elf64_Addr segment = phdr->p_paddr;
             ST->BootServices->AllocatePages(AllocateMaxAddress, EfiLoaderData, pages, &segment);
 

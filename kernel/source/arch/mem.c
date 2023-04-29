@@ -1,4 +1,4 @@
-#include <vexos/arch/x86_64/mem.h>
+#include <vexos/arch/mem.h>
 #include <vexos/printk.h>
 #include <vexos/lib/bool.h>
 #include <vexos/lib/def.h>
@@ -34,6 +34,10 @@ static bool done_setup = false;
 uint64_t mem_setup(void) {
 
     if (done_setup) return done_setup = true;
+
+    mem_total_bytes = 0;
+    mem_total_pages = 0;
+    usable_mem_arr_size = 0;
 
     printk(KERN_LOG "Checking memory layout...\n");
 

@@ -1,22 +1,30 @@
 set -e
 
 KNAME="vexos64kernel"
-
-EXCLUDE_OPT="printk.c"
-EXCLUDE_SSE="interrupt.c"
+DEBUG=0
+EXCLUDE_OPT="printk.c" # Optimizing print-related functions misbehaves
 
 CEXT="c"
 ASMEXT="asm"
 
 SRCDIR="kernel/source/"
 OUTDIR="kernel/out/"
+INCDIR="kernel/include/"
 
 CFILES="$(find ${SRCDIR} -name \*.${CEXT})"
 ASMFILES="$(find ${SRCDIR} -name \*.${ASMEXT})"
 
-GCCARGS="-c -O3 -Wall -Wextra -fno-stack-protector -fno-stack-check -fno-builtin -fno-pic -fPIE -mno-red-zone -m64 -I kernel/include"
-NASMARGS="-f elf64 -Ox"
-LDARGS="-nostdlib -static -T kernel/link/kernel.ld"
+# -Ofast is quite clumsy...
+GCCARGS="-c -O3 -Wall -Wextra -fno-stack-protector -fno-stack-check -fno-builtin -fno-pic -fPIE -mno-red-zone -m64"
+NASMARGS="-f elf64"
+LDARGS="-nostdlib -static -T kernel/link/kernel.ld -no-warn-rwx-segments"
+
+if [ $DEBUG = 1 ]
+then
+    GCCARGS+=" -g -Og -D__DEBUG__"
+    NASMARGS+=" -g"
+    LDARGS+=" -g"
+fi
 
 tput bold
 echo "[Building '${KNAME}']"
@@ -26,18 +34,19 @@ tput sgr0
 
 echo "Compiling..."
 
+if [ $DEBUG = 1 ]
+then
+    echo "(debug mode)"
+fi
+
 for f in $CFILES; do
 
     if [ "$EXCLUDE_OPT" = "$(basename ${f})" ]
     then # DONT DO OPTIMIZATION
-        gcc "$f" $GCCARGS "-O0" -o "${OUTDIR}$(basename ${f%.${CEXT}}.o)"
-
-    elif [ "$EXCLUDE_SSE" = "$(basename ${f})" ]
-    then # DONT RELY ON SSE
-        gcc "$f" $GCCARGS "-mgeneral-regs-only" -o "${OUTDIR}$(basename ${f%.${CEXT}}.o)"
+        gcc "$f" $GCCARGS -I $INCDIR "-O0"  -o "${OUTDIR}$(basename ${f%.${CEXT}}.o)"
 
     else # NORMAL COMPILATION
-        gcc "$f" $GCCARGS -o "${OUTDIR}$(basename ${f%.${CEXT}}.o)"
+        gcc "$f" $GCCARGS -I $INCDIR        -o "${OUTDIR}$(basename ${f%.${CEXT}}.o)"
     fi
 
 done
