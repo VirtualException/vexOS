@@ -39,7 +39,7 @@ uint64_t mem_setup(void) {
     mem_total_pages = 0;
     usable_mem_arr_size = 0;
 
-    printk(KERN_LOG "Checking memory layout...\n");
+    printk(KERN_TLOG "Checking memory layout...\n");
 
     uefi_memory_descriptor* desc = kinfo->meminfo.map;
     uint64_t entries = kinfo->meminfo.map_size /kinfo->meminfo.desc_size;
@@ -57,7 +57,7 @@ uint64_t mem_setup(void) {
 
     }
 
-    printk(KERN_LOG "Total memory: %d Megabytes (%d pages)\n", BYTES2MB(mem_total_bytes), mem_total_pages);
+    printk(KERN_TLOG "Total memory: %d Megabytes (%d pages)\n", BYTES2MB(mem_total_bytes), mem_total_pages);
 
     return 0;
 }

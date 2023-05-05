@@ -8,23 +8,19 @@
 int
 pic_setup() {
 
-    printk(KERN_LOG "Setting up PIC...\n");
+    printk(KERN_TLOG "Setting up PIC...\n");
 
-IRQ_OFF;
+    IRQ_OFF;
 
     pic_remap(0x20, 0x28);
 
     outb(PIC1_DATA, ~PIC_KEYBOARD_IRQ);
-    outb(PIC2_DATA, ~PIC_PS2MOUSE_IRQ);
+    /*outb(PIC2_DATA, ~PIC_PS2MOUSE_IRQ);*/
     outb(PIC2_DATA, ~0b1111111);
 
-IRQ_ON;
+    IRQ_ON;
 
-    printk(KERN_LOG "Testing keyboard: ");
-    INTCALL(0x21);
-    printk("\n");
-
-    printk(KERN_LOG "PIC set up correctly\n");
+    printk(KERN_TLOG "PIC set up correctly\n");
 
     return 0;
 }

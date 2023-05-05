@@ -4,7 +4,8 @@
 #include <vexos/lib/types.h>
 #include <vexos/info/kinfo.h>
 
-#define NEXT_MEMORY_DESCRIPTOR(ptr, size) ((uefi_memory_descriptor*) (((uint8_t*) ptr) + size)) /* from gnu-efi */
+/* from gnu-efi */
+#define NEXT_MEMORY_DESCRIPTOR(ptr, size) ((uefi_memory_descriptor*) (((uint8_t*) ptr) + size)) 
 
 #define PAGE_SIZE   4096
 #define PAGES2B(p)  ((p) * PAGE_SIZE)

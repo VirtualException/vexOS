@@ -1,5 +1,5 @@
-#include <vexos/dev/ps2def.h>
-#include <vexos/dev/keyboard.h>
+#include <vexos/dev/ps2kbd.h>
+#include <vexos/arch/io.h>
 #include <vexos/lib/macros.h>
 #include <vexos/printk.h>
 
@@ -91,16 +91,27 @@ uint8_t     oldscancode     = 0;
 /*uint32_t    timeout         = KBD_TIMEOUT;*/
 /*uint32_t    first_timeout   = KBD_FIRST_TIMEOUT;*/
 
-bool shift = 0;
+bool shift = false;
+
+void
+ps2kbd_setup() {
+
+    scancode = 0;
+    oldscancode = 0;
+    shift = 0;
+
+    return;
+
+}
 
 char
-kbd_ps2ascii(int _scancode, bool _shift) {
+ps2kbd_ps2ascii(int this_scancode, bool this_shift) {
 
     char c = 0;
 
-    if (_scancode <= 0x3A) {
+    if (this_scancode <= 0x3A) {
 
-        c = PS2_KEYMAP_US[_scancode][_shift];
+        c = PS2_KEYMAP_US[this_scancode][this_shift];
 
     }
     else c = '\0';
@@ -109,7 +120,7 @@ kbd_ps2ascii(int _scancode, bool _shift) {
 }
 
 int
-kbd_get_input(char* c, uint8_t* kcode) {
+ps2kbd_get_input(char* c, uint8_t* kcode) {
 
     oldscancode = scancode;
     scancode    = inportb(PS2_IO_CONTROL_PORT);
@@ -148,7 +159,7 @@ kbd_get_input(char* c, uint8_t* kcode) {
         break;
 
     default:
-        *c = kbd_ps2ascii(scancode, shift);
+        *c = ps2kbd_ps2ascii(scancode, shift);
         break;
     }
 

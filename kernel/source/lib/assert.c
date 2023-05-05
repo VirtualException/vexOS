@@ -6,8 +6,8 @@
 void
 __kassert_fail(const char* assertion, const char* file, unsigned int line, const char* function) {
 
-    printk(KERN_LOG "Assertion failed! \n");
-    printk(KERN_LOG "Assertion caused by \"%s\" at %s:%d, in function %s\n",
+    printk(KERN_TLOG "Assertion failed! \n");
+    printk(KERN_TLOG "Assertion caused by \"%s\" at %s:%d, in function %s\n",
                     assertion, file, line, function);
 
     return;

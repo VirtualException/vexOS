@@ -5,7 +5,11 @@
 #define INTCALL(imm)    ASM("int %0" : : "i" (imm)) /* same as ASM("int $"#imm) */
 #define IRQ_ON          ASM("sti")
 #define IRQ_OFF         ASM("cli")
-#define STOP            while(1){}
+#ifdef __DEBUG__
+    #define BREAKPOINT  ASM("1: jmp 1b");
+#else
+    #define BREAKPOINT
+#endif
 
 #define __ms_abi                __attribute__((ms_abi))
 #define __sysv_abi              __attribute__((sysv_abi))
@@ -16,5 +20,6 @@
 #define __packed                __attribute__((packed))
 #define __always_inline         inline __attribute__((always_inline))
 #define __unused                __attribute__((unused))
+#define __fallthrough           __attribute__((fallthrough));
 
 #endif

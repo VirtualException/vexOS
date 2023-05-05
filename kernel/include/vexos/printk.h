@@ -3,8 +3,11 @@
 
 #include <vexos/lib/vargs.h>
 
-#define KERN_LOG        "\1"
+#define KERN_LOG        "\1"    /* Just treat message as log info*/
+#define KERN_TLOG       "\2"    /* Add time headding to the log info*/
+
 #define KERN_LOG_ASCII  '\1'
+#define KERN_TLOG_ASCII '\2'
 
 /* As ANSI Escape Codes are fucked up, i make my own implementation */
 

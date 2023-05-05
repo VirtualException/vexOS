@@ -1,6 +1,6 @@
 #include <vexos/vtt.h>
 #include <vexos/printk.h>
-#include <vexos/memory.h>
+#include <vexos/lib/memory.h>
 #include <vexos/lib/string.h>
 #include <vexos/lib/conv.h>
 #include <vexos/lib/def.h>
@@ -9,7 +9,7 @@
 #include <vexos/arch/serial.h>
 
 
-char LOGFMT[DEF_STR_LEN] = "[VexOS KRNL %d:%d:%d]: ";
+char LOGFMT[64] = "[VexOS KRNL %d:%d:%d]: ";
 
 
 int
@@ -93,59 +93,11 @@ sprintk(char* str, const char* fmt, ...) {
 int
 vprintk(const char* fmt, va_list vargs) {
 
-    do { /* while (*fmt++ != '\0') */
+    char str[DEF_STR_LEN] = { 0 };
 
-    char str[256] = { 0 };
+    vsprintk(str, fmt, vargs);
 
-    /* Format-only handeling */
-    switch (*fmt) {
-
-        case '%':
-
-            switch (*++fmt) {
-
-            case '%':
-                putchark('%');
-                break;
-
-            case 'c':
-            case 'C':
-                putchark(va_arg(vargs));
-                break;
-
-            case 'd':
-            case 'D':
-                itoa(va_arg(vargs), str);
-                putsk(str);
-                break;
-
-            case 'x':
-                itohex(va_arg(vargs), str, false);
-                putsk(str);
-                break;
-
-            case 'X':
-                itohex(va_arg(vargs), str, true);
-                putsk(str);
-                break;
-
-            case 's':
-            case 'S':
-                putsk((char*) va_arg(vargs));
-                break;
-
-            default:
-                break;
-            }
-
-            break;
-
-        default:
-            putchark(*fmt);
-            break;
-    }
-
-    } while(*fmt++ != '\0');
+    putsk(str);
 
     return EXIT_SUCCESS;
 }
@@ -156,30 +108,39 @@ printk(const char* fmt, ...) {
     va_list vargs;
     va_start(vargs);
 
-    bool kern_log = false;
-
-    char out_buff[DEF_STR_LEN] = { 0 };
-    char logheader[DEF_STR_LEN] = { 0 };
-
     uefi_time time;
 
-    if (*fmt == KERN_LOG_ASCII) {
+    char out_buff[DEF_STR_LEN] = { 0 };
+    char logheader[64] = { 0 };
 
-        kern_log = true;
-        fmt++;
+    switch (*fmt) {
+
+    case KERN_TLOG_ASCII:
 
         kinfo->get_time(&time, 0);
         sprintk(logheader, LOGFMT, time.hour, time.minute, time.second);
 
-        putsk(logheader);
         serial_print(logheader);
+        putsk(logheader);
 
+        __fallthrough;
+
+    case KERN_LOG_ASCII:
+
+        vsprintk(out_buff, ++fmt, vargs); /* ! */
+
+        serial_print(out_buff);
+        putsk(out_buff);
+
+        break;
+
+    default:
+
+        vsprintk(out_buff, fmt, vargs); /* ! */
+        putsk(out_buff);
+
+        break;
     }
-
-    vsprintk(out_buff, fmt, vargs);
-
-    vprintk(out_buff, vargs);
-    if (kern_log) serial_print(out_buff);
 
     va_end(vargs);
 

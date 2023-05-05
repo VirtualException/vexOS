@@ -1,12 +1,5 @@
-#ifndef _PS2_H
-#define _PS2_H
-
-#include <vexos/lib/types.h>
-#include <vexos/arch/io.h>
-#include <vexos/lib/extra_types.h>
-
-#define PS2_IO_CONTROL_PORT 0x60
-#define PS2_EX_CONTROL_PORT 0x64
+#ifndef _PS2KEYS_H
+#define _PS2KEYS_H
 
 #define PS2_REL_OFFSET 0x80
 /* ##Cool!## */
@@ -104,6 +97,8 @@ enum PS2_Keycodes {
     DEF_PS2_KEY(Undefined3)
     DEF_PS2_KEY(F11)
     DEF_PS2_KEY(F12)
+
+    DEF_PS2_KEY(COUNT)
 
     /* TODO: Media keys support*/
 

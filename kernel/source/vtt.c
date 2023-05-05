@@ -2,10 +2,11 @@
 #include <vexos/printk.h>
 #include <vexos/draw.h>
 #include <vexos/info/kinfo.h>
-#include <vexos/dev/ps2def.h>
-#include <vexos/dev/keyboard.h>
+
+#include <vexos/dev/ps2kbd.h>
 #include <vexos/arch/syscall.h>
-#include <vexos/memory.h>
+
+#include <vexos/lib/memory.h>
 #include <vexos/lib/string.h>
 #include <vexos/lib/vargs.h>
 
@@ -56,7 +57,7 @@ vtt_setup(uint32_t cols, uint32_t rows) {
 
     vtt_switch_to(VTTS_KLOG);
 
-    printk(KERN_LOG "VTT succesfully initializated\n");
+    printk(KERN_TLOG "VTT succesfully initializated\n");
 
     return;
 }
@@ -144,7 +145,7 @@ vtt_handle() {
 
     case PS2_F1_Pressed ... PS2_F1_Pressed + VTTS_MAX:
         vtt_switch_to(kcode - PS2_F1_Pressed);
-        printk(KERN_LOG "Switched to vtt %d\n", kcode - PS2_F1_Pressed);
+        printk(KERN_TLOG "Switched to vtt %d\n", kcode - PS2_F1_Pressed);
         break;
 
     case PS2_Tab_Pressed:
@@ -168,6 +169,10 @@ vtt_handle() {
         term->forward(term);
         break;
 
+    case PS2_K_2_Pressed:
+        term->newline(term);
+        break;
+
     case PS2_F9_Pressed:
         term->clear(term);
         break;
@@ -176,7 +181,10 @@ vtt_handle() {
         ret = 1;
         break;
 
-    case PS2_X_Pressed:
+    case PS2_F12_Pressed:
+
+        asm volatile("int3");
+
         break;
 
     default:
@@ -192,7 +200,7 @@ vtt_handle() {
 void
 vtt_handle_key() {
 
-    kbd_get_input(&c, &kcode);
+    ps2kbd_get_input(&c, &kcode);
 
     return;
 }

@@ -1,4 +1,4 @@
-#include <vexos/memory.h>
+#include <vexos/lib/memory.h>
 #include <vexos/lib/def.h>
 
 void*

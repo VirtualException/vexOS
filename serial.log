@@ -1,74 +1,0 @@
-[2J[01;01H[=3h[2J[01;01H[2J[01;01H[=3h[2J[01;01H[2J[01;01H[=3h[2J[01;01HBdsDxe: loading Boot0001 "UEFI QEMU DVD-ROM QM00003 " from PciRoot(0x0)/Pci(0x1,0x1)/Ata(Secondary,Master,0x0)
-BdsDxe: starting Boot0001 "UEFI QEMU DVD-ROM QM00003 " from PciRoot(0x0)/Pci(0x1,0x1)/Ata(Secondary,Master,0x0)
-[1m[33m[40m
-[ STARTING... ]
-[0m[37m[40m[2J[01;01H[1m[33m[40m                 ____   _____          __ _  _
-                / __ \ / ____|        / /| || |
-__   _______  _| |  | | (___   __  __/ /_| || |_
-\ \ / / _ \ \/ / |  | |\___ \  \ \/ / '_ \__   _|
- \ V /  __/>  <| |__| |____) |  >  <| (_) | | |
-  \_/ \___/_/\_\\____/|_____/  /_/\_\\___/  |_|
-
-
-[0m[37m[40m[1m[33m[40mPC Info:
-[0m[37m[40mArchitecture: 64-bit x86
-Version: 1.2-Release
-Kernel Path: [FSX:]\vexos64kernel
-Memory Map: Ok
-(Will exit Boot Services)
-
-[1m[33m[40mGraphics Output Protocol Info:
-[0m[37m[40mResolution: 1920x1080
-Framebuffer addr: 0x80000000
-Framebuffer size: 9216000
-
-[1m[33m[40m
-Press any key to continue[0m[37m[40m[2J[01;01H[1m[33m[40m[ OPENING VEXOS-KERNEL FROM: \vexos64kernel ]
-[ LOADING VEXOS-KERNEL ]
-[ VEXOS-KERNEL HEADER SUCCESSFULLY VERIFIED ] : (Executable file, x86_64, Little Endian)
-[ FINDING ENTRY POINT ]
-[ BAILING OUT. GOOD LUCK! ]
-[0m[37m[40m[1m[33m[40m
-Press any key to continue
-
-[0m[37m[40m[VexOS KRNL 15:19:10]: VTT succesfully initializated
-[VexOS KRNL 15:19:10]: Setting up GDT...
-[VexOS KRNL 15:19:10]: GDT set up correctly
-[VexOS KRNL 15:19:10]: Setting up IDT...
-[VexOS KRNL 15:19:10]: IDT set up correctly
-[VexOS KRNL 15:19:10]: Setting up PIC...
-[VexOS KRNL 15:19:10]: Testing keyboard: [VexOS KRNL 15:19:10]: PIC set up correctly
-COM1 Serial working! (maybe it was already up)
-[VexOS KRNL 15:19:10]: Setting up syscalls...
-[VexOS KRNL 15:19:10]: Testing syscalls:
-[VexOS KRNL 15:19:10]: SYSCALL 0x00
-[VexOS KRNL 15:19:10]: Syscalls set up correctly
-[VexOS KRNL 15:19:10]: Checking memory layout...
-[VexOS KRNL 15:19:10]: Total memory: 255 Megabytes (65440 pages)
-[VexOS KRNL 15:19:10]: Random seed: 234712
-[VexOS KRNL 15:19:10]: Time & date: 15:19:10 29/4 2023
-[VexOS KRNL 15:19:10]: Build Timestamp: Sat Apr 29 17:13:18 2023
-[VexOS KRNL 15:19:10]: Memory Map Info (107 entries):
-[VexOS KRNL 15:19:10]: Entry No 0: 	boot_services_code  	4 KB  at 	0x0  
-[VexOS KRNL 15:19:10]: Entry No 1: 	conventional_memory  	536 KB  at 	0x1000 *
-[VexOS KRNL 15:19:10]: Entry No 3: 	conventional_memory  	96 KB  at 	0x88000 *
-[VexOS KRNL 15:19:10]: Entry No 4: 	conventional_memory  	7168 KB  at 	0x100000 *
-[VexOS KRNL 15:19:10]: Entry No 5: 	acpi_memory_nvs  	32 KB  at 	0x800000  
-[VexOS KRNL 15:19:10]: Entry No 6: 	conventional_memory  	12 KB  at 	0x808000 *
-[VexOS KRNL 15:19:10]: Entry No 7: 	acpi_memory_nvs  	4 KB  at 	0x80b000  
-[VexOS KRNL 15:19:10]: Entry No 8: 	conventional_memory  	16 KB  at 	0x80c000 *
-[VexOS KRNL 15:19:10]: Entry No 9: 	acpi_memory_nvs  	960 KB  at 	0x810000  
-[VexOS KRNL 15:19:10]: Entry No 11: 	conventional_memory  	174168 KB  at 	0x1500000 *
-[VexOS KRNL 15:19:10]: Entry No 13: 	conventional_memory  	43024 KB  at 	0xbf36000 *
-[VexOS KRNL 15:19:10]: Entry No 14: 	uefi_loader_code  	248 KB  at 	0xe93a000  
-[VexOS KRNL 15:19:10]: Entry No 15: 	conventional_memory  	224 KB  at 	0xe978000 *
-[VexOS KRNL 15:19:10]: Entry No 16: 	uefi_loader_data  	8 KB  at 	0xe9b0000  
-[VexOS KRNL 15:19:10]: Entry No 94: 	runtime_services_data  	1024 KB  at 	0xf8ed000  
-[VexOS KRNL 15:19:10]: Entry No 95: 	runtime_services_code  	1024 KB  at 	0xf9ed000  
-[VexOS KRNL 15:19:10]: Entry No 96: 	reserved_memory  	512 KB  at 	0xfaed000  
-[VexOS KRNL 15:19:10]: Entry No 97: 	acpi_reclaim_memory  	72 KB  at 	0xfb6d000  
-[VexOS KRNL 15:19:10]: Entry No 98: 	acpi_memory_nvs  	512 KB  at 	0xfb7f000  
-[VexOS KRNL 15:19:10]: Entry No 100: 	conventional_memory  	620 KB  at 	0xfe00000 *
-[VexOS KRNL 15:19:10]: Entry No 105: 	runtime_services_data  	128 KB  at 	0xff38000  
-[VexOS KRNL 15:19:10]: Entry No 106: 	acpi_memory_nvs  	672 KB  at 	0xff58000  
-

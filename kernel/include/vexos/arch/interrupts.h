@@ -4,26 +4,34 @@
 #include <vexos/lib/types.h>
 #include <vexos/lib/macros.h>
 
-#define ISR_N 0x100 /* Nº of Interrupt Service Rutines (Interrupt handler) */
+#define ISR_N 0x100 /* Nº of Interrupt Service Rutines (Interrupt and Exception handlers) */
 #define EXC_N 0x20  /* Nº of Exceptions */
 #define IRQ_N 0x10  /* Nº of IRQs */
 
-typedef void* interrupt_frame;
+typedef struct _interrupt_frame {
+
+    uint64_t rip;
+    uint64_t cs;
+    uint64_t rflags;
+
+} interrupt_frame;
+
 typedef void* interrupt;
 
 extern interrupt isr_table[ISR_N];
 
 /* Interrupt Service Routines can only have this type of definition
  * All interrupts are wrappers to other system functions
- * All exceptions will return, except(ion haha!) for the GP
+ * All exceptions will return, except(ion haha!) for the #GP
  */
-#define INTERRUPT(name) __interrupt __general_regs_only void int_##name(__unused interrupt_frame *intframe)
-#define EXCEPTION(name) __interrupt __general_regs_only void exc_##name(__unused interrupt_frame *intframe)
-
-INTERRUPT(irq_kbd);
-INTERRUPT(irq_ps2mouse);
+#define INTERRUPT(name) __interrupt __general_regs_only void int_##name(__unused interrupt_frame* intframe)
+#define EXCEPTION(name) __interrupt __general_regs_only void exc_##name(__unused interrupt_frame* intframe)
+#define EXCEPTERR(name) __interrupt __general_regs_only void exc_##name(__unused interrupt_frame* intframe, uint64_t error_code)
 
 INTERRUPT(unhandled);
+INTERRUPT(regdump);
+INTERRUPT(irq_kbd);
+INTERRUPT(irq_ps2mouse);
 
 EXCEPTION(division_error);
 EXCEPTION(debug);
