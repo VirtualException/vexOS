@@ -1,18 +1,20 @@
+/* VTT - VirTual Terminal */
+
 #include <vexos/vtt.h>
-#include <vexos/printk.h>
+#include <vexos/cmd.h>
+#include <vexos/kprintf.h>
 #include <vexos/draw.h>
+#include <vexos/time.h>
 #include <vexos/info/kinfo.h>
 
 #include <vexos/dev/ps2kbd.h>
-#include <vexos/arch/syscall.h>
+#include <vexos/dev/pit.h>
+
+#include <vexos/arch/interrupts.h>
 
 #include <vexos/lib/memory.h>
 #include <vexos/lib/string.h>
 #include <vexos/lib/vargs.h>
-
-
-#define UIDw(x, y, w) ((x) + ((y) * (w)))
-
 
 vtt vtts[VTTS_N] = { 0 };
 size_t vttcurrterm;
@@ -22,25 +24,17 @@ uint32_t RESY;
 
 pixel_t* video_buff;
 
-char c = 0;
-uint8_t kcode = 0;
-
-int ret;
-
-
 void
 vtt_setup(uint32_t cols, uint32_t rows) {
-
-/* TODO: Fix resolutions */
 
     RESX = kinfo->video_info.x_res;
     RESY = kinfo->video_info.y_res;
 
-    if (cols == 0 || cols > RESX / C_WDTH) {
-        cols = RESX / C_WDTH;
+    if (cols == 0 || cols > RESX / CHAR_WDTH) {
+        cols = RESX / CHAR_WDTH;
     }
-    if (rows == 0 || rows > RESY / C_HGHT) {
-        rows = RESY / C_HGHT;
+    if (rows == 0 || rows > RESY / CHAR_HGHT) {
+        rows = RESY / CHAR_HGHT;
     }
 
     video_buff = (pixel_t*) kinfo->video_info.vmem;
@@ -51,13 +45,9 @@ vtt_setup(uint32_t cols, uint32_t rows) {
 
     memset((void*) kinfo->video_info.vmem, kinfo->video_info.vmem_size, 0x00);
 
-    c       = '\0';
-    kcode   = PS2_Null_Pressed;
-    ret     = 0;
-
     vtt_switch_to(VTTS_KLOG);
 
-    printk(KERN_TLOG "VTT succesfully initializated\n");
+    kprintf(KERN_TLOG "VTT succesfully initializated\n");
 
     return;
 }
@@ -73,7 +63,11 @@ vtt_init_term(vtt* term, uint32_t cols, uint32_t rows) {
     term->cury      = 0;
     term->cursor    = false;
     term->blink     = true;
-    term->defchar   = (tchar_t) { '\0', RGBCOL(0xaa, 0xaa, 0xaa), RGBCOL(0x00, 0x00, 0x00), true};
+    term->defchar   = (tchar_t) { '\0',
+                        RGBCOL(0xCC, 0xCC, 0xCC), /* Default        */
+                        RGBCOL(0x00, 0x00, 0x00), /*         colors */
+                        true
+                    };
     term->col_fg    = term->defchar.fg;
     term->col_bg    = term->defchar.bg;
 
@@ -90,6 +84,8 @@ vtt_init_term(vtt* term, uint32_t cols, uint32_t rows) {
     term->setfgcol  = vtt_setfgcol;
     term->setbgcol  = vtt_setbgcol;
 
+    term->handle    = cmd;
+
     memset(term->termbuff, M_COLS * M_ROWS * sizeof(tchar_t), 0x0);
 
     term->clear(term);
@@ -97,15 +93,10 @@ vtt_init_term(vtt* term, uint32_t cols, uint32_t rows) {
     return;
 }
 
-void
-vtt_clear(vtt* term) {
+void vtt_set_handle(size_t vtt_num, vtt_handle_func handle) {
 
-    for (size_t i = 0; i < term->rows * term->cols; i++) {
-        term->termbuff[i] = term->defchar;
-    }
-
-    term->curx = 0;
-    term->cury = 0;
+    vtt* term = &vtts[vtt_num];
+    term->handle = handle;
 
     return;
 }
@@ -136,71 +127,22 @@ vtt_handle() {
 
     vtt* term = &vtts[vttcurrterm];
 
-    term->cursor = !term->cursor;
+    term->cursor = ((time_ms_boot() / 500) % 2 == 0);
 
-    if (!kcode) return ret;
-    if (c) vtt_putchar(term, c);
+    vtt_renderterm();
 
-    switch (kcode) {
-
-    case PS2_F1_Pressed ... PS2_F1_Pressed + VTTS_MAX:
-        vtt_switch_to(kcode - PS2_F1_Pressed);
-        printk(KERN_TLOG "Switched to vtt %d\n", kcode - PS2_F1_Pressed);
-        break;
-
-    case PS2_Tab_Pressed:
-        term->tab(term);
-        break;
-
-    case PS2_Enter_Pressed:
-        /**/
-        term->newline(term);
-        break;
-
-    case PS2_Backspace_Pressed:
-        term->delete(term);
-        break;
-
-    case PS2_K_4_Pressed:
-        term->backward(term);
-        break;
-
-    case PS2_K_6_Pressed:
-        term->forward(term);
-        break;
-
-    case PS2_K_2_Pressed:
-        term->newline(term);
-        break;
-
-    case PS2_F9_Pressed:
-        term->clear(term);
-        break;
-
-    case PS2_Esc_Released:
-        ret = 1;
-        break;
-
-    case PS2_F12_Pressed:
-
-        asm volatile("int3");
-
-        break;
-
-    default:
-        break;
-    }
-
-    c       = '\0';
-    kcode   = PS2_Null_Pressed;
-
-    return ret;
+    return term->handle(term);
 }
 
 void
-vtt_handle_key() {
+vtt_clear(vtt* term) {
 
-    ps2kbd_get_input(&c, &kcode);
+    for (size_t i = 0; i < term->rows * term->cols; i++) {
+        term->termbuff[i] = term->defchar;
+    }
+
+    term->curx = 0;
+    term->cury = 0;
 
     return;
 }
@@ -255,7 +197,7 @@ vtt_scroll(vtt* term, uint32_t lines) {
     }
 
     for (size_t x = 0; x < term->cols; x++) {
-        term->termbuff[UIDw(x, term->rows-1, term->cols)] = (tchar_t) {'\0', term->col_fg, term->col_bg, 1};
+        term->termbuff[UIDw(x, term->rows-1, term->cols)] = term->defchar;
     }
 
     return;
@@ -347,15 +289,12 @@ vtt_renderterm() {
 
             tchar_t* tc = &term->termbuff[UIDw(x, y, term->cols)];
 
-IRQ_OFF;
-            if (tc->updated == true) {
-                vtt_drawtchar(x * C_WDTH, y * C_HGHT, tc);
+            if (x == term->curx && y == term->cury && term->blink && term->cursor) {
+                vtt_drawcur(term, x * CHAR_WDTH, y * CHAR_HGHT);
             }
-
-            if (x == term->curx && y == term->cury && term->blink && !term->cursor) {
-                vtt_drawcur(term, x * C_WDTH, y * C_HGHT);
+            else if (tc->updated == true) {
+                vtt_drawtchar(x * CHAR_WDTH, y * CHAR_HGHT, tc);
             }
-IRQ_ON;
 
         }
     }
@@ -366,7 +305,7 @@ IRQ_ON;
 void
 vtt_drawcur(vtt* term, uint32_t x, uint32_t y) {
 
-    vtt_drawtchar(x, y, &(tchar_t) { CURSOR, term->col_fg, term->col_bg, true });
+    vtt_drawtchar(x, y, &(tchar_t) { ' ', term->col_bg, term->col_fg, true });
     term->termbuff[UIDw(term->curx, term->cury, term->cols)].updated = true;
 
     return;
@@ -376,6 +315,7 @@ void
 vtt_drawtchar(uint32_t x, uint32_t y, tchar_t* tc) {
 
     drawchar(x, y, tc->c, tc->fg, tc->bg, &kinfo->font, &kinfo->video_info);
+
     tc->updated = false;
 
     return;
@@ -399,13 +339,14 @@ vtt_putchar(vtt* term, char c) {
         case '\0':
             break;
 
-        case KERN_TERM_ESC_ASCII:
+        case '\e':
             handle_escape = c;
             break;
 
         default:
             /* !!! */
-            term->termbuff[UIDw(term->curx, term->cury, term->cols)] = (tchar_t) { c, term->col_fg, term->col_bg, true };
+            term->termbuff[UIDw(term->curx, term->cury, term->cols)] =
+                (tchar_t) { c, term->col_fg, term->col_bg, true };
             term->forward(term);
 
             break;
@@ -414,4 +355,38 @@ vtt_putchar(vtt* term, char c) {
     vtt_renderterm(); /* ...meh */
 
     return;
+}
+
+void
+vtt_putchar_at(vtt* term, char c, uint32_t x, uint32_t y) {
+
+    switch (c) {
+
+        case '\0':
+            break;
+
+        case '\n':
+            term->newline(term);
+            break;
+
+        case '\t':
+            term->tab(term);
+            break;
+
+        case '\e':
+            handle_escape = c;
+            break;
+
+        default:
+            /* !!! */
+            term->termbuff[UIDw(x, y, term->cols)] =
+                (tchar_t) { c, term->col_fg, term->col_bg, true };
+
+            break;
+    }
+
+    vtt_renderterm(); /* ...meh */
+
+    return;
+
 }

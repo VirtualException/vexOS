@@ -12,7 +12,7 @@
 *
 */
 
-typedef struct {
+typedef volatile struct {
 
     unsigned long int args[9];
     unsigned long int index;

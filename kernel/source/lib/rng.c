@@ -3,7 +3,7 @@
 static unsigned long int holdrand = 1;
 
 void
-rng_sets(unsigned long int seed) {
+rng_init(unsigned long int seed) {
 	holdrand = seed;
 }
 

@@ -1,3 +1,5 @@
+./clean.sh
+
 set -e
 
 ./build-boot.sh

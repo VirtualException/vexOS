@@ -39,8 +39,7 @@ typedef struct {
 
 typedef struct {
 
-    unsigned int BmpWdth;
-    unsigned int BmpHght;
+    unsigned int Chars;
 
     unsigned int Wdth;
     unsigned int Hght;

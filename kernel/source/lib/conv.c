@@ -1,18 +1,34 @@
 #include <vexos/lib/conv.h>
 #include <vexos/lib/string.h>
+#include <vexos/lib/memory.h>
+
+long int
+atoi(const char* str) {
+
+    long int res = 0;
+
+    for (int i = 0; str[i] != '\0'; ++i) {
+        res = res * 10 + str[i] - '0';
+    }
+
+    return res;
+}
 
 char*
-itoa(long long int n, char* str) {
+itoa(long int n, char* str) {
+    return itoa_f(n, str, 0, '0');
+}
 
-    int i = 0;
-    bool neg = 0;
+char*
+itoa_f(long int n, char* str, size_t width, char fill) {
+
+    size_t i = 0;
+    bool neg = false;
 
     if (n < 0) {
         n = -n;
         neg = 1;
     }
-
-    i = 0;
 
     do {
         str[i++] = n % 10 + '0';
@@ -22,6 +38,10 @@ itoa(long long int n, char* str) {
         str[i++] = '-';
     }
 
+    while (i < width) {
+        str[i++] = fill;
+    }
+
     str[i] = '\0';
 
     strrev(str);
@@ -29,12 +49,13 @@ itoa(long long int n, char* str) {
     return str;
 }
 
-int atoi(const char* str) {
-
-    return str[0];
+char*
+itohex(unsigned long int n, char* str, bool caps) {
+    return itohex_f(n, str, caps, 0, '0');
 }
 
-char* itohex(unsigned long long int n, char* strn, bool caps) {
+char*
+itohex_f(unsigned long int n, char* str, bool caps, size_t width, char fill) {
 
     unsigned long int rem;
     unsigned long int quo = n;
@@ -47,30 +68,34 @@ char* itohex(unsigned long long int n, char* strn, bool caps) {
 
         rem = quo % 16;
  
-        if (rem < 10) strn[i++] = rem + 48;
-        else strn[i++] = rem + hexalpha;
+        if (rem < 10) str[i++] = rem + 48;
+        else str[i++] = rem + hexalpha;
 
         quo = quo / 16;
 
     }
 
-    if (i == 0) strn[i++] = '0';
-    strn[i] = '\0';
+    if (i == 0) str[i++] = '0';
 
+    while (i < width) {
+        str[i++] = fill;
+    }
+
+    str[i] = '\0';
 
     ssize_t j = 0, s = i - 1;
     char t;
 
     while(j <= s) {
 
-        t = strn[j];
-        strn[j] = strn[s];
-        strn[s] = t;
+        t = str[j];
+        str[j] = str[s];
+        str[s] = t;
 
         j++;
         s--;
 
     }
 
-    return strn;
+    return str;
 }

@@ -1,28 +1,25 @@
-#include <vexos/printk.h>
+#include <vexos/kprintf.h>
+#include <vexos/time.h>
 #include <vexos/lib/macros.h>
 #include <vexos/lib/bool.h>
 
 #include <vexos/arch/io.h>
-#include <vexos/dev/pic.h>
+#include <vexos/arch/pic.h>
 
-int
+void
 pic_setup() {
 
-    printk(KERN_TLOG "Setting up PIC...\n");
+    kprintf(KERN_TLOG "Setting up PIC (w/o devices)... ");
 
-    IRQ_OFF;
+IRQ_OFF;
 
     pic_remap(0x20, 0x28);
 
-    outb(PIC1_DATA, ~PIC_KEYBOARD_IRQ);
-    /*outb(PIC2_DATA, ~PIC_PS2MOUSE_IRQ);*/
-    outb(PIC2_DATA, ~0b1111111);
+IRQ_ON;
 
-    IRQ_ON;
+    kprintf(KERN_LOG "[DONE]\n");
 
-    printk(KERN_TLOG "PIC set up correctly\n");
-
-    return 0;
+    return;
 }
 
 void
@@ -60,8 +57,43 @@ pic_remap(uint8_t pic1, uint8_t pic2) {
     outb(PIC2_DATA, a2);
     io_wait();
 
-    outb(PIC1_DATA, 0xFF);
-    outb(PIC2_DATA, 0xFF);
+    return;
+}
+
+void
+pic_mask(uint8_t irq) {
+
+    uint16_t port;
+    uint8_t value;
+ 
+    if(irq < 8) {
+        port = PIC1_DATA;
+    } else {
+        port = PIC2_DATA;
+        irq -= 8;
+    }
+    value = inb(port) | (1 << irq);
+    outb(port, value);
+    io_wait();
+
+    return;
+}
+
+void
+pic_unmask(uint8_t irq) {
+
+    uint16_t port;
+    uint8_t value;
+ 
+    if(irq < 8) {
+        port = PIC1_DATA;
+    } else {
+        port = PIC2_DATA;
+        irq -= 8;
+    }
+    value = inb(port) & ~(1 << irq);
+    outb(port, value);
+    io_wait();
 
     return;
 }
@@ -69,7 +101,7 @@ pic_remap(uint8_t pic1, uint8_t pic2) {
 void
 pic_send_eoi(uint8_t irq) {
 
-    if (irq > 7) outb(PIC2, PIC_EOI);
+    if (irq >= 8) outb(PIC2, PIC_EOI);
     outb(PIC1, PIC_EOI);
 
     return;

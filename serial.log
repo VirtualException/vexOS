@@ -1,0 +1,148 @@
+[2J[01;01H[=3h[2J[01;01H[2J[01;01H[=3h[2J[01;01H[2J[01;01H[=3h[2J[01;01HBdsDxe: loading Boot0001 "UEFI QEMU DVD-ROM QM00003 " from PciRoot(0x0)/Pci(0x1,0x1)/Ata(Secondary,Master,0x0)
+BdsDxe: starting Boot0001 "UEFI QEMU DVD-ROM QM00003 " from PciRoot(0x0)/Pci(0x1,0x1)/Ata(Secondary,Master,0x0)
+[1m[33m[40m
+[ STARTING... ]
+[0m[37m[40m[2J[01;01H[1m[33m[40m ____   ____   ____ _______                   ____   _____
+|  _ \ / __ \ / __ \__   __|                 / __ \ / ____|
+| |_) | |  | | |  | | | |    __   _______  _| |  | | (___
+|  _ <| |  | | |  | | | |    \ \ / / _ \ \/ / |  | |\___ \
+| |_) | |__| | |__| | | |     \ V /  __/>  <| |__| |____) |
+|____/ \____/ \____/  |_|      \_/ \___/_/\_\\____/|_____/
+
+
+[0m[37m[40m[1m[33m[40mPC Info:
+[0m[37m[40mArchitecture: 64-bit x86
+Build: Release
+Kernel Path: [FSX:]\vexos64kernel
+Memory Map: Ok
+(Will exit Boot Services)
+
+[1m[33m[40mGraphics Output Protocol Info:
+[0m[37m[40mResolution: 1920x1080
+Framebuffer addr: 0x80000000
+Framebuffer size: 9216000
+
+[1m[33m[40m
+Press any key to continue[0m[37m[40m[2J[01;01H[1m[33m[40m[ OPENING VEXOS-KERNEL FROM: \vexos64kernel ]
+[ LOADING VEXOS-KERNEL ]
+[ VEXOS-KERNEL HEADER SUCCESSFULLY VERIFIED ] : (Executable file, x86_64, Little Endian)
+[ FINDING ENTRY POINT ]
+[ BAILING OUT. GOOD LUCK! ]
+[0m[37m[40m[1m[33m[40m
+Press any key to continue
+
+[0m[37m[40m[vexOSkernel 12:55:40 +000000000.000ms]: Setting up GDT... [DONE]
+[vexOSkernel 12:55:40 +000000000.000ms]: Setting up IDT... [DONE]
+[vexOSkernel 12:55:40 +000000000.000ms]: Setting up Syscalls... [DONE]
+[vexOSkernel 12:55:40 +000000000.000ms]: Setting up PIC (w/o devices)... [DONE]
+[vexOSkernel 12:55:40 +000000000.000ms]: Setting up PIT... [DONE]
+[vexOSkernel 12:55:40 +000000000.001ms]: Setting up PS/2 Keyboard... [DONE]
+[vexOSkernel 12:55:40 +000000000.004ms]: Setting up memory... [DONE]
+[vexOSkernel 12:55:40 +000000000.006ms]: ----------------- Setup complete -----------------
+[vexOSkernel 12:55:40 +000000000.010ms]: Memory Map Info: 100 entries (showing usable):
+Entry No   1: conventional_memory    	     636 KB 	0x0000001000 *
+Entry No   2: conventional_memory    	    7168 KB 	0x0000100000 *
+Entry No   4: conventional_memory    	      12 KB 	0x0000808000 *
+Entry No   6: conventional_memory    	      16 KB 	0x000080C000 *
+Entry No   9: conventional_memory    	  959704 KB 	0x0001600000 *
+Entry No  11: conventional_memory    	   43204 KB 	0x003BF56000 *
+Entry No  13: conventional_memory    	     128 KB 	0x003E9AE000 *
+Entry No  92: conventional_memory    	     880 KB 	0x003FE00000 *
+[vexOSkernel 12:55:40 +000000000.026ms]: Total memory: 1023 Megabytes (262052 pages)
+[vexOSkernel 12:55:40 +000000000.029ms]: Random seed: 426770432
+[vexOSkernel 12:55:40 +000000000.030ms]: Boot date: 27/06/2023 (DD:MM:YYYY)
+[vexOSkernel 12:55:40 +000000000.033ms]: Build Timestamp: Tue Jun 27 14:44:20 2023. Built with gcc-13.1.1
+                 ____   _____          __ _  _
+                / __ \ / ____|        / /| || |
+__   _______  _| |  | | (___   __  __/ /_| || |_
+\ \ / / _ \ \/ / |  | |\___ \  \ \/ / '_ \__   _|
+ \ V /  __/>  <| |__| |____) |  >  <| (_) | | |
+  \_/ \___/_/\_\\____/|_____/  /_/\_\\___/  |_|   by VirtualException
+
+[vexOSkernel 12:55:40 +000000000.077ms]: IRQ PS/2 Keyboard
+[vexOSkernel 12:55:40 +000000000.370ms]: IRQ PS/2 Keyboard
+[vexOSkernel 12:55:40 +000000000.487ms]: IRQ PS/2 Keyboard
+[vexOSkernel 12:55:40 +000000000.598ms]: IRQ PS/2 Keyboard
+[vexOSkernel 12:55:41 +000000000.729ms]: IRQ PS/2 Keyboard
+[vexOSkernel 12:55:41 +000000001.695ms]: IRQ PS/2 Keyboard
+[vexOSkernel 12:55:42 +000000001.763ms]: IRQ PS/2 Keyboard
+[vexOSkernel 12:55:42 +000000001.875ms]: IRQ PS/2 Keyboard
+[vexOSkernel 12:55:42 +000000001.897ms]: IRQ PS/2 Keyboard
+[vexOSkernel 12:55:42 +000000001.973ms]: IRQ PS/2 Keyboard
+[vexOSkernel 12:55:42 +000000001.986ms]: IRQ PS/2 Keyboard
+[vexOSkernel 12:55:42 +000000002.400ms]: IRQ PS/2 Keyboard
+[vexOSkernel 12:55:42 +000000002.571ms]: IRQ PS/2 Keyboard
+[vexOSkernel 12:55:42 +000000002.572ms]: Rebooting in 2... 1... [2J[01;01H[=3h[2J[01;01H[2J[01;01H[=3h[2J[01;01H[2J[01;01H[=3h[2J[01;01HBdsDxe: loading Boot0001 "UEFI QEMU DVD-ROM QM00003 " from PciRoot(0x0)/Pci(0x1,0x1)/Ata(Secondary,Master,0x0)
+BdsDxe: starting Boot0001 "UEFI QEMU DVD-ROM QM00003 " from PciRoot(0x0)/Pci(0x1,0x1)/Ata(Secondary,Master,0x0)
+[1m[33m[40m
+[ STARTING... ]
+[0m[37m[40m[2J[01;01H[1m[33m[40m ____   ____   ____ _______                   ____   _____
+|  _ \ / __ \ / __ \__   __|                 / __ \ / ____|
+| |_) | |  | | |  | | | |    __   _______  _| |  | | (___
+|  _ <| |  | | |  | | | |    \ \ / / _ \ \/ / |  | |\___ \
+| |_) | |__| | |__| | | |     \ V /  __/>  <| |__| |____) |
+|____/ \____/ \____/  |_|      \_/ \___/_/\_\\____/|_____/
+
+
+[0m[37m[40m[1m[33m[40mPC Info:
+[0m[37m[40mArchitecture: 64-bit x86
+Build: Release
+Kernel Path: [FSX:]\vexos64kernel
+Memory Map: Ok
+(Will exit Boot Services)
+
+[1m[33m[40mGraphics Output Protocol Info:
+[0m[37m[40mResolution: 1920x1080
+Framebuffer addr: 0x80000000
+Framebuffer size: 9216000
+
+[1m[33m[40m
+Press any key to continue[0m[37m[40m[2J[01;01H[1m[33m[40m[ OPENING VEXOS-KERNEL FROM: \vexos64kernel ]
+[ LOADING VEXOS-KERNEL ]
+[ VEXOS-KERNEL HEADER SUCCESSFULLY VERIFIED ] : (Executable file, x86_64, Little Endian)
+[ FINDING ENTRY POINT ]
+[ BAILING OUT. GOOD LUCK! ]
+[0m[37m[40m[1m[33m[40m
+Press any key to continue
+
+[0m[37m[40m[vexOSkernel 12:55:48 +000000000.000ms]: VTT succesfully initializated
+[vexOSkernel 12:55:48 +000000000.000ms]: Setting up serial connection... [DONE]
+
+COM1 Serial working! (maybe it was already up)
+[vexOSkernel 12:55:48 +000000000.000ms]: Setting up GDT... [DONE]
+[vexOSkernel 12:55:48 +000000000.000ms]: Setting up IDT... [DONE]
+[vexOSkernel 12:55:48 +000000000.000ms]: Setting up Syscalls... [DONE]
+[vexOSkernel 12:55:48 +000000000.000ms]: Setting up PIC (w/o devices)... [DONE]
+[vexOSkernel 12:55:48 +000000000.000ms]: Setting up PIT... [DONE]
+[vexOSkernel 12:55:48 +000000000.001ms]: Setting up PS/2 Keyboard... [DONE]
+[vexOSkernel 12:55:48 +000000000.003ms]: Setting up memory... [DONE]
+[vexOSkernel 12:55:48 +000000000.006ms]: ----------------- Setup complete -----------------
+[vexOSkernel 12:55:48 +000000000.008ms]: Memory Map Info: 101 entries (showing usable):
+Entry No   1: conventional_memory    	     636 KB 	0x0000001000 *
+Entry No   2: conventional_memory    	    7168 KB 	0x0000100000 *
+Entry No   4: conventional_memory    	      12 KB 	0x0000808000 *
+Entry No   6: conventional_memory    	      16 KB 	0x000080C000 *
+Entry No   9: conventional_memory    	  959704 KB 	0x0001600000 *
+Entry No  11: conventional_memory    	   43196 KB 	0x003BF56000 *
+Entry No  14: conventional_memory    	     128 KB 	0x003E9AE000 *
+Entry No  93: conventional_memory    	     880 KB 	0x003FE00000 *
+[vexOSkernel 12:55:48 +000000000.026ms]: Total memory: 1023 Megabytes (262052 pages)
+[vexOSkernel 12:55:48 +000000000.028ms]: Random seed: 2533359616
+[vexOSkernel 12:55:48 +000000000.030ms]: Boot date: 27/06/2023 (DD:MM:YYYY)
+[vexOSkernel 12:55:48 +000000000.032ms]: Build Timestamp: Tue Jun 27 14:44:20 2023. Built with gcc-13.1.1
+                 ____   _____          __ _  _
+                / __ \ / ____|        / /| || |
+__   _______  _| |  | | (___   __  __/ /_| || |_
+\ \ / / _ \ \/ / |  | |\___ \  \ \/ / '_ \__   _|
+ \ V /  __/>  <| |__| |____) |  >  <| (_) | | |
+  \_/ \___/_/\_\\____/|_____/  /_/\_\\___/  |_|   by VirtualException
+
+[vexOSkernel 12:55:48 +000000000.218ms]: IRQ PS/2 Keyboard
+[vexOSkernel 12:55:50 +000000001.767ms]: IRQ PS/2 Keyboard
+[vexOSkernel 12:55:50 +000000001.969ms]: IRQ PS/2 Keyboard
+[vexOSkernel 12:55:50 +000000002.317ms]: IRQ PS/2 Keyboard
+[vexOSkernel 12:55:51 +000000002.523ms]: IRQ PS/2 Keyboard
+[vexOSkernel 12:55:52 +000000004.311ms]: IRQ PS/2 Keyboard
+[vexOSkernel 12:55:52 +000000004.312ms]: IRQ PS/2 Keyboard
+[vexOSkernel 12:55:52 +000000004.327ms]: IRQ PS/2 Keyboard
+

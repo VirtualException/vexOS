@@ -1,7 +1,7 @@
 #include <vexos_uefi/utils.h>
 
 #define _FONTDATA
-#include "../../ter10x16.h"
+#include "../../font/font.h"
 
 EFI_GRAPHICS_OUTPUT_PROTOCOL*   gop;
 EFI_RNG_PROTOCOL*               rng;
@@ -192,7 +192,7 @@ skip_video_setup:
     (*KInfo)->GetTime       = ST->RuntimeServices->GetTime;
 
     (*KInfo)->Font          = (FONT) {
-                                FONT_BMP_WDTH, FONT_BMP_HGHT, FONT_WDTH, FONT_HGHT, FONT_BPP,
+                                FONT_CHARS, CHAR_WDTH, CHAR_HGHT, FONT_BPP,
                                 AllocateZeroPool(FONT_SIZE),
                             };
 

@@ -1,5 +1,5 @@
 #include <vexos/arch/mem.h>
-#include <vexos/printk.h>
+#include <vexos/kprintf.h>
 #include <vexos/lib/bool.h>
 #include <vexos/lib/def.h>
 
@@ -29,20 +29,17 @@ uint64_t mem_total_pages = 0;
 uint64_t usable_mem_arr[32] = { 0 };
 uint64_t usable_mem_arr_size = 0;
 
-static bool done_setup = false;
-
-uint64_t mem_setup(void) {
-
-    if (done_setup) return done_setup = true;
+uint64_t
+mem_setup() {
 
     mem_total_bytes = 0;
     mem_total_pages = 0;
     usable_mem_arr_size = 0;
 
-    printk(KERN_TLOG "Checking memory layout...\n");
+    kprintf(KERN_TLOG "Setting up memory... ");
 
     uefi_memory_descriptor* desc = kinfo->meminfo.map;
-    uint64_t entries = kinfo->meminfo.map_size /kinfo->meminfo.desc_size;
+    uint64_t entries = kinfo->meminfo.map_size / kinfo->meminfo.desc_size;
 
     for (size_t i = 0; i < entries; i++) {
 
@@ -57,12 +54,13 @@ uint64_t mem_setup(void) {
 
     }
 
-    printk(KERN_TLOG "Total memory: %d Megabytes (%d pages)\n", BYTES2MB(mem_total_bytes), mem_total_pages);
+    kprintf(KERN_LOG "[DONE]\n");
 
     return 0;
 }
 
-void* mem_allocate(size_t bytes) {
+void*
+mem_allocate(size_t bytes) {
 
     for (size_t i = 0; i < usable_mem_arr_size; i++) {
 

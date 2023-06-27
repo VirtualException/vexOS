@@ -27,7 +27,7 @@ ld      bootloader/out/boot.o bootloader/out/utils.o /usr/lib/crt0-efi-x86_64.o 
         -T /usr/lib/elf_x86_64_efi.lds \
         -shared -Bsymbolic -nostdlib -znocombreloc \
         -L /usr/lib/ -l:libgnuefi.a -l:libefi.a \
-        -o bootloader/out/boot.so
+        -s -o bootloader/out/boot.so
 
 # Copy
 

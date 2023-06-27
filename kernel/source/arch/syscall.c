@@ -1,4 +1,4 @@
-#include <vexos/printk.h>
+#include <vexos/kprintf.h>
 #include <vexos/lib/memory.h>
 
 #include <vexos/arch/io.h>
@@ -26,7 +26,9 @@ syscall_ptr syscall_table[SYSCALLS_N] = {
 uint64_t
 syscall_setup() {
 
-    printk(KERN_TLOG "Setting up syscalls...\n");
+    kprintf(KERN_TLOG "Setting up Syscalls... ");
+
+IRQ_OFF;
 
     /* Set syscall enable bit on */
     uint64_t old_msr =  rdmsr(MSR_IA32_EFER);
@@ -41,10 +43,9 @@ syscall_setup() {
     /* Dont clear any RFLAGS when entering a syscall */
     wrmsr(MSR_IA32_FMASK, (uint64_t) 0x0);
 
-    printk(KERN_TLOG "Testing syscalls:\n");
-    syscall(0);
+IRQ_ON;
 
-    printk(KERN_TLOG "Syscalls set up correctly\n");
+    kprintf(KERN_LOG "[DONE]\n");
 
     return 0;
 
@@ -52,7 +53,7 @@ syscall_setup() {
 
 SYSCALL(debug0) {
 
-    printk(KERN_TLOG "SYSCALL 0x00\n");
+    kprintf(KERN_TLOG "SYSCALL 0x00\n");
 
     return 777;
 
@@ -60,7 +61,7 @@ SYSCALL(debug0) {
 
 SYSCALL(debug1) {
 
-    printk(KERN_TLOG "SYSCALL 0x01\n");
+    kprintf(KERN_TLOG "SYSCALL 0x01\n");
 
     return 0;
 
@@ -68,7 +69,7 @@ SYSCALL(debug1) {
 
 SYSCALL(debug2) {
 
-    printk(KERN_TLOG "SYSCALL 0x02\n");
+    kprintf(KERN_TLOG "SYSCALL 0x02\n");
 
     return 0;
 
@@ -76,7 +77,7 @@ SYSCALL(debug2) {
 
 SYSCALL(debug3) {
 
-    printk(KERN_TLOG "SYSCALL 0x02\n");
+    kprintf(KERN_TLOG "SYSCALL 0x02\n");
 
     return 0;
 

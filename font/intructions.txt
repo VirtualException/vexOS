@@ -1,0 +1,24 @@
+If you wish to generate your own font for vexOS, based on a terminal/monospaced
+font, do the following:
+
+1.  Find a font that u can print on a terminal without any antialiasing. My
+    recommendation: Limit yourself to tty fonts.
+
+2.  Get its size (width and height)
+
+3.  Open the terminal (or tty) and print all the ascii characters with:
+    "printf "$(printf \\%03o $(seq 32 126))\n" | fold -w 1"
+
+4.  Make a screenshot of the result with, in case of tty,
+    "fbgrab [FONTNAME].png"
+
+5.  Now, edit the [FONTNAME].png file in gimp to make all pixels white-iss
+    white (and all black-iss black).
+
+6.  Export the [FONTNAME].png as C source and in RGBA mode. U will only need
+    the "pixel_data" content of the file.
+
+7.  Modify the font.h file as required, adding the "pixel_data" and font
+    information.
+
+(good luck windows users)

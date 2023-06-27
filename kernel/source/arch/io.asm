@@ -4,7 +4,7 @@ extern inportb:     function
 extern outportb:    function
 extern inportd:     function
 extern outportd:    function
-extern io_wait:     function
+extern waitport:    function
 extern rdmsr:       function
 extern wrmsr:       function
 
@@ -23,7 +23,7 @@ outportb:
     out dx, al
     ret
 
-io_waitport:
+waitport:
 
     mov dx, 0x80
     mov al, 0

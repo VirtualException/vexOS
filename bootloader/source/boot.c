@@ -14,12 +14,12 @@ UINTN           MapKey;
 EFI_STATUS PrintInfo() {
 
     Print(  WARNINGTXT
-            L"                 ____   _____          __ _  _\n"
-            L"                / __ \\ / ____|        / /| || |\n"
-            L"__   _______  _| |  | | (___   __  __/ /_| || |_\n"
-            L"\\ \\ / / _ \\ \\/ / |  | |\\___ \\  \\ \\/ / '_ \\__   _|\n"
-            L" \\ V /  __/>  <| |__| |____) |  >  <| (_) | | |\n"
-            L"  \\_/ \\___/_/\\_\\\\____/|_____/  /_/\\_\\\\___/  |_|\n\n\n"
+            L" ____   ____   ____ _______                   ____   _____\n"
+            L"|  _ \\ / __ \\ / __ \\__   __|                 / __ \\ / ____|\n"
+            L"| |_) | |  | | |  | | | |    __   _______  _| |  | | (___\n"
+            L"|  _ <| |  | | |  | | | |    \\ \\ / / _ \\ \\/ / |  | |\\___ \\\n"
+            L"| |_) | |__| | |__| | | |     \\ V /  __/>  <| |__| |____) |\n"
+            L"|____/ \\____/ \\____/  |_|      \\_/ \\___/_/\\_\\\\____/|_____/\n\n\n"
             NORMALTXT
         );
 
@@ -27,7 +27,7 @@ EFI_STATUS PrintInfo() {
             L"PC Info:\n"
             L"%N"
             L"Architecture: %s\n"
-            L"Version: %s\n"
+            L"Build: %s\n"
             L"Kernel Path: [FSX:]%s\n"
             L"Memory Map: %s\n"
             L"%s\n\n"
@@ -75,6 +75,7 @@ efi_main(EFI_HANDLE ImageHandle, EFI_SYSTEM_TABLE* ST) {
     if (StartKernel == NULL) {
 
         PrintPause(WARNINGTXT L"An error ocurred. Press any key to restart" NORMALTXT);
+
         ST->RuntimeServices->ResetSystem(EfiResetWarm, EFI_ABORTED, 0, NULL);
 
     }
@@ -82,9 +83,9 @@ efi_main(EFI_HANDLE ImageHandle, EFI_SYSTEM_TABLE* ST) {
     Print(WARNINGTXT L"[ BAILING OUT. GOOD LUCK! ]\n" NORMALTXT);
     PrintPause(WARNINGTXT "\nPress any key to continue\n\r\n\r" NORMALTXT);
 
-    #if EXIT_BOOT_SERVICES
-        ST->BootServices->ExitBootServices(ImageHandle, MapKey);
-    #endif
+#if EXIT_BOOT_SERVICES
+    ST->BootServices->ExitBootServices(ImageHandle, MapKey);
+#endif
 
     StartKernel(KInfo);
 

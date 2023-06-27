@@ -27,13 +27,13 @@
 #define PAGE_SIZE 4096
 
 #if defined(_DEBUG)
-#define BUILDNUM    L"1.2-Debug"
+#define BUILDNUM    L"Debug"
 #else
-#define BUILDNUM    L"1.2-Release"
+#define BUILDNUM    L"Release"
 #endif
 
 typedef
-int (SYSVABI *KernelEntry) (
+int (SYSVABI  *KernelEntry) (
     KERNEL_INFO*          KInfo
 );
 

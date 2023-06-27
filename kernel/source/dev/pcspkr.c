@@ -1,20 +1,19 @@
 #include <vexos/lib/types.h>
 #include <vexos/arch/io.h>
 #include <vexos/dev/pcspkr.h>
-#include <vexos/lib/extra_types.h>
 
 void
 beep(int freq) {
 
-    DWORD div;
-    BYTE tmp;
+    uint32_t div;
+    uint8_t tmp;
 
     // Set the PIT to the desired frequency
 
     div = PIT_FREQ / freq;
     outportb(PIT_CONTROL_PORT_3, 0xB6);
-    outportb(PIT_CONTROL_PORT_2, (BYTE)(div));
-    outportb(PIT_CONTROL_PORT_2, (BYTE)(div >> 8));
+    outportb(PIT_CONTROL_PORT_2, (uint8_t)(div));
+    outportb(PIT_CONTROL_PORT_2, (uint8_t)(div >> 8));
 
     // Play the sound using the PC speaker
 
@@ -29,6 +28,6 @@ stop_beep(void) {
 
     // Stop the speaker
 
-    BYTE tmp = inportb(PCSPKR_CONTROL_PORT) & PCSPKR_OFF_MASK;
+    uint8_t tmp = inportb(PCSPKR_CONTROL_PORT) & PCSPKR_OFF_MASK;
     outportb(PCSPKR_CONTROL_PORT, tmp);
 }

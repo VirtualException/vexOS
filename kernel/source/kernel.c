@@ -1,60 +1,66 @@
 /*  Hi! This an amateur OS kernel, created by VirtualxEception  */
 /*    >> Check https://github.com/VirtualException/vexOS <<     */
 
-#include <config.h>             /* Configuration */
+#include <config.h>
+#include <vexos/info/kinfo.h>
 
-#include <vexos/info/kinfo.h>   /* Kernel information */
-#include <vexos/vtt.h>          /* Console */
-#include <vexos/printk.h>       /* Kernel console print */
+#include <vexos/vtt.h>
+#include <vexos/kprintf.h>
+#include <vexos/time.h>
+#include <vexos/kbd.h>
 
-#include <vexos/arch/dt.h>      /* GDT & IDT */
-#include <vexos/arch/cpu.h>     /* CPU */
-#include <vexos/arch/syscall.h> /* System calls */
-#include <vexos/arch/mem.h>     /* Memory manager */
-#include <vexos/arch/serial.h>  /* COM port */
+#include <vexos/arch/dt.h>
+#include <vexos/arch/syscall.h>
+#include <vexos/arch/mem.h>
+#include <vexos/arch/serial.h>
+#include <vexos/arch/pic.h>
 
-#include <vexos/dev/pic.h>      /* PIC */
-#include <vexos/dev/pcspkr.h>   /* PC Speacker */
-#include <vexos/dev/ps2kbd.h>   /* Keyboard */
-#include <vexos/dev/ps2mouse.h> /* Mouse */
+#include <vexos/dev/pit.h>
+#include <vexos/dev/pcspkr.h>
+#include <vexos/dev/ps2kbd.h>
+#include <vexos/dev/ps2mouse.h>
 
-#include <vexos/lib/rng.h>      /* RNG */
-#include <vexos/lib/def.h>      /* "Standard" definitions */
-#include <vexos/lib/assert.h>   /* Assertion */
-#include <vexos/lib/macros.h>   /* Extra macros */
+#include <vexos/lib/conv.h>
+#include <vexos/lib/rng.h>
+#include <vexos/lib/def.h>
+#include <vexos/lib/assert.h>
+#include <vexos/lib/macros.h>
 
-#ifdef __DEBUG__
-    #pragma GCC warning "Compiling in debug mode"
-#endif
-
-/* TODO
- *  - Mouse
+/* TODO (in order of dificulty)
+ *  - Working mouse
  *  - Colors
- *  - Memory Allocation (in progress)
- *  - Magickly create an Intel video driver for non-2-fps rendering, DONE! haha no, but we have +60 fps in vtt
- *  - Better shell (or just a working shell)
- *  - Implement c library? (stdio, etc...)
+ *  - Better shell (more like a working shell)
+ *  - Memory Allocation
+ *  - Magickly create an Intel video driver for non-2-fps rendering, DONE! haha
+ * no, but we have +60 fps in vtt
 */
 
 void memory_review();
 
 kernel_info_t* kinfo;
 
-static uefi_time utime;
-static uint32_t rng_seed = 0;
+static time_t time;
+static uint32_t rng_seed;
 
 void
 start_kernel(kernel_info_t* kernelinfo) {
 
     BREAKPOINT;
 
-    IRQ_OFF;
+    /* Initialization */
 
     kinfo = kernelinfo;
-    kinfo->get_time(&utime, NULL);
+
+    time_init();
+    kbd_init();
+
+    time_get(&time);
+    rng_seed = ((time.minute + 1) + (time.hour + 1) * time.day) << ((time.second + 1) / 2);
+    rng_init(rng_seed);
+
+    /* Setup */
 
     vtt_setup(0, 0);
-
     serial_setup();
 
     gdt_setup();
@@ -62,33 +68,50 @@ start_kernel(kernel_info_t* kernelinfo) {
     syscall_setup();
 
     pic_setup();
-
+    pit_setup();
     ps2kbd_setup();
-    /*ps2mouse_setup();*/
+    //ps2mouse_setup();
 
     mem_setup();
 
-    rng_sets(rng_seed = utime.second + utime.minute + utime.hour + utime.day * utime.month * utime.year);
+    /* End startup */
 
-    printk(KERN_TLOG "Random seed: %d\n", rng_seed);
-    printk(KERN_TLOG "Time & date: %d:%d:%d %d/%d %d\n", utime.hour, utime.minute, utime.second, utime.day, utime.month, utime.year);
-    printk(KERN_TLOG "Build Timestamp: %s\n", __TIMESTAMP__);
-
+    kprintf(KERN_TLOG "----------------- Setup complete -----------------\n");
     memory_review();
+    kprintf(KERN_TLOG "Random seed: %d\n", rng_seed);
+    kprintf(KERN_TLOG "Boot date: %02d/%02d/%04d (DD:MM:YYYY)\n",
+        time.day, time.month, time.year);
+    kprintf(KERN_TLOG "Build Timestamp: %s. Built with gcc-%s\n",
+        __TIMESTAMP__, GCCVER);
 
-    printk("\nBooted vexOS! (%s, %s, UEFI) by %s\n\n", VERSION, ARCH, AUTHOR);
+    kprintf(KERN_LOG
+        "                 ____   _____          __ _  _\n"
+        "                / __ \\ / ____|        / /| || |\n"
+        "__   _______  _| |  | | (___   __  __/ /_| || |_\n"
+        "\\ \\ / / _ \\ \\/ / |  | |\\___ \\  \\ \\/ / '_ \\__   _|\n"
+        " \\ V /  __/>  <| |__| |____) |  >  <| (_) | | |\n"
+        "  \\_/ \\___/_/\\_\\\\____/|_____/  /_/\\_\\\\___/  |_|   by %s\n\n",
+        AUTHOR
+    );
+
+    kprintf("Booted vexOS ! (%s, %s UEFI) @ ", VERSION, ARCH);
+    time_get(&time);
+    kprintf("%02d:%02d:%02d, %02d/%02d/%04d\n\n",
+        time.hour, time.minute, time.second, time.day, time.month, time.year);
+
+    /* Boot completed */
 
     while (!vtt_handle()) {
 
-        vtt_renderterm();
-
     }
 
-    printk(KERN_TLOG "\nRebooting!\n");
+    kprintf(KERN_TLOG "Rebooting in 2... ");
+    time_sleep(1000);
+    kprintf(KERN_LOG "1... ");
+    time_sleep(1000);
 
     kinfo->reset(RESET_REBOOT_COLD, 0, 0, NULL);
 
-    return;
 }
 
 void
@@ -99,23 +122,40 @@ memory_review() {
     uefi_memory_descriptor* desc = kinfo->meminfo.map;
     uint64_t entries = kinfo->meminfo.map_size / kinfo->meminfo.desc_size;
 
-    printk(KERN_TLOG "Memory Map Info (%d entries):\n", entries);
+    kprintf(KERN_TLOG "Memory Map Info: %d entries (showing usable):\n", entries);
+
+    uint64_t total_bytes = 0;
+    uint64_t total_pages = 0;
 
     for (size_t i = 0; i < entries; i++) {
 
-        if ((desc->type == mem_type_boot_services_code || desc->type == mem_type_boot_services_data) && i != 0) goto skip;
+        /* if ((   desc->type == mem_type_boot_services_code || 
+                desc->type == mem_type_boot_services_data) && i != 0) {
+            goto skip;
+        } */
 
-        printk(KERN_LOG "Entry No %d: \t%s  \t%d KB  at \t0x%X %c\n",
+        total_pages += desc->number_of_pages;
+        total_bytes += PAGES2B(desc->number_of_pages);
+
+        if (desc->type != mem_type_conventional_memory) {
+            goto skip;
+        }
+
+        kprintf(KERN_LOG "Entry No %3d: %s    \t%8d KB \t0x%010X %c\n",
                 i,
                 uefi_memory_types_str[desc->type],
                 BYTES2KB(PAGES2B(desc->number_of_pages)),
                 desc->physical_start,
                 (desc->type == mem_type_conventional_memory) ? '*' : ' '
             );
+
 skip:
         desc = NEXT_MEMORY_DESCRIPTOR(desc, kinfo->meminfo.desc_size);
 
     }
+
+    kprintf(KERN_TLOG "Total memory: %d Megabytes (%d pages)\n",
+        BYTES2MB(total_bytes), total_pages);
 
     return;
 }

@@ -1,117 +1,123 @@
-#include <vexos/dev/ps2kbd.h>
-#include <vexos/arch/io.h>
+#include <vexos/vtt.h>
+#include <vexos/kprintf.h>
+#include <vexos/kbd.h>
 #include <vexos/lib/macros.h>
-#include <vexos/printk.h>
+
+#include <vexos/dev/ps2.h>
+#include <vexos/dev/ps2kbd.h>
+
+#include <vexos/arch/io.h>
+#include <vexos/arch/pic.h>
+#include <vexos/arch/interrupts.h>
 
 /*
- * This array is intended to transform every PRESS keycode (everything before caps lock,
- * wich may be printable) into the correspondent ASCII character.
- * If 0 is the value returned, any ascii character is avaiable for that key or combination
+ * This array is intended to transform every PRESS keycode (everything before
+ * caps lock, wich may be printable) into the correspondent ASCII character.
+ * If 0 is the value returned, there is no ascii character avaiable for that
+ * key or key combination
  */
 
-char PS2_KEYMAP_US[0x3A][2] =
-{
-    {'\0'},
-    {'\0'},
+char KEYMAP_QWERTY_US[0x3A][2] = {
 
-    {'1', '!'},
-    {'2', '@'},
-    {'3', '#'},
-    {'4', '$'},
-    {'5', '%'},
-    {'6', '^'},
-    {'7', '&'},
-    {'8', '*'},
-    {'9', '('},
-    {'0', ')'},
+    "\0\0",
+    "\0\0",
 
-    {'-', '_'},
-    {'=', '+'},
+    "1!",
+    "2@",
+    "3#",
+    "4$",
+    "5%",
+    "6^",
+    "7&",
+    "8*",
+    "9(",
+    "0)",
+    "-_",
+    "=+",
 
-    {'\0'},
-    {'\0'},
+    "\0\0",
+    "\0\0",
 
-    {'q', 'Q'},
-    {'w', 'W'},
-    {'e', 'E'},
-    {'r', 'R'},
-    {'t', 'T'},
-    {'y', 'Y'},
-    {'u', 'U'},
-    {'i', 'I'},
-    {'o', 'O'},
-    {'p', 'P'},
-    {'[', '{'},
-    {']', '}'},
+    "qQ",
+    "wW",
+    "eE",
+    "rR",
+    "tT",
+    "yY",
+    "uU",
+    "iI",
+    "oO",
+    "pP",
+    "[{",
+    "]}",
 
-    {'\0'},
-    {'\0'},
+    "\0\0",
+    "\0\0",
 
-    {'a', 'A'},
-    {'s', 'S'},
-    {'d', 'D'},
-    {'f', 'F'},
-    {'g', 'G'},
-    {'h', 'H'},
-    {'j', 'J'},
-    {'k', 'K'},
-    {'l', 'L'},
+    "aA",
+    "sS",
+    "dD",
+    "fF",
+    "gG",
+    "hH",
+    "jJ",
+    "kK",
+    "lL",
 
-    {';', ':'},
-    {'\'','\"'},
-    {'`', '~'},
+    ";:",
+    "\'\"",
+    "`~",
 
-    {'\0'},
+    "\0\0",
 
-    {'\\','|'},
+    "\\|",
 
-    {'z', 'Z'},
-    {'x', 'X'},
-    {'c', 'C'},
-    {'v', 'V'},
-    {'b', 'B'},
-    {'n', 'N'},
-    {'m', 'M'},
+    "zZ",
+    "xX",
+    "cC",
+    "vV",
+    "bB",
+    "nN",
+    "mM",
 
-    {',', '<'},
-    {'.', '>'},
-    {'/', '?'},
+    ",<",
+    ".>",
+    "/?",
 
-    {'\0'},
+    "\0\0",
 
-    {'*', '*'},
+    "**",
 
-    {'\0'},
+    "\0\0",
 
-    {' ', ' '}
+    "  ",
 };
-
-uint8_t     scancode        = 0;
-uint8_t     oldscancode     = 0;
-/*uint32_t    timeout         = KBD_TIMEOUT;*/
-/*uint32_t    first_timeout   = KBD_FIRST_TIMEOUT;*/
-
-bool shift = false;
 
 void
 ps2kbd_setup() {
 
-    scancode = 0;
-    oldscancode = 0;
-    shift = 0;
+    kprintf(KERN_TLOG "Setting up PS/2 Keyboard... ");
+
+    IRQ_OFF;
+
+    pic_unmask(PIC_PS2KBD_IRQ);
+
+    IRQ_ON;
+
+    kprintf(KERN_LOG "[DONE]\n");
 
     return;
 
 }
 
 char
-ps2kbd_ps2ascii(int this_scancode, bool this_shift) {
+ps2kbd_ps2ascii(uint32_t scancode, bool shift) {
 
     char c = 0;
 
-    if (this_scancode <= 0x3A) {
+    if (scancode <= 0x3A) {
 
-        c = PS2_KEYMAP_US[this_scancode][this_shift];
+        c = KEYMAP_QWERTY_US[scancode][shift];
 
     }
     else c = '\0';
@@ -119,49 +125,19 @@ ps2kbd_ps2ascii(int this_scancode, bool this_shift) {
     return c;
 }
 
-int
-ps2kbd_get_input(char* c, uint8_t* kcode) {
+INTERRUPT(irq_ps2kbd) {
 
-    oldscancode = scancode;
-    scancode    = inportb(PS2_IO_CONTROL_PORT);
+    IRQ_OFF;
 
-    /* Repeated key handler */
+    kprintf(KERN_TLOG "IRQ PS/2 Keyboard\n");
 
-//    if (oldscancode == scancode) {
-//
-//        /* Repeat rate check */
-//
-//        if (first_timeout)  return first_timeout--;
-//        else if (timeout)   return timeout--;
-//
-//        timeout = KBD_TIMEOUT;
-//
-//    } else first_timeout = KBD_FIRST_TIMEOUT;
+    uint32_t kcode = inportb(PS2_IO_PORT);
 
+    kbd_key_buffer_push(kcode);
 
-    *kcode  = scancode;
-    *c      = '\0';
+    pic_send_eoi(PIC_PS2KBD_IRQ);
 
-    switch (*kcode = scancode) {
+    IRQ_ON;
 
-    case PS2_LeftShift_Pressed:
-    case PS2_RightShift_Pressed:
-        shift = true;
-        break;
-
-    case PS2_LeftShift_Released:
-    case PS2_RightShift_Released:
-        shift = false;
-        break;
-
-    case PS2_CapsLock_Released:
-        shift = !shift;
-        break;
-
-    default:
-        *c = ps2kbd_ps2ascii(scancode, shift);
-        break;
-    }
-
-    return 0;
+    return;
 }

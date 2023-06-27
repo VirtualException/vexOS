@@ -1,19 +1,20 @@
 #include <vexos/vtt.h>
-#include <vexos/printk.h>
+#include <vexos/kprintf.h>
+#include <vexos/time.h>
 #include <vexos/lib/memory.h>
 #include <vexos/lib/string.h>
 #include <vexos/lib/conv.h>
 #include <vexos/lib/def.h>
 #include <vexos/info/kinfo.h>
-#include <vexos/info/kinfo.h>
 #include <vexos/arch/serial.h>
 
-
-char LOGFMT[64] = "[VexOS KRNL %d:%d:%d]: ";
-
+#define KLOGFMT "[vexOSkernel %02d:%02d:%02d +%09d.%03dms]: "
 
 int
-vsprintk(char* str, const char* fmt, va_list vargs) {
+kvsprintf(char* str, const char* fmt, va_list vargs) {
+
+    size_t width = 0;
+    char fill = ' ';
 
     do { /* while (*fmt++ != '\0') */
 
@@ -24,37 +25,68 @@ vsprintk(char* str, const char* fmt, va_list vargs) {
 
         case '%':
 
+            width = 0;
+            fill = ' ';
+
+format:
+
             switch (*++fmt) {
 
             case '%':
+
                 buff[0] = *fmt;
                 strcat(str, buff);
                 break;
 
+            case '0':
+
+                fill = '0';
+                goto format;
+                break;
+
+            case '1'...'9':
+
+                buff[0] = *fmt;
+                char next = *(fmt + 1);
+
+                if (next >= '0' && next <= '9') {
+                    buff[1] = next;
+                    fmt++;
+                }
+
+                width = atoi(buff);
+                goto format;
+                break;
+
             case 'c':
             case 'C':
+
                 buff[0] = va_arg(vargs);
                 strcat(str, buff);
                 break;
 
             case 'd':
             case 'D':
-                itoa(va_arg(vargs), buff);
+
+                itoa_f(va_arg(vargs), buff, width, fill);
                 strcat(str, buff);
                 break;
 
             case 'x':
-                itohex((unsigned long int) va_arg(vargs), buff, false);
+
+                itohex_f((unsigned long int) va_arg(vargs), buff, false, width, fill);
                 strcat(str, buff);
                 break;
 
             case 'X':
-                itohex((unsigned long int) va_arg(vargs), buff, true);
+
+                itohex_f((unsigned long int) va_arg(vargs), buff, true, width, fill);
                 strcat(str, buff);
                 break;
 
             case 's':
             case 'S':
+
                 strcat(str, (char*) va_arg(vargs));
                 break;
 
@@ -72,94 +104,105 @@ vsprintk(char* str, const char* fmt, va_list vargs) {
 
     } while(*fmt++ != '\0');
 
-    return EXIT_SUCCESS;
+    return strlen(str);
 }
 
 int
-sprintk(char* str, const char* fmt, ...) {
+ksprintf(char* str, const char* fmt, ...) {
 
     va_list vargs;
     va_start(vargs);
 
     va_arg(vargs); // skip non variable argument
 
-    vsprintk(str, fmt, vargs);
+    size_t count = 0;
+
+    count += kvsprintf(str, fmt, vargs);
 
     va_end(vargs);
 
-    return EXIT_SUCCESS;
+    return count;
 }
 
 int
-vprintk(const char* fmt, va_list vargs) {
+kvprintf(const char* fmt, va_list vargs) {
 
     char str[DEF_STR_LEN] = { 0 };
 
-    vsprintk(str, fmt, vargs);
+    size_t count = 0;
 
-    putsk(str);
+    kvsprintf(str, fmt, vargs);
 
-    return EXIT_SUCCESS;
+    count += kputs(str);
+
+    return count;
 }
 
 int
-printk(const char* fmt, ...) {
+kprintf(const char* fmt, ...) {
 
     va_list vargs;
     va_start(vargs);
 
-    uefi_time time;
+    time_t time;
 
     char out_buff[DEF_STR_LEN] = { 0 };
     char logheader[64] = { 0 };
+
+    size_t count = 0;
 
     switch (*fmt) {
 
     case KERN_TLOG_ASCII:
 
-        kinfo->get_time(&time, 0);
-        sprintk(logheader, LOGFMT, time.hour, time.minute, time.second);
+        time_get(&time);
+
+        uint64_t ms = time_ms_boot();
+
+        ksprintf(logheader, KLOGFMT, time.hour, time.minute, time.second, (ms - ms % 1000) / 1000, ms % 1000);
 
         serial_print(logheader);
-        putsk(logheader);
+        count += kputs(logheader);
 
         __fallthrough;
 
     case KERN_LOG_ASCII:
 
-        vsprintk(out_buff, ++fmt, vargs); /* ! */
+        kvsprintf(out_buff, ++fmt, vargs); /* ! */
 
         serial_print(out_buff);
-        putsk(out_buff);
+        count += kputs(out_buff);
 
         break;
 
     default:
 
-        vsprintk(out_buff, fmt, vargs); /* ! */
-        putsk(out_buff);
+        kvsprintf(out_buff, fmt, vargs); /* ! */
+        count += kputs(out_buff);
 
         break;
     }
 
     va_end(vargs);
 
-    return EXIT_SUCCESS;
+    return count;
 }
 
 int
-putsk(const char* str) {
+kputs(const char* str) {
 
-    for (size_t i = 0; str[i] != '\0'; i++) {
-        putchark(str[i]);
+    size_t i;
+
+    for (i = 0; str[i] != '\0'; i++) {
+        kputchar(str[i]);
     }
 
-    return EXIT_SUCCESS;
+    return i;
 }
 
 
 int
-putchark(char c) {
+kputchar(char c) {
 
     vtt_putchar(&vtts[VTTS_KLOG], c);
 

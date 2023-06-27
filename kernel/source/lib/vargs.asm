@@ -7,7 +7,9 @@ section .text
 
 va_save:
 
-; x86_64 SysV ABI calling convention: rdi, rsi, rdx, rcx, r8, r9, [STACK] (rax -> return)
+; x86_64 SysV ABI Calling Convention:
+;   rdi, rsi, rdx, rcx, r8, r9, [STACK...]
+;   -> return rax
 
     mov qword [rdi],    rsi
     mov qword [rdi+8],  rdx

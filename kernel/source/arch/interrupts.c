@@ -1,15 +1,12 @@
-#include <vexos/printk.h>
+#include <vexos/kprintf.h>
 #include <vexos/vtt.h>
 #include <vexos/lib/def.h>
 
 #include <vexos/arch/interrupts.h>
 #include <vexos/arch/io.h>
-#include <vexos/arch/cpu.h>
-#include <vexos/dev/pic.h>
+#include <vexos/arch/pic.h>
 #include <vexos/dev/ps2kbd.h>
 #include <vexos/dev/ps2mouse.h>
-
-__interrupt __general_regs_only void mouse_handler(void *r); /* TEMPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPP */
 
 interrupt isr_table[ISR_N] = {
 
@@ -36,46 +33,48 @@ interrupt isr_table[ISR_N] = {
         exc_machine_check,
         exc_simd_floating_point_exception,
         exc_virtualization_exception,
-        exc_control_protection_exception, /* 21th  */
+        exc_control_protection_exception,
         NULL, /* Reserved */
         NULL, /* Reserved */
         NULL, /* Reserved */
         NULL, /* Reserved */
         NULL, /* Reserved */
         NULL, /* Reserved */
-        NULL, /* exc_hypervisor_injection_exception */
-        NULL, /* exc_vmm_communication_exception */
-        NULL, /* exc_security_exception */
+        exc_hypervisor_injection_exception,
+        exc_vmm_communication_exception,
+        exc_security_exception,
         NULL, /* Reserved */
 
     /* IRQs (0x20 to 0x30) */
 
+        int_pit_handler,
+        int_irq_ps2kbd,
+        int_unhandled,
+        int_unhandled,
+        int_unhandled,
+        int_unhandled,
+        int_unhandled,
+        int_unhandled,
+        int_unhandled,
+        int_unhandled,
+        int_unhandled,
+        int_unhandled,
+        int_irq_ps2mouse,
+        int_unhandled,
+        int_unhandled,
+        int_unhandled,
+
+    /* Custom */
+
         int_regdump,
-        int_irq_kbd,
-        int_unhandled,
-        int_unhandled,
-        int_unhandled,
-        int_unhandled,
-        int_unhandled,
-        int_unhandled,
-        int_unhandled,
-        int_unhandled,
-        int_unhandled,
-        int_unhandled,
-        int_unhandled, /* MOUSE */
-        int_unhandled,
-        int_unhandled,
-        int_unhandled,
 
-    /* Unimplemented */
-
-        [EXC_N + IRQ_N ... ISR_N - 1] = int_unhandled,
+    /* ... */
 
 };
 
 INTERRUPT(unhandled) {
 
-    printk(KERN_TLOG "NOT HANDLED @ rip = 0x%x\n", intframe->rip);
+    kprintf(KERN_TLOG "Unhandled @ rip = 0x%x\n", intframe->rip);
 
     return;
 }
@@ -83,42 +82,14 @@ INTERRUPT(unhandled) {
 INTERRUPT(regdump) {
 
 
-    printk(KERN_TLOG "Registry dump! [rip = 0x%x]\n", intframe->rflags);
-
-/*
-    printk(KERN_TLOG KERN_TLOG "rax: 0x%X  rcx: 0x%X  rdx: 0x%X  rbx: 0x%X\n", rax(), rcx(), rdx(), rbx());
-    printk(KERN_TLOG KERN_TLOG "rsi: 0x%X  rdi: 0x%X  rsp: 0x%X  rbp: 0x%X\n", rsi(), rdi(), rsp(), rbp());
-    printk(KERN_TLOG KERN_TLOG "r8:  0x%X  r9:  0x%X  r10: 0x%X  r11: 0x%X\n", r8(), r9(), r10(), r11());
-    printk(KERN_TLOG KERN_TLOG "r12: 0x%X  r13: 0x%X  r14: 0x%X  r15: 0x%X\n", r12(), r13(), r14(), r15());
-    printk(KERN_TLOG KERN_TLOG "eflags: 0x%X\n", eflags());
-*/
-
-    return;
-}
-
-INTERRUPT(irq_kbd) {
-
-    vtt_handle_key();
-
-    pic_send_eoi(PIC1);
-
-    return;
-}
-
-INTERRUPT(irq_ps2mouse) {
-
-    printk(KERN_TLOG "MOUSE @ rip = 0x%x\n", intframe->rip);
-
-    //inportb(0x64);
-
-    pic_send_eoi(PIC1);
+    kprintf(KERN_TLOG "Registry dump! [...]\n");
 
     return;
 }
 
 EXCEPTION(division_error) {
 
-    printk(KERN_TLOG "#DE DIVISION_ERROR @ rip = 0x%x\n", intframe->rip);
+    kprintf(KERN_TLOG "#DE DIVISION_ERROR @ rip = 0x%x\n", intframe->rip);
 
     BREAKPOINT;
 
@@ -126,7 +97,7 @@ EXCEPTION(division_error) {
 }
 EXCEPTION(debug) {
 
-    printk(KERN_TLOG "#DB DEBUG @ rip = 0x%x\n", intframe->rip);
+    kprintf(KERN_TLOG "#DB DEBUG @ rip = 0x%x\n", intframe->rip);
 
     BREAKPOINT;
 
@@ -134,7 +105,7 @@ EXCEPTION(debug) {
 }
 EXCEPTION(non_maskable) {
 
-    printk(KERN_TLOG "\nNON_MASKABLE_INTERRUPT @ rip = 0x%x\n", intframe->rip);
+    kprintf(KERN_TLOG "\nNON_MASKABLE_INTERRUPT @ rip = 0x%x\n", intframe->rip);
 
     BREAKPOINT;
 
@@ -142,20 +113,20 @@ EXCEPTION(non_maskable) {
 }
 EXCEPTION(breakpoint) {
 
-    printk(KERN_TLOG "#BP BREAKPOINT @ rip = 0x%x\n", intframe->rip);
+    kprintf(KERN_TLOG "#BP BREAKPOINT @ rip = 0x%x\n", intframe->rip);
 
 #ifdef __DEBUG__
-    printk(KERN_TLOG "Stopping execution... ");
+    kprintf(KERN_TLOG "Stopping execution... ");
     ASM("1: jmp 1b");
 #endif
 
-    printk(KERN_LOG "Continuing!\n");
+    kprintf(KERN_LOG "Continuing!\n");
 
     return;
 }
 EXCEPTION(overflow) {
 
-    printk(KERN_TLOG "#OF OVERFLOW @ rip = 0x%x\n", intframe->rip);
+    kprintf(KERN_TLOG "#OF OVERFLOW @ rip = 0x%x\n", intframe->rip);
 
     BREAKPOINT;
 
@@ -163,7 +134,7 @@ EXCEPTION(overflow) {
 }
 EXCEPTION(bound_range_exceeded) {
 
-    printk(KERN_TLOG "#BR BOUND_RANGE_EXCEEDED @ rip = 0x%x\n", intframe->rip);
+    kprintf(KERN_TLOG "#BR BOUND_RANGE_EXCEEDED @ rip = 0x%x\n", intframe->rip);
 
     BREAKPOINT;
 
@@ -171,7 +142,7 @@ EXCEPTION(bound_range_exceeded) {
 }
 EXCEPTION(invalid_opcode) {
 
-    printk(KERN_TLOG "#UD INVALID_OPCODE @ rip = 0x%x\n", intframe->rip);
+    kprintf(KERN_TLOG "#UD INVALID_OPCODE @ rip = 0x%x\n", intframe->rip);
 
     BREAKPOINT;
 
@@ -179,7 +150,7 @@ EXCEPTION(invalid_opcode) {
 }
 EXCEPTION(device_not_available) {
 
-    printk(KERN_TLOG "#NM DEVICE_NOT_AVAILABLE @ rip = 0x%x\n", intframe->rip);
+    kprintf(KERN_TLOG "#NM DEVICE_NOT_AVAILABLE @ rip = 0x%x\n", intframe->rip);
 
     BREAKPOINT;
 
@@ -187,7 +158,7 @@ EXCEPTION(device_not_available) {
 }
 EXCEPTION(double_fault) {
 
-    printk(KERN_TLOG "#DF DOUBLE_FAULT @ rip = 0x%x\n", intframe->rip);
+    kprintf(KERN_TLOG "#DF DOUBLE_FAULT @ rip = 0x%x\n", intframe->rip);
 
     BREAKPOINT;
 
@@ -195,7 +166,7 @@ EXCEPTION(double_fault) {
 }
 EXCEPTION(cso_old) {
 
-    printk(KERN_TLOG "\nCSO_OLD @ rip = 0x%x\n", intframe->rip);
+    kprintf(KERN_TLOG "\nCSO_OLD @ rip = 0x%x\n", intframe->rip);
 
     BREAKPOINT;
 
@@ -203,7 +174,7 @@ EXCEPTION(cso_old) {
 }
 EXCEPTION(invalid_tss) {
 
-    printk(KERN_TLOG "#TS INVALID_TSS @ rip = 0x%x\n", intframe->rip);
+    kprintf(KERN_TLOG "#TS INVALID_TSS @ rip = 0x%x\n", intframe->rip);
 
     BREAKPOINT;
 
@@ -211,7 +182,7 @@ EXCEPTION(invalid_tss) {
 }
 EXCEPTION(segment_not_present) {
 
-    printk(KERN_TLOG "#NP SEGMENT_NOT_PRESENT @ rip = 0x%x\n", intframe->rip);
+    kprintf(KERN_TLOG "#NP SEGMENT_NOT_PRESENT @ rip = 0x%x\n", intframe->rip);
 
     BREAKPOINT;
 
@@ -219,7 +190,7 @@ EXCEPTION(segment_not_present) {
 }
 EXCEPTION(stack_segment_fault) {
 
-    printk(KERN_TLOG "#SS STACK_SEGMENT_FAULT @ rip = 0x%x\n", intframe->rip);
+    kprintf(KERN_TLOG "#SS STACK_SEGMENT_FAULT @ rip = 0x%x\n", intframe->rip);
 
     BREAKPOINT;
 
@@ -227,7 +198,7 @@ EXCEPTION(stack_segment_fault) {
 }
 EXCEPTION(general_protection_fault) {
 
-    printk(KERN_TLOG "#GP GENERAL_PROTECTION_FAULT @ rip = 0x%x\n", intframe->rip);
+    kprintf(KERN_TLOG "#GP GENERAL_PROTECTION_FAULT @ rip = 0x%x\n", intframe->rip);
 
     BREAKPOINT;
 
@@ -235,7 +206,7 @@ EXCEPTION(general_protection_fault) {
 }
 EXCEPTION(page_fault) {
 
-    printk(KERN_TLOG "#PF PAGE_FAULT @ rip = 0x%x\n", intframe->rip);
+    kprintf(KERN_TLOG "#PF PAGE_FAULT @ rip = 0x%x\n", intframe->rip);
 
     BREAKPOINT;
 
@@ -245,7 +216,7 @@ EXCEPTION(page_fault) {
 }
 EXCEPTION(x87_floating_point_exception) {
 
-    printk(KERN_TLOG "#MF X87_FLOATING_POINT_EXCEPTION @ rip = 0x%x\n", intframe->rip);
+    kprintf(KERN_TLOG "#MF X87_FLOATING_POINT_EXCEPTION @ rip = 0x%x\n", intframe->rip);
 
     BREAKPOINT;
 
@@ -253,7 +224,7 @@ EXCEPTION(x87_floating_point_exception) {
 }
 EXCEPTION(alignment_check) {
 
-    printk(KERN_TLOG "#AC ALIGNMENT_CHECK @ rip = 0x%x\n", intframe->rip);
+    kprintf(KERN_TLOG "#AC ALIGNMENT_CHECK @ rip = 0x%x\n", intframe->rip);
 
     BREAKPOINT;
 
@@ -261,7 +232,7 @@ EXCEPTION(alignment_check) {
 }
 EXCEPTION(machine_check) {
 
-    printk(KERN_TLOG "#MC MACHINE_CHECK @ rip = 0x%x\n", intframe->rip);
+    kprintf(KERN_TLOG "#MC MACHINE_CHECK @ rip = 0x%x\n", intframe->rip);
 
     BREAKPOINT;
 
@@ -269,7 +240,7 @@ EXCEPTION(machine_check) {
 }
 EXCEPTION(simd_floating_point_exception) {
 
-    printk(KERN_TLOG "#XM SIMD_FLOATING_POINT_EXCEPTION @ rip = 0x%x\n", intframe->rip);
+    kprintf(KERN_TLOG "#XM SIMD_FLOATING_POINT_EXCEPTION @ rip = 0x%x\n", intframe->rip);
 
     BREAKPOINT;
 
@@ -277,7 +248,7 @@ EXCEPTION(simd_floating_point_exception) {
 }
 EXCEPTION(virtualization_exception) {
 
-    printk(KERN_TLOG "#VE VIRTUALIZATION_EXCEPTION @ rip = 0x%x\n", intframe->rip);
+    kprintf(KERN_TLOG "#VE VIRTUALIZATION_EXCEPTION @ rip = 0x%x\n", intframe->rip);
 
     BREAKPOINT;
 
@@ -285,7 +256,7 @@ EXCEPTION(virtualization_exception) {
 }
 EXCEPTION(control_protection_exception) {
 
-    printk(KERN_TLOG "#CP CONTROL_PROTECTION_EXCEPTION @ rip = 0x%x\n", intframe->rip);
+    kprintf(KERN_TLOG "#CP CONTROL_PROTECTION_EXCEPTION @ rip = 0x%x\n", intframe->rip);
 
     BREAKPOINT;
 
@@ -293,7 +264,7 @@ EXCEPTION(control_protection_exception) {
 }
 EXCEPTION(hypervisor_injection_exception) {
 
-    printk(KERN_TLOG "#HV HYPERVISOR_INJECTION_EXCEPTION @ rip = 0x%x\n", intframe->rip);
+    kprintf(KERN_TLOG "#HV HYPERVISOR_INJECTION_EXCEPTION @ rip = 0x%x\n", intframe->rip);
 
     BREAKPOINT;
 
@@ -301,7 +272,7 @@ EXCEPTION(hypervisor_injection_exception) {
 }
 EXCEPTION(vmm_communication_exception) {
 
-    printk(KERN_TLOG "#VC VMM_COMMUNICATION_EXCEPTION @ rip = 0x%x\n", intframe->rip);
+    kprintf(KERN_TLOG "#VC VMM_COMMUNICATION_EXCEPTION @ rip = 0x%x\n", intframe->rip);
 
     BREAKPOINT;
 
@@ -309,7 +280,7 @@ EXCEPTION(vmm_communication_exception) {
 }
 EXCEPTION(security_exception) {
 
-    printk(KERN_TLOG "#SX SECURITY_EXCEPTION @ rip = 0x%x\n", intframe->rip);
+    kprintf(KERN_TLOG "#SX SECURITY_EXCEPTION @ rip = 0x%x\n", intframe->rip);
 
     BREAKPOINT;
 

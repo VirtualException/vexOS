@@ -1,15 +1,17 @@
-#include <vexos/arch/dt.h>
-#include <vexos/printk.h>
+#include <vexos/kprintf.h>
 #include <vexos/vtt.h>
+#include <vexos/arch/dt.h>
 
-
+__aligned(0x1000)
 gdt_entry   gdt_seg[GDT_DESCRIPTORS] = { 0 };
 gdt_desc    gdt = { sizeof(gdt_seg) - 1, (uint64_t) gdt_seg };
 
 uint64_t
 gdt_setup(void) {
 
-    printk(KERN_TLOG "Setting up GDT...\n");
+    kprintf(KERN_TLOG "Setting up GDT... ");
+
+    gdt = (gdt_desc) { sizeof(gdt_seg) - 1, (uint64_t) gdt_seg };
 
     gdt_seg[0] = (gdt_entry) { 0, 0, 0, 0x00, 0x00, 0 }; // null
     gdt_seg[1] = (gdt_entry) { 0, 0, 0, 0x9a, 0xa0, 0 }; // kernel code segment
@@ -22,7 +24,7 @@ gdt_setup(void) {
 
     IRQ_ON;
 
-    printk(KERN_TLOG "GDT set up correctly\n");
+    kprintf(KERN_LOG "[DONE]\n");
 
     return 0;
 }

@@ -9,9 +9,10 @@
 #define PIC2_DATA	    (PIC2+1)
 #define PIC_EOI         0x20
 
-#define PIC_KEYBOARD_IRQ    0x2
-//                               X
-#define PIC_PS2MOUSE_IRQ    0b00010000
+#define PIC_PIT_IRQ         0x0
+#define PIC_PS2KBD_IRQ      0x1
+#define PIC_CASCADE_IRQ     0x2
+#define PIC_PS2MOUSE_IRQ    0xC
 
 #define ICW1            0x11
 #define ICW1_ICW4	    0x01        /* ICW4 (not) needed */
@@ -27,8 +28,10 @@
 #define ICW4_SFNM	    0x10		/* Special fully nested (not) */
 
 
-int pic_setup();
+void pic_setup();
 void pic_remap(uint8_t pic1, uint8_t pic2);
+void pic_mask(uint8_t irq);
+void pic_unmask(uint8_t irq);
 void pic_send_eoi(uint8_t irq);
 
 #endif

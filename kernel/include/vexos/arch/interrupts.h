@@ -3,8 +3,9 @@
 
 #include <vexos/lib/types.h>
 #include <vexos/lib/macros.h>
+#include <vexos/lib/attributes.h>
 
-#define ISR_N 0x100 /* Nº of Interrupt Service Rutines (Interrupt and Exception handlers) */
+#define ISR_N 0x100 /* Nº of Interrupt Service Rutines */
 #define EXC_N 0x20  /* Nº of Exceptions */
 #define IRQ_N 0x10  /* Nº of IRQs */
 
@@ -30,7 +31,8 @@ extern interrupt isr_table[ISR_N];
 
 INTERRUPT(unhandled);
 INTERRUPT(regdump);
-INTERRUPT(irq_kbd);
+INTERRUPT(pit_handler);
+INTERRUPT(irq_ps2kbd);
 INTERRUPT(irq_ps2mouse);
 
 EXCEPTION(division_error);

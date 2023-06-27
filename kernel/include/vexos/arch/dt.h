@@ -3,6 +3,7 @@
 
 #include <vexos/lib/types.h>
 #include <vexos/lib/macros.h>
+#include <vexos/lib/attributes.h>
 
 #define GDT_DESCRIPTORS 4
 
@@ -10,12 +11,13 @@
 #define IDT_TA_CALLGATE         0b10001100
 #define IDT_TA_TRAPGATE         0b10001111
 
-#define IDTENTRY(offset, type, selector) (idt_entry){ \
-                                                    (((uint64_t)offset) & 0x000000000000ffff), selector, 0, type, \
-                                                    (((uint64_t)offset) & 0x00000000ffff0000) >> 16, \
-                                                    (((uint64_t)offset) & 0xffffffff00000000) >> 32, \
-                                                    0 \
-                                                    }
+#define IDTENTRY(offset, type, selector) \
+(idt_entry) { \
+    (((uint64_t)offset) & 0x000000000000ffff), selector, 0, type, \
+    (((uint64_t)offset) & 0x00000000ffff0000) >> 16, \
+    (((uint64_t)offset) & 0xffffffff00000000) >> 32, \
+    0 \
+}
 
 
 typedef struct __packed {
@@ -42,7 +44,7 @@ typedef struct __packed {
 
     uint16_t    offset_0;   // offset bits 0..15
     uint16_t    selector;   // a code segment selector in GDT or LDT
-    uint8_t     ist;        // bits 0..2 holds Interrupt Stack Table offset, rest of bits zero.
+    uint8_t     ist;        // bits 0..2 holds IST offset, rest zero
     uint8_t     type_attr;  // gate type, dpl, and p fields
     uint16_t    offset_1;   // offset bits 16..31
     uint32_t    offset_2;   // offset bits 32..63

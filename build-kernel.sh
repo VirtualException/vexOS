@@ -2,7 +2,7 @@ set -e
 
 KNAME="vexos64kernel"
 DEBUG=0
-EXCLUDE_OPT="printk.c" # Optimizing print-related functions misbehaves
+EXCLUDE_OPTIMIZE="kprintf.c"
 
 CEXT="c"
 ASMEXT="asm"
@@ -15,9 +15,26 @@ CFILES="$(find ${SRCDIR} -name \*.${CEXT})"
 ASMFILES="$(find ${SRCDIR} -name \*.${ASMEXT})"
 
 # -Ofast is quite clumsy...
-GCCARGS="-c -O3 -Wall -Wextra -fno-stack-protector -fno-stack-check -fno-builtin -fno-pic -fPIE -mno-red-zone -m64"
+GCCARGS="-c -O3
+        -Wall -Wextra
+        -mtune=native -mfpmath=sse -mmmx -msse -msse2 -msse3 -mssse3 -msse4 -m3dnow
+        -ffreestanding -fno-stack-protector -fno-stack-check -fno-builtin -fno-pic -fPIE
+        -mno-red-zone -m64"
+
 NASMARGS="-f elf64"
 LDARGS="-nostdlib -static -T kernel/link/kernel.ld -no-warn-rwx-segments"
+
+function item_in_list {
+
+    local item="$1"
+    local list="$2"
+
+    if [[ $list =~ (^|[[:space:]])"$item"($|[[:space:]]) ]] ; then
+        return 0
+    else
+        return 1
+    fi
+}
 
 if [ $DEBUG = 1 ]
 then
@@ -41,10 +58,9 @@ fi
 
 for f in $CFILES; do
 
-    if [ "$EXCLUDE_OPT" = "$(basename ${f})" ]
+    if item_in_list "$(basename ${f})" "$EXCLUDE_OPTIMIZE" ;
     then # DONT DO OPTIMIZATION
         gcc "$f" $GCCARGS -I $INCDIR "-O0"  -o "${OUTDIR}$(basename ${f%.${CEXT}}.o)"
-
     else # NORMAL COMPILATION
         gcc "$f" $GCCARGS -I $INCDIR        -o "${OUTDIR}$(basename ${f%.${CEXT}}.o)"
     fi

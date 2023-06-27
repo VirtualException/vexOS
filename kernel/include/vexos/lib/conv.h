@@ -2,10 +2,14 @@
 #define _CONV_H
 
 #include <vexos/lib/bool.h>
+#include <vexos/lib/types.h>
 
-char*   itoa(long long int n, char* str);
-int     atoi(const char* str);
+long int    atoi(const char* str);
 
-char*   itohex(unsigned long long int n, char* strn, bool caps);
+char*       itoa(long int n, char* str);
+char*       itoa_f(long int n, char* str, size_t slots, char fill);
+
+char*       itohex(unsigned long int n, char* strn, bool caps);
+char*       itohex_f(unsigned long int n, char* strn, bool caps, size_t slots, char fill);
 
 #endif

@@ -21,9 +21,8 @@ syscall_entry_64:
     pop rcx
 
     ; IMPORTANT!
-    ; If we return using "sysret", we will crash, as
-    ; privilege/segment stuffs broken/unimplemented.
-    ; We need to return using normal "ret", like a
+    ; If we return using "sysret", we will crash, as privilege/segment stuff
+    ; is broken/unimplemented. We need to return using normal "ret", like a
     ; normal function.
 
 %if !SYSRET

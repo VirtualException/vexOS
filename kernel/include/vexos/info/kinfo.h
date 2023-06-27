@@ -3,8 +3,7 @@
 
 #include <vexos/lib/types.h>
 #include <vexos/info/video.h>
-#include <vexos/info/font.h>
-#include <vexos/lib/macros.h>
+#include <vexos/lib/attributes.h>
 
 #define RESET_REBOOT_COLD   0
 #define RESET_REBOOT_WARM   1
@@ -28,12 +27,27 @@ typedef struct {
 } uefi_time;
 
 typedef struct {
+
+    unsigned int chars;
+
+    unsigned int wdth;
+    unsigned int hght;
+
+    unsigned int bpp;
+
+    pixel_t* bmp;
+
+} font_t;
+
+typedef struct {
+
     uint32_t type;
     uint32_t pad;
     uint64_t physical_start;
     uint64_t virtual_start;
     uint64_t number_of_pages;
     uint64_t attribute;
+
 } uefi_memory_descriptor;
 
 
