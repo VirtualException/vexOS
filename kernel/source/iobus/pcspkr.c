@@ -1,9 +1,11 @@
 #include <vexos/lib/types.h>
-#include <vexos/arch/io.h>
-#include <vexos/dev/pcspkr.h>
+
+#include <vexos/cpu/io.h>
+
+#include <vexos/iobus/pcspkr.h>
 
 void
-beep(int freq) {
+pcspkr_beep(int freq) {
 
     uint32_t div;
     uint8_t tmp;
@@ -24,7 +26,7 @@ beep(int freq) {
 }
 
 void
-stop_beep(void) {
+pcspkr_stop() {
 
     // Stop the speaker
 

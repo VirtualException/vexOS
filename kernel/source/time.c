@@ -1,16 +1,18 @@
-#include <vexos/lib/def.h>
 #include <vexos/time.h>
 #include <vexos/kprintf.h>
-#include <vexos/arch/serial.h>
 #include <vexos/info/kinfo.h>
 
-volatile uefi_time efitime;
+#include <vexos/lib/def.h>
+
+#include <vexos/iobus/serial.h>
+
+volatile uefi_time_t efitime;
 uint64_t current_ms = 0;
 
 void
 time_get(time_t* time) {
 
-    kinfo->get_time((uefi_time*) &efitime, NULL);
+    kinfo->get_time((uefi_time_t*) &efitime, NULL);
 
     time->year      = efitime.year;
     time->month     = efitime.month;

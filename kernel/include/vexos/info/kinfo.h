@@ -2,13 +2,21 @@
 #define _KINFO_H
 
 #include <vexos/lib/types.h>
-#include <vexos/info/video.h>
 #include <vexos/lib/attributes.h>
 
 #define RESET_REBOOT_COLD   0
 #define RESET_REBOOT_WARM   1
 #define RESET_SHUTDOWN      2
 
+typedef struct {
+
+    uint8_t b;
+    uint8_t g;
+    uint8_t r;
+
+    uint8_t _reserved;
+
+} pixel_t;
 
 typedef struct {
 
@@ -24,7 +32,7 @@ typedef struct {
     uint8_t     daylight;
     uint8_t     reserved2;
 
-} uefi_time;
+} uefi_time_t;
 
 typedef struct {
 
@@ -48,11 +56,11 @@ typedef struct {
     uint64_t number_of_pages;
     uint64_t attribute;
 
-} uefi_memory_descriptor;
+} uefi_memory_descriptor_t;
 
 
 typedef
-uint64_t (__ms_abi *efi_reset_function) (
+uint64_t (__ms_abi *efi_reset_func) (
 
     uint32_t    reset_type,
     uint64_t    reset_status,
@@ -62,35 +70,44 @@ uint64_t (__ms_abi *efi_reset_function) (
 );
 
 typedef
-uint64_t (__ms_abi *efi_get_time) (
+uint64_t (__ms_abi *efi_get_time_func) (
 
-    uefi_time*  time,
-    void*       capabilities
+    uefi_time_t*    time,
+    void*           capabilities
 
 );
 
 typedef struct {
 
-    uefi_memory_descriptor* map;
+    uefi_memory_descriptor_t* map;
     uint64_t map_size;
     uint64_t desc_size;
     uint64_t desc_version;
 
 } memory_info_t;
 
+typedef struct {
+
+    uint32_t x_res;
+    uint32_t y_res;
+
+    uint64_t vmem;
+    uint64_t vmem_size;
+
+} video_info_t;
 
 typedef struct {
 
     // Set of video-related data
-    video_info_t video_info;
+    video_info_t vinfo;
 
     memory_info_t meminfo;
 
     // Heap-allocated pixel buffer
     pixel_t* back_buffer;
 
-    efi_reset_function  reset;
-    efi_get_time        get_time;
+    efi_reset_func      reset;
+    efi_get_time_func   get_time;
 
     font_t font;
 

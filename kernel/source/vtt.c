@@ -3,18 +3,18 @@
 #include <vexos/vtt.h>
 #include <vexos/cmd.h>
 #include <vexos/kprintf.h>
-#include <vexos/draw.h>
 #include <vexos/time.h>
 #include <vexos/info/kinfo.h>
-
-#include <vexos/dev/ps2kbd.h>
-#include <vexos/dev/pit.h>
-
-#include <vexos/arch/interrupts.h>
 
 #include <vexos/lib/memory.h>
 #include <vexos/lib/string.h>
 #include <vexos/lib/vargs.h>
+
+#include <vexos/cpu/interrupts.h>
+
+#include <vexos/iobus/ps2/ps2kbd.h>
+#include <vexos/iobus/pit.h>
+
 
 vtt vtts[VTTS_N] = { 0 };
 size_t vttcurrterm;
@@ -27,8 +27,8 @@ pixel_t* video_buff;
 void
 vtt_setup(uint32_t cols, uint32_t rows) {
 
-    RESX = kinfo->video_info.x_res;
-    RESY = kinfo->video_info.y_res;
+    RESX = kinfo->vinfo.x_res;
+    RESY = kinfo->vinfo.y_res;
 
     if (cols == 0 || cols > RESX / CHAR_WDTH) {
         cols = RESX / CHAR_WDTH;
@@ -37,13 +37,13 @@ vtt_setup(uint32_t cols, uint32_t rows) {
         rows = RESY / CHAR_HGHT;
     }
 
-    video_buff = (pixel_t*) kinfo->video_info.vmem;
+    video_buff = (pixel_t*) kinfo->vinfo.vmem;
 
     for (size_t i = 0; i < VTTS_N; i++) {
         vtt_init_term(&vtts[i], cols, rows);
     }
 
-    memset((void*) kinfo->video_info.vmem, kinfo->video_info.vmem_size, 0x00);
+    memset((void*) kinfo->vinfo.vmem, kinfo->vinfo.vmem_size, 0x00);
 
     vtt_switch_to(VTTS_KLOG);
 
@@ -314,7 +314,7 @@ vtt_drawcur(vtt* term, uint32_t x, uint32_t y) {
 void
 vtt_drawtchar(uint32_t x, uint32_t y, tchar_t* tc) {
 
-    drawchar(x, y, tc->c, tc->fg, tc->bg, &kinfo->font, &kinfo->video_info);
+    graphics_drawchar(x, y, tc->c, tc->fg, tc->bg, &kinfo->font, &kinfo->vinfo);
 
     tc->updated = false;
 

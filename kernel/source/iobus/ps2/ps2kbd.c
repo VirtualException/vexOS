@@ -3,12 +3,12 @@
 #include <vexos/kbd.h>
 #include <vexos/lib/macros.h>
 
-#include <vexos/dev/ps2.h>
-#include <vexos/dev/ps2kbd.h>
+#include <vexos/cpu/io.h>
+#include <vexos/cpu/interrupts.h>
 
-#include <vexos/arch/io.h>
-#include <vexos/arch/pic.h>
-#include <vexos/arch/interrupts.h>
+#include <vexos/iobus/ps2/ps2.h>
+#include <vexos/iobus/ps2/ps2kbd.h>
+#include <vexos/iobus/pic.h>
 
 /*
  * This array is intended to transform every PRESS keycode (everything before
@@ -129,9 +129,7 @@ INTERRUPT(irq_ps2kbd) {
 
     IRQ_OFF;
 
-    kprintf(KERN_TLOG "IRQ PS/2 Keyboard\n");
-
-    uint32_t kcode = inportb(PS2_IO_PORT);
+    volatile uint32_t kcode = inportb(PS2_IO_PORT);
 
     kbd_key_buffer_push(kcode);
 

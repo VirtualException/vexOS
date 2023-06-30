@@ -2,11 +2,12 @@
 #include <vexos/pointer.h>
 #include <vexos/lib/macros.h>
 
-#include <vexos/dev/ps2.h>
-#include <vexos/dev/ps2mouse.h>
-#include <vexos/arch/interrupts.h>
-#include <vexos/arch/io.h>
-#include <vexos/arch/pic.h>
+#include <vexos/cpu/interrupts.h>
+#include <vexos/cpu/io.h>
+
+#include <vexos/iobus/ps2/ps2.h>
+#include <vexos/iobus/ps2/ps2mouse.h>
+#include <vexos/iobus/pic.h>
 
 #define PS2Leftbutton   0b00000001
 #define PS2Middlebutton 0b00000010

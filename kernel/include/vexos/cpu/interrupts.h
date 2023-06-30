@@ -15,19 +15,19 @@ typedef struct _interrupt_frame {
     uint64_t cs;
     uint64_t rflags;
 
-} interrupt_frame;
+} interrupt_frame_t;
 
-typedef void* interrupt;
+typedef void* interrupt_ptr;
 
-extern interrupt isr_table[ISR_N];
+extern interrupt_ptr isr_table[ISR_N];
 
 /* Interrupt Service Routines can only have this type of definition
  * All interrupts are wrappers to other system functions
- * All exceptions will return, except(ion haha!) for the #GP
+ * For this implementation, all exceptions will return, except for the #GP
  */
-#define INTERRUPT(name) __interrupt __general_regs_only void int_##name(__unused interrupt_frame* intframe)
-#define EXCEPTION(name) __interrupt __general_regs_only void exc_##name(__unused interrupt_frame* intframe)
-#define EXCEPTERR(name) __interrupt __general_regs_only void exc_##name(__unused interrupt_frame* intframe, uint64_t error_code)
+#define INTERRUPT(name) __interrupt __general_regs_only void int_##name(__unused interrupt_frame_t* intframe)
+#define EXCEPTION(name) __interrupt __general_regs_only void exc_##name(__unused interrupt_frame_t* intframe)
+#define EXCEPTERR(name) __interrupt __general_regs_only void exc_##name(__unused interrupt_frame_t* intframe, uint64_t error_code)
 
 INTERRUPT(unhandled);
 INTERRUPT(regdump);

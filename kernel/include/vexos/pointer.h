@@ -3,7 +3,7 @@
 
 #include <vexos/lib/types.h>
 #include <vexos/lib/bool.h>
-#include <vexos/dev/ps2mouse.h>
+#include <vexos/iobus/ps2/ps2mouse.h>
 
 void pointer_handle_mouse(ps2mouse_packet* mouse_data);
 

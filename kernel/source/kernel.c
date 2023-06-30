@@ -2,29 +2,27 @@
 /*    >> Check https://github.com/VirtualException/vexOS <<     */
 
 #include <config.h>
-#include <vexos/info/kinfo.h>
 
 #include <vexos/vtt.h>
 #include <vexos/kprintf.h>
 #include <vexos/time.h>
+#include <vexos/mem.h>
 #include <vexos/kbd.h>
+#include <vexos/rng.h>
+#include <vexos/info/kinfo.h>
 
-#include <vexos/arch/dt.h>
-#include <vexos/arch/syscall.h>
-#include <vexos/arch/mem.h>
-#include <vexos/arch/serial.h>
-#include <vexos/arch/pic.h>
-
-#include <vexos/dev/pit.h>
-#include <vexos/dev/pcspkr.h>
-#include <vexos/dev/ps2kbd.h>
-#include <vexos/dev/ps2mouse.h>
-
-#include <vexos/lib/conv.h>
-#include <vexos/lib/rng.h>
 #include <vexos/lib/def.h>
-#include <vexos/lib/assert.h>
 #include <vexos/lib/macros.h>
+
+#include <vexos/cpu/dt.h>
+#include <vexos/cpu/syscall.h>
+
+#include <vexos/iobus/serial.h>
+#include <vexos/iobus/pic.h>
+#include <vexos/iobus/pit.h>
+#include <vexos/iobus/ps2/ps2kbd.h>
+#include <vexos/iobus/ps2/ps2mouse.h>
+
 
 /* TODO (in order of dificulty)
  *  - Working mouse
@@ -55,7 +53,7 @@ start_kernel(kernel_info_t* kernelinfo) {
     kbd_init();
 
     time_get(&time);
-    rng_seed = ((time.minute + 1) + (time.hour + 1) * time.day) << ((time.second + 1) / 2);
+    rng_seed = (time.minute + time.hour + time.day) << (time.second / 2);
     rng_init(rng_seed);
 
     /* Setup */
@@ -119,7 +117,7 @@ memory_review() {
 
     /* Memory review */
 
-    uefi_memory_descriptor* desc = kinfo->meminfo.map;
+    uefi_memory_descriptor_t* desc = kinfo->meminfo.map;
     uint64_t entries = kinfo->meminfo.map_size / kinfo->meminfo.desc_size;
 
     kprintf(KERN_TLOG "Memory Map Info: %d entries (showing usable):\n", entries);
@@ -129,7 +127,7 @@ memory_review() {
 
     for (size_t i = 0; i < entries; i++) {
 
-        /* if ((   desc->type == mem_type_boot_services_code || 
+        /* if ((   desc->type == mem_type_boot_services_code ||
                 desc->type == mem_type_boot_services_data) && i != 0) {
             goto skip;
         } */
@@ -141,7 +139,7 @@ memory_review() {
             goto skip;
         }
 
-        kprintf(KERN_LOG "Entry No %3d: %s    \t%8d KB \t0x%010X %c\n",
+        kprintf(KERN_TLOG "Entry No %3d: %s    \t%8d KB \t0x%010X %c\n",
                 i,
                 uefi_memory_types_str[desc->type],
                 BYTES2KB(PAGES2B(desc->number_of_pages)),

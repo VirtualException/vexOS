@@ -1,10 +1,11 @@
 #include <vexos/kprintf.h>
 #include <vexos/time.h>
+
 #include <vexos/lib/macros.h>
 #include <vexos/lib/bool.h>
 
-#include <vexos/arch/io.h>
-#include <vexos/arch/pic.h>
+#include <vexos/cpu/io.h>
+#include <vexos/iobus/pic.h>
 
 void
 pic_setup() {

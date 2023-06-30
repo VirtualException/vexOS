@@ -1,5 +1,5 @@
-#include <vexos/dev/ps2.h>
-#include <vexos/arch/io.h>
+#include <vexos/cpu/io.h>
+#include <vexos/iobus/ps2/ps2.h>
 
 void
 ps2_wait(uint8_t type) {

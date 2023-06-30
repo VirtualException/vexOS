@@ -1,12 +1,14 @@
 #include <vexos/vtt.h>
 #include <vexos/kprintf.h>
 #include <vexos/time.h>
+#include <vexos/info/kinfo.h>
+
 #include <vexos/lib/memory.h>
 #include <vexos/lib/string.h>
 #include <vexos/lib/conv.h>
 #include <vexos/lib/def.h>
-#include <vexos/info/kinfo.h>
-#include <vexos/arch/serial.h>
+
+#include <vexos/iobus/serial.h>
 
 #define KLOGFMT "[vexOSkernel %02d:%02d:%02d +%09d.%03dms]: "
 

@@ -1,9 +1,12 @@
 #include <vexos/kprintf.h>
-#include <vexos/lib/bool.h>
 
-#include <vexos/arch/serial.h>
-#include <vexos/arch/io.h>
+#include <vexos/lib/bool.h>
 #include <vexos/lib/macros.h>
+
+#include <vexos/cpu/io.h>
+
+#include <vexos/iobus/serial.h>
+
 
 bool serial_enabled = false;
 

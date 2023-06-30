@@ -12,7 +12,7 @@
 #define IDT_TA_TRAPGATE         0b10001111
 
 #define IDTENTRY(offset, type, selector) \
-(idt_entry) { \
+(idt_entry_t) { \
     (((uint64_t)offset) & 0x000000000000ffff), selector, 0, type, \
     (((uint64_t)offset) & 0x00000000ffff0000) >> 16, \
     (((uint64_t)offset) & 0xffffffff00000000) >> 32, \
@@ -25,7 +25,7 @@ typedef struct __packed {
     uint16_t size;
     uint64_t ptr;
 
-} gdt_desc, idt_desc;
+} gdt_desc_t, idt_desc_t;
 
 typedef struct __packed {
 
@@ -36,7 +36,7 @@ typedef struct __packed {
     uint8_t     limit_1_flags;
     uint8_t     base_2;
 
-} gdt_entry;
+} gdt_entry_t;
 
 typedef struct __packed {
 
@@ -50,12 +50,13 @@ typedef struct __packed {
     uint32_t    offset_2;   // offset bits 32..63
     uint32_t    reserved;   // reserved
 
-} idt_entry;
+} idt_entry_t;
 
-uint64_t    gdt_setup(void);
-extern void gdt_load(gdt_desc* gdt);
 
-uint64_t    idt_setup(void);
-extern void idt_load(idt_desc* idt);
+uint64_t    gdt_setup();
+extern void gdt_load(gdt_desc_t* gdt);
+
+uint64_t    idt_setup();
+extern void idt_load(idt_desc_t* idt);
 
 #endif

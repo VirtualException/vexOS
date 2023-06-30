@@ -6,7 +6,7 @@ Basic x64 Operating System (for UEFI)
 This is an amateur OS made for x86_64 architectures.
 It is made up of 2 parts: the kernel and the bootloader.
 
-For loading the kernel its needed a bootloader (located under the `bootloader/` directory) that uses UEFI for:
+To load the kernel it is needed a bootloader (located under the `bootloader/` directory) that uses UEFI for:
  - Setting up video
  - Getting time
  - Loading the kernel from the filesystem
@@ -20,12 +20,12 @@ The vexOS kernel counts with the following features:
  - PIT
  - Keyboard input
  - Random number generator
- - Serial input
+ - Serial output
  - Video (efi gop driver)
  - Terminal (custom implementation called `vtt`)
- - Custom pixel-by-pixel font (`ter10x16.h`)
+ - Custom pixel-by-pixel font (`font.h`)
  - Printf-like family functions
- - More random stuff
+ - Some random stuff
 
 ## Building
 **GCC** and **NASM** are the only tools needed to compile the hole OS.
@@ -34,7 +34,7 @@ In Linux, just run the
 ```
 ./build.sh
 ```
-script, or run the specific script for every of its parts. Change the option in `build-kernel.sh` from `DEBUG=0` to `DEBUG=1` for debug mode.
+script, or run the specific script for every of its parts. To build in debug mode, change the option in `build-kernel.sh` from `DEBUG=0` to `DEBUG=1`.
 
 The output will be the bootloader (`bootloader/out/BOOTX64.EFI`) and the kernel (`kernel/out/vexos64kernel`).
 
@@ -53,11 +53,11 @@ GDB is recommended for debugging.
 Fuck private property, this is under **CC0**.
 
 ## Screenshots
-### Kernel screenshot (wrapped):
+### Kernel screenshot:
 ![kernel screenshot](/screenshots/kernel.png)
-### Bootloader screenshot (unwraped):
+### Bootloader screenshot (running on qemu):
 ![bootloader screenshot](/screenshots/bootloader.png)
 
 ## Extra
-Special thanks to the contributors of wiki.osdev.org and the random person who wrote:
+Special thanks to the contributors of [OSDev](https://wiki.osdev.org) and the random person who wrote:
 > "Sound is never noticed by users, until it isn't there."

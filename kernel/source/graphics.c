@@ -1,7 +1,9 @@
-#include <vexos/draw.h>
+#include <vexos/graphics.h>
+
+#define UIDw(x, y, w) ((x) + ((y) * (w)))
 
 void
-drawpixel(uint32_t x, uint32_t y, color_t col, video_info_t* vinfo) {
+graphics_drawpixel(uint32_t x, uint32_t y, color_t col, video_info_t* vinfo) {
 
     pixel_t* pixel = (pixel_t*) vinfo->vmem + UIDw(x, y, vinfo->x_res);
 
@@ -12,7 +14,7 @@ drawpixel(uint32_t x, uint32_t y, color_t col, video_info_t* vinfo) {
 }
 
 void
-drawchar(uint32_t x, uint32_t y, uint c, color_t fg, color_t bg, font_t* font, video_info_t* vinfo) {
+graphics_drawchar(uint32_t x, uint32_t y, uint c, color_t fg, color_t bg, font_t* font, video_info_t* vinfo) {
 
     if (c >= font->chars) {
         return;

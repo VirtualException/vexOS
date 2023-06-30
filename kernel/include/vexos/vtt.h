@@ -3,7 +3,7 @@
 #ifndef _VTT_H
 #define _VTT_H
 
-#include <vexos/info/video.h>
+#include <vexos/graphics.h>
 
 #include <vexos/lib/bool.h>
 

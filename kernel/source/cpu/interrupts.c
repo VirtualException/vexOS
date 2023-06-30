@@ -2,13 +2,13 @@
 #include <vexos/vtt.h>
 #include <vexos/lib/def.h>
 
-#include <vexos/arch/interrupts.h>
-#include <vexos/arch/io.h>
-#include <vexos/arch/pic.h>
-#include <vexos/dev/ps2kbd.h>
-#include <vexos/dev/ps2mouse.h>
+#include <vexos/cpu/interrupts.h>
+#include <vexos/cpu/io.h>
+#include <vexos/iobus/pic.h>
+#include <vexos/iobus/ps2/ps2kbd.h>
+#include <vexos/iobus/ps2/ps2mouse.h>
 
-interrupt isr_table[ISR_N] = {
+interrupt_ptr isr_table[ISR_N] = {
 
     /* Exceptions */
 

@@ -1,11 +1,11 @@
-#ifndef _MEMMNGR_H
-#define _MEMMNGR_H
+#ifndef _MEM_H
+#define _MEM_H
 
 #include <vexos/lib/types.h>
 #include <vexos/info/kinfo.h>
 
 /* from gnu-efi */
-#define NEXT_MEMORY_DESCRIPTOR(ptr, size) ((uefi_memory_descriptor*) (((uint8_t*) ptr) + size)) 
+#define NEXT_MEMORY_DESCRIPTOR(ptr, size) ((uefi_memory_descriptor_t*) (((uint8_t*) ptr) + size))
 
 #define PAGE_SIZE   4096
 #define PAGES2B(p)  ((p) * PAGE_SIZE)

@@ -1,8 +1,8 @@
 #include <vexos/kprintf.h>
 #include <vexos/lib/memory.h>
 
-#include <vexos/arch/io.h>
-#include <vexos/arch/syscall.h>
+#include <vexos/cpu/io.h>
+#include <vexos/cpu/syscall.h>
 
 #include <vexos/lib/bool.h>
 #include <vexos/lib/assert.h>
@@ -28,8 +28,6 @@ syscall_setup() {
 
     kprintf(KERN_TLOG "Setting up Syscalls... ");
 
-IRQ_OFF;
-
     /* Set syscall enable bit on */
     uint64_t old_msr =  rdmsr(MSR_IA32_EFER);
     wrmsr(MSR_IA32_EFER, old_msr | (uint64_t) MSR_IA32_EFER_SCE);
@@ -42,8 +40,6 @@ IRQ_OFF;
 
     /* Dont clear any RFLAGS when entering a syscall */
     wrmsr(MSR_IA32_FMASK, (uint64_t) 0x0);
-
-IRQ_ON;
 
     kprintf(KERN_LOG "[DONE]\n");
 

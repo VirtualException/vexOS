@@ -1,4 +1,4 @@
-#include <vexos/arch/io.h>
+#include <vexos/cpu/io.h>
 
 #define PIT_FREQ        0x1234DE    /* Random number */
 #define PIT_TIMER_FREQ  1000        /* The PIT will fire 1000 times/second */

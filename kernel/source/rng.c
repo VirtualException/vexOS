@@ -1,6 +1,6 @@
-#include <vexos/lib/rng.h>
+#include <vexos/rng.h>
 
-static unsigned long int holdrand = 1;
+static unsigned long int holdrand = 0;
 
 void
 rng_init(unsigned long int seed) {

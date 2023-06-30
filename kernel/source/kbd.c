@@ -1,13 +1,13 @@
 #include <vexos/kprintf.h>
 #include <vexos/kbd.h>
+
 #include <vexos/lib/memory.h>
 #include <vexos/lib/bool.h>
 
-#include <vexos/dev/ps2.h>
-#include <vexos/dev/ps2kbd.h>
+#include <vexos/iobus/pic.h>
+#include <vexos/cpu/interrupts.h>
 
-#include <vexos/arch/pic.h>
-#include <vexos/arch/interrupts.h>
+#include <vexos/iobus/ps2/ps2kbd.h>
 
 
 uint32_t key_buffer[KEY_BUFFER_SIZE] = { 0 };
