@@ -2,7 +2,7 @@ set -e
 
 KNAME="vexos64kernel"
 DEBUG=0
-EXCLUDE_OPTIMIZE="kprintf.c"
+EXCLUDE_OPTIMIZE="printk.c"
 
 CEXT="c"
 ASMEXT="asm"
@@ -15,14 +15,14 @@ CFILES="$(find ${SRCDIR} -name \*.${CEXT})"
 ASMFILES="$(find ${SRCDIR} -name \*.${ASMEXT})"
 
 # -Ofast is quite clumsy...
-GCCARGS="-c -O3
+GCCARGS="-c -O3 -nostdlib
         -Wall -Wextra
-        -mtune=native -mfpmath=sse -mmmx -msse -msse2 -msse3 -mssse3 -msse4 -m3dnow
-        -ffreestanding -fno-stack-protector -fno-stack-check -fno-builtin -fno-pic -fPIE
-        -mno-red-zone -m64"
+        -m64 -mtune=native -mcmodel=large -mno-red-zone
+        -mfpmath=sse -mmmx -msse -msse2 -msse3 -mssse3 -msse4 -m3dnow
+        -ffreestanding -fno-stack-protector -fno-stack-check -fno-builtin -fpic -fpie"
 
 NASMARGS="-f elf64"
-LDARGS="-nostdlib -static -T kernel/link/kernel.ld -no-warn-rwx-segments"
+LDARGS="-nostdlib -static -T kernel/link/kernel.ld -no-warn-rwx-segments -z max-page-size=0x1000"
 
 function item_in_list {
 

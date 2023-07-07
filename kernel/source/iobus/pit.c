@@ -1,4 +1,4 @@
-#include <vexos/kprintf.h>
+#include <vexos/printk.h>
 #include <vexos/time.h>
 
 #include <vexos/cpu/interrupts.h>
@@ -7,12 +7,13 @@
 #include <vexos/iobus/pit.h>
 #include <vexos/iobus/pic.h>
 
+
 #define PIT_MODE_COMMAND_BYTE 0x36 /* A lot of binary flags grouped up */
 
 void
 pit_setup() {
 
-    kprintf(KERN_TLOG "Setting up PIT... ");
+    printk(KERN_TLOG "Setting up PIT... ");
 
     IRQ_OFF;
 
@@ -25,7 +26,7 @@ pit_setup() {
 
     IRQ_ON;
 
-    kprintf(KERN_LOG "[DONE]\n");
+    printk(KERN_LOG "[DONE]\n");
 
     return;
 }

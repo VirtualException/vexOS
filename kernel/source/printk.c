@@ -1,7 +1,7 @@
 #include <vexos/vtt.h>
-#include <vexos/kprintf.h>
+#include <vexos/printk.h>
 #include <vexos/time.h>
-#include <vexos/info/kinfo.h>
+#include <vexos/bootinfo.h>
 
 #include <vexos/lib/memory.h>
 #include <vexos/lib/string.h>
@@ -10,10 +10,10 @@
 
 #include <vexos/iobus/serial.h>
 
-#define KLOGFMT "[vexOSkernel %02d:%02d:%02d +%09d.%03dms]: "
+char KLOGFMT[] = "[vexOSkernel %02d:%02d:%02d +%09d.%03dms]: ";
 
 int
-kvsprintf(char* str, const char* fmt, va_list vargs) {
+__vsprintk(char* str, const char* fmt, va_list vargs) {
 
     size_t width = 0;
     char fill = ' ';
@@ -110,7 +110,7 @@ format:
 }
 
 int
-ksprintf(char* str, const char* fmt, ...) {
+sprintk(char* str, const char* fmt, ...) {
 
     va_list vargs;
     va_start(vargs);
@@ -119,7 +119,7 @@ ksprintf(char* str, const char* fmt, ...) {
 
     size_t count = 0;
 
-    count += kvsprintf(str, fmt, vargs);
+    count += __vsprintk(str, fmt, vargs);
 
     va_end(vargs);
 
@@ -127,29 +127,12 @@ ksprintf(char* str, const char* fmt, ...) {
 }
 
 int
-kvprintf(const char* fmt, va_list vargs) {
-
-    char str[DEF_STR_LEN] = { 0 };
-
-    size_t count = 0;
-
-    kvsprintf(str, fmt, vargs);
-
-    count += kputs(str);
-
-    return count;
-}
-
-int
-kprintf(const char* fmt, ...) {
-
-    va_list vargs;
-    va_start(vargs);
-
-    time_t time;
+__vprintk(const char* fmt, va_list vargs) {
 
     char out_buff[DEF_STR_LEN] = { 0 };
     char logheader[64] = { 0 };
+
+    time_t time;
 
     size_t count = 0;
 
@@ -161,26 +144,26 @@ kprintf(const char* fmt, ...) {
 
         uint64_t ms = time_ms_boot();
 
-        ksprintf(logheader, KLOGFMT, time.hour, time.minute, time.second, (ms - ms % 1000) / 1000, ms % 1000);
+        sprintk(logheader, KLOGFMT, time.hour, time.minute, time.second, (ms - ms % 1000) / 1000, ms % 1000);
 
         serial_print(logheader);
-        count += kputs(logheader);
+        count += putsk(logheader);
 
         __fallthrough;
 
     case KERN_LOG_ASCII:
 
-        kvsprintf(out_buff, ++fmt, vargs); /* ! */
+        __vsprintk(out_buff, ++fmt, vargs); /* ! */
 
         serial_print(out_buff);
-        count += kputs(out_buff);
+        count += putsk(out_buff);
 
         break;
 
     default:
 
-        kvsprintf(out_buff, fmt, vargs); /* ! */
-        count += kputs(out_buff);
+        __vsprintk(out_buff, fmt, vargs); /* ! */
+        count += putsk(out_buff);
 
         break;
     }
@@ -191,12 +174,36 @@ kprintf(const char* fmt, ...) {
 }
 
 int
-kputs(const char* str) {
+__mprintk(const char* module, const char* fmt, ...) {
+
+    va_list vargs;
+    va_start(vargs);
+
+    va_arg(vargs);
+
+    char newfmt[DEF_STR_LEN] = { 0 };
+
+    sprintk(newfmt, KERN_TLOG "[%s] : %s", module, fmt);
+
+    return __vprintk(newfmt, vargs);
+}
+
+int
+printk(const char* fmt, ...) {
+
+    va_list vargs;
+    va_start(vargs);
+
+    return __vprintk(fmt, vargs);
+}
+
+int
+putsk(const char* str) {
 
     size_t i;
 
     for (i = 0; str[i] != '\0'; i++) {
-        kputchar(str[i]);
+        putchark(str[i]);
     }
 
     return i;
@@ -204,7 +211,7 @@ kputs(const char* str) {
 
 
 int
-kputchar(char c) {
+putchark(char c) {
 
     vtt_putchar(&vtts[VTTS_KLOG], c);
 

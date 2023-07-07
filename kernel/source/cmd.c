@@ -1,7 +1,8 @@
 #include <vexos/cmd.h>
 #include <vexos/kbd.h>
-#include <vexos/kprintf.h>
+#include <vexos/printk.h>
 #include <vexos/lib/macros.h>
+
 
 int
 cmd(vtt* term) {
@@ -18,7 +19,7 @@ cmd(vtt* term) {
 
     case KBD_F1_Pressed ... KBD_F1_Pressed + VTTS_MAX:
         vtt_switch_to(kcode - KBD_F1_Pressed);
-        kprintf(KERN_TLOG "Switched to vtt %d\n", kcode - KBD_F1_Pressed);
+        printk("Switched to vtt %d\n", kcode - KBD_F1_Pressed);
         break;
 
     case KBD_Tab_Pressed:

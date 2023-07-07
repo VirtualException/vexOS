@@ -1,7 +1,7 @@
 #ifndef _GRAPHICS_H
 #define _GRAPHICS_H
 
-#include <vexos/info/kinfo.h>
+#include <vexos/bootinfo.h>
 
 /* Thanks claudipunchi for macro magic, but its no longer necessary
 #define GET_FONT_PIXEL_INDEX(c, x, y, font) \

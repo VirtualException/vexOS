@@ -1,4 +1,4 @@
-#include <vexos/kprintf.h>
+#include <vexos/printk.h>
 #include <vexos/kbd.h>
 
 #include <vexos/lib/memory.h>

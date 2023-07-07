@@ -2,9 +2,9 @@
 
 #include <vexos/vtt.h>
 #include <vexos/cmd.h>
-#include <vexos/kprintf.h>
+#include <vexos/printk.h>
 #include <vexos/time.h>
-#include <vexos/info/kinfo.h>
+#include <vexos/bootinfo.h>
 
 #include <vexos/lib/memory.h>
 #include <vexos/lib/string.h>
@@ -16,7 +16,7 @@
 #include <vexos/iobus/pit.h>
 
 
-vtt vtts[VTTS_N] = { 0 };
+vtt vtts[VTTS_N];
 size_t vttcurrterm;
 
 uint32_t RESX;
@@ -27,8 +27,8 @@ pixel_t* video_buff;
 void
 vtt_setup(uint32_t cols, uint32_t rows) {
 
-    RESX = kinfo->vinfo.x_res;
-    RESY = kinfo->vinfo.y_res;
+    RESX = bootinfo->vinfo.x_res;
+    RESY = bootinfo->vinfo.y_res;
 
     if (cols == 0 || cols > RESX / CHAR_WDTH) {
         cols = RESX / CHAR_WDTH;
@@ -37,17 +37,17 @@ vtt_setup(uint32_t cols, uint32_t rows) {
         rows = RESY / CHAR_HGHT;
     }
 
-    video_buff = (pixel_t*) kinfo->vinfo.vmem;
+    video_buff = (pixel_t*) bootinfo->vinfo.vmem;
 
     for (size_t i = 0; i < VTTS_N; i++) {
         vtt_init_term(&vtts[i], cols, rows);
     }
 
-    memset((void*) kinfo->vinfo.vmem, kinfo->vinfo.vmem_size, 0x00);
+    memset((void*) bootinfo->vinfo.vmem, bootinfo->vinfo.vmem_size, 0x00);
 
     vtt_switch_to(VTTS_KLOG);
 
-    kprintf(KERN_TLOG "VTT succesfully initializated\n");
+    printk(KERN_TLOG "VTT succesfully initializated\n");
 
     return;
 }
@@ -314,7 +314,7 @@ vtt_drawcur(vtt* term, uint32_t x, uint32_t y) {
 void
 vtt_drawtchar(uint32_t x, uint32_t y, tchar_t* tc) {
 
-    graphics_drawchar(x, y, tc->c, tc->fg, tc->bg, &kinfo->font, &kinfo->vinfo);
+    graphics_drawchar(x, y, tc->c, tc->fg, tc->bg, &bootinfo->font, &bootinfo->vinfo);
 
     tc->updated = false;
 

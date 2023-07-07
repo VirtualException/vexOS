@@ -1,11 +1,11 @@
 bits 64
 
-extern va_save
-extern va_next
+extern __va_save:   function
+extern __va_next:   function
 
 section .text
 
-va_save:
+__va_save:
 
 ; x86_64 SysV ABI Calling Convention:
 ;   rdi, rsi, rdx, rcx, r8, r9, [STACK...]
@@ -28,7 +28,7 @@ va_save:
 
     ret
 
-va_next:
+__va_next:
 
     mov r10,    [rdi+64]    ; Get index offset in bytes
     inc qword   [rdi+64]    ; Increment index

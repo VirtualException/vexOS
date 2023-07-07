@@ -1,4 +1,4 @@
-#include <vexos/kprintf.h>
+#include <vexos/printk.h>
 
 #include <vexos/lib/bool.h>
 #include <vexos/lib/macros.h>
@@ -13,7 +13,7 @@ bool serial_enabled = false;
 void
 serial_setup() {
 
-    kprintf(KERN_TLOG "Setting up serial connection... ");
+    printk(KERN_TLOG "Setting up serial connection... ");
 
 IRQ_OFF;
 
@@ -29,7 +29,7 @@ IRQ_OFF;
 
     // Check if serial is faulty (i.e: not same byte as sent)
     if(inb(COM_PORT + 0) != 0xAE) {
-        kprintf(KERN_LOG "[ERROR]\n");
+        printk(KERN_LOG "[ERROR]\n");
         serial_enabled = false;
         return;
     }
@@ -40,11 +40,11 @@ IRQ_OFF;
 
 IRQ_ON;
 
-    kprintf(KERN_LOG "[DONE]\n");
-
-    serial_print("\nCOM1 Serial working! (maybe it was already up)\n");
+    printk(KERN_LOG "[DONE]\n");
 
     serial_enabled = true;
+
+    serial_print("\nCOM1 Serial working! (maybe it was already up)\n");
 
     return;
 }

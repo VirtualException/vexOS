@@ -2,7 +2,7 @@
 #define _MEM_H
 
 #include <vexos/lib/types.h>
-#include <vexos/info/kinfo.h>
+#include <vexos/bootinfo.h>
 
 /* from gnu-efi */
 #define NEXT_MEMORY_DESCRIPTOR(ptr, size) ((uefi_memory_descriptor_t*) (((uint8_t*) ptr) + size))
@@ -34,7 +34,8 @@ enum uefi_memory_types {
 
 };
 
-uint64_t mem_setup(void);
+uint64_t mem_setup();
+void mem_review();
 
 void* mem_allocate(size_t bytes);
 

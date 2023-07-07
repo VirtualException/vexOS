@@ -1,6 +1,7 @@
-#include <vexos/kprintf.h>
+#include <vexos/printk.h>
 #include <vexos/vtt.h>
 #include <vexos/cpu/dt.h>
+
 
 __aligned(0x1000)
 gdt_entry_t gdt_seg[GDT_DESCRIPTORS] = { 0 };
@@ -9,7 +10,7 @@ gdt_desc_t  gdt = { sizeof(gdt_seg) - 1, (uint64_t) gdt_seg };
 uint64_t
 gdt_setup(void) {
 
-    kprintf(KERN_TLOG "Setting up GDT... ");
+    printk(KERN_TLOG "Setting up GDT... ");
 
     gdt = (gdt_desc_t) { sizeof(gdt_seg) - 1, (uint64_t) gdt_seg };
 
@@ -24,7 +25,7 @@ gdt_setup(void) {
 
     IRQ_ON;
 
-    kprintf(KERN_LOG "[DONE]\n");
+    printk(KERN_LOG "[DONE]\n");
 
     return 0;
 }

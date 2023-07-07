@@ -5,7 +5,7 @@
 void
 graphics_drawpixel(uint32_t x, uint32_t y, color_t col, video_info_t* vinfo) {
 
-    pixel_t* pixel = (pixel_t*) vinfo->vmem + UIDw(x, y, vinfo->x_res);
+    pixel_t* pixel = (pixel_t*) bootinfo->vinfo.vmem + UIDw(x, y, vinfo->x_res);
 
     pixel->r = col.r;
     pixel->g = col.g;
@@ -25,7 +25,8 @@ graphics_drawchar(uint32_t x, uint32_t y, uint c, color_t fg, color_t bg, font_t
 
             uint64_t index = (c * font->wdth * font->hght) + UIDw(dx, dy, font->wdth);
 
-            pixel_t* pixel = (pixel_t*) vinfo->vmem + UIDw(x + dx, y + dy, vinfo->x_res);
+            pixel_t* pixel = (pixel_t*) bootinfo->vinfo.vmem +
+                UIDw(x + dx, y + dy, vinfo->x_res);
             *pixel = COL2PIXEL((font->bmp[index].r == 0xFF) ? fg : bg);
 
         }

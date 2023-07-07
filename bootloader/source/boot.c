@@ -70,7 +70,7 @@ efi_main(EFI_HANDLE ImageHandle, EFI_SYSTEM_TABLE* ST) {
 
     /* Kernel loading and end of efi application */
 
-    StartKernel = SetupKernel(NULL, KernelPath, ImageHandle);
+    StartKernel = SetupKernel(KernelPath, ImageHandle);
 
     if (StartKernel == NULL) {
 

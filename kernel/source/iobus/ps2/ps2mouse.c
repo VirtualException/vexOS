@@ -1,4 +1,4 @@
-#include <vexos/kprintf.h>
+#include <vexos/printk.h>
 #include <vexos/pointer.h>
 #include <vexos/lib/macros.h>
 

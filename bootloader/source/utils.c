@@ -4,109 +4,118 @@
 #include "../../font/font.h"
 
 EFI_GRAPHICS_OUTPUT_PROTOCOL*   gop;
-EFI_RNG_PROTOCOL*               rng;
 
 EFI_GUID gopGuid = EFI_GRAPHICS_OUTPUT_PROTOCOL_GUID;
-EFI_GUID rngGuid = EFI_RNG_PROTOCOL_GUID;
-
-EFI_FILE*   Kernel;
-Elf64_Ehdr  KernelHeader;
+EFI_GUID lipGuid = EFI_LOADED_IMAGE_PROTOCOL_GUID;
 
 EFI_MEMORY_DESCRIPTOR* MemMap;
 UINT32  MemDescVersion;
 UINTN   MemDescSize;
 UINTN   MemMapSize;
 
+/*
+
+Easy way:
+
+    UINT64 Addr = <base_address>; // 0x0
+    UINT64 Size = LibFileInfo(KernelFile)->FileSize;
+    ST->BootServices->AllocatePages(AllocateAddress, EfiConventionalMemory, 16, &Addr);
+    KernelFile->SetPosition(KernelFile, <offset_to_code>); // 0x1000
+    KernelFile->Read(KernelFile, &Size, (void*) Addr);
+
+    return <entry_point>;
+
+*/
+
 KernelEntry
-SetupKernel(EFI_FILE* Directory, CHAR16* KernelPath, EFI_HANDLE ImageHandle) {
+SetupKernel(CHAR16* KernelPath, EFI_HANDLE ImageHandle) {
 
-    EFI_LOADED_IMAGE_PROTOCOL*          LoadedImage = NULL;
-    EFI_SIMPLE_FILE_SYSTEM_PROTOCOL*    FileSystem  = NULL;
+    /* Opening the file */
 
-    UINTN           FileInfoSize;
-    EFI_FILE_INFO*  FileInfo;
+    EFI_LOADED_IMAGE *LoadedImage = NULL;
+    EFI_FILE_HANDLE Volume;
+    EFI_FILE_HANDLE KernelFile;
 
-    Elf64_Phdr* phdrs;
+    BS->HandleProtocol(ImageHandle, &lipGuid, (void **) &LoadedImage);
+    Volume = LibOpenRoot(LoadedImage->DeviceHandle);
+
+    Volume->Open(Volume, &KernelFile, KernelPath,
+        EFI_FILE_MODE_READ, EFI_FILE_READ_ONLY | EFI_FILE_HIDDEN | EFI_FILE_SYSTEM);
 
     Print(WARNINGTXT);
 
-    ST->BootServices->HandleProtocol(ImageHandle, &gEfiLoadedImageProtocolGuid, (void**)&LoadedImage);
-    ST->BootServices->HandleProtocol(LoadedImage->DeviceHandle, &gEfiSimpleFileSystemProtocolGuid, (void**)&FileSystem);
-
-    if (Directory == NULL) {
-        FileSystem->OpenVolume(FileSystem, &Directory);
-    }
-
-    Print(L"[ OPENING VEXOS-KERNEL FROM: %s ]\n", KernelPath);
-
-    if (Directory->Open(Directory, &Kernel, KernelPath, EFI_FILE_MODE_READ, EFI_FILE_READ_ONLY)) {
-        Print(L"[ ERROR WHILE OPENING DIRECTORY ]\n");
+    if (KernelFile == NULL) {
+        Print(L"[ COULD NOT OPEN VEXOS KERNEL FROM \"%s\" ]\n", KernelPath);
         return NULL;
     }
+    Print(L"[ VEXOS KERNEL FILE OPENED FROM \"%s\" ]\n", KernelPath);
 
-    if (Kernel==NULL) {
-        Print(L"[ ERROR OPENING VEXOS-KERNEL ]\n");
+    /* Reading from the ELF kernel file */
+
+    Elf64_Ehdr KernelHdr;
+    UINT64 HdrSize = sizeof (KernelHdr);
+
+    KernelFile->SetPosition(KernelFile, 0);
+    KernelFile->Read(KernelFile, &HdrSize, &KernelHdr);
+
+    if ( CompareMem(KernelHdr.e_ident, ELFMAG, SELFMAG)         ||
+                    KernelHdr.e_ident[EI_CLASS]  != ELFCLASS64  ||
+                    KernelHdr.e_ident[EI_DATA]   != ELFDATA2LSB ||
+                    KernelHdr.e_type             != ET_EXEC     ||
+                    KernelHdr.e_machine          != EM_X86_64   ||
+                    KernelHdr.e_version          != EV_CURRENT ) {
+
+        Print(L"[ VEXOS KERNEL FORMAT UNSUPPORTED ]\n");
         return NULL;
     }
-    else Print(L"[ LOADING VEXOS-KERNEL ]\n");
+    Print(L"[ VEXOS KERNEL *ELF* FORMAT SUCCESFULLY VERIFIED ]\n");
 
-    // Create entry point of the kernel
+    /* Find the loadable segment and get the entry point */
 
-    Kernel->GetInfo(Kernel, &gEfiFileInfoGuid, &FileInfoSize, NULL);
-    ST->BootServices->AllocatePool(EfiLoaderData, FileInfoSize, (void**)&FileInfo);
-    Kernel->GetInfo(Kernel, &gEfiFileInfoGuid, &FileInfoSize, NULL);
+    Elf64_Phdr* KernelPhdr;
+    UINT64 PhdrSize = KernelHdr.e_phnum * KernelHdr.e_phentsize;
 
-    UINTN size = sizeof(KernelHeader);
-    Kernel->Read(Kernel, &size, &KernelHeader);
+    ST->BootServices->AllocatePool(EfiLoaderData, PhdrSize, (void**)&KernelPhdr);
+    KernelFile->SetPosition(KernelFile, KernelHdr.e_phoff);
+    KernelFile->Read(KernelFile, &PhdrSize, (void*)KernelPhdr);
 
-    // Check for bad format
+    Print(L"[ LOADING VEXOS KERNEL ]\n");
 
-    if (CompareMem(&KernelHeader.e_ident[EI_MAG0], ELFMAG, SELFMAG) != 0  ||
-                KernelHeader.e_ident[EI_CLASS]    != ELFCLASS64       ||
-                KernelHeader.e_ident[EI_DATA]     != ELFDATA2LSB      ||
-                KernelHeader.e_type               != ET_EXEC          ||
-                KernelHeader.e_machine            != EM_X86_64        ||
-                KernelHeader.e_version            != EV_CURRENT ) {
-        Print(L"[ VEXOS-KERNEL FORMAT IS UNSUPPORTED OR CORRUPTED ]\n");
-        return NULL;
-    }
-    else {
-        Print(L"[ VEXOS-KERNEL HEADER SUCCESSFULLY VERIFIED ] : (Executable file, x86_64, Little Endian)\n");
-    }
+    for (Elf64_Phdr* Phdr = KernelPhdr;
+        (uint64_t) Phdr < (uint64_t) KernelPhdr + PhdrSize;
+        Phdr = (Elf64_Phdr*) (uint64_t) Phdr + KernelHdr.e_phentsize) {
 
-    // Allocate kernel entry memory
+        switch (Phdr->p_type) {
 
-    Kernel->SetPosition(Kernel, KernelHeader.e_phoff);
-    size = KernelHeader.e_phnum * KernelHeader.e_phentsize;
-    ST->BootServices->AllocatePool(EfiLoaderData, size, (void**)&phdrs);
-    Kernel->Read(Kernel, &size, phdrs);
+        case PT_LOAD:
 
-    // Find entry point
+            Print(L"[ LOADABLE SEGMENT FOUND ]\n");
 
-    Print(L"[ FINDING ENTRY POINT ]\n");
+            UINT64 Pages    = Phdr->p_memsz / PAGE_SIZE;
+            UINT64 FileSize = Phdr->p_filesz;
+            UINT64 SegAddr  = Phdr->p_paddr;
 
-    for (Elf64_Phdr* phdr = phdrs;
-        (char*)phdr < (char*)phdrs + KernelHeader.e_phnum * KernelHeader.e_phentsize;
-        phdr = (Elf64_Phdr*)((char*)phdr + KernelHeader.e_phentsize)) {
+            ST->BootServices->AllocatePages(AllocateAddress, EfiLoaderData, Pages, &SegAddr);
 
-        switch (phdr->p_type) {
+            KernelFile->SetPosition(KernelFile, Phdr->p_offset);
+            KernelFile->Read(KernelFile, &FileSize, (void*) SegAddr);
 
-            case PT_LOAD:
-            Elf64_Xword pages = (phdr->p_memsz + PAGE_SIZE - 1) / PAGE_SIZE;
-            Elf64_Addr segment = phdr->p_paddr;
-            ST->BootServices->AllocatePages(AllocateMaxAddress, EfiLoaderData, pages, &segment);
+            KernelFile->Close(KernelFile);
 
-            Kernel->SetPosition(Kernel, phdr->p_offset);
-            UINTN size = phdr->p_filesz;
-            Kernel->Read(Kernel, &size, (void*)segment);
+            Print(L"[ DONE. RETURNING ENTRY POINT: 0x%X ]\n", KernelHdr.e_entry);
 
-            Kernel->Close(Kernel);
+            return (KernelEntry) KernelHdr.e_entry;
 
-            return (KernelEntry) KernelHeader.e_entry;
+        default:
+
+            Print(L"[ UNSUPPORTED SEGMENT FOUND ]\n");
+
+            /* Unsupported segment */
+
+            break;
+
         }
     }
-
-    Print(L"[ COULDN'T FIND ENTRY POINT ]\n");
 
     return NULL;
 

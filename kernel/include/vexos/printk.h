@@ -2,6 +2,7 @@
 #define _PRINTK_H
 
 #include <vexos/lib/vargs.h>
+#include <vexos/lib/attributes.h>
 
 #define KERN_LOG        "\1"    /* Just treat message as log info */
 #define KERN_TLOG       "\2"    /* Add time headding to the log info */
@@ -13,13 +14,14 @@
 
 /* ... */
 
-int kvsprintf(char *str, const char *fmt, va_list vargs);
-int ksprintf(char *str, const char *fmt, ...);
+int __vsprintk(char *str, const char *fmt, va_list vargs);
+int sprintk(char *str, const char *fmt, ...);
 
-int kvprintf(const char* fmt, va_list vargs);
-int kprintf(const char* fmt, ...);
+int __vprintk(const char* fmt, va_list vargs);
+int __mprintk(const char* module, const char* fmt, ...);
+int printk(const char* fmt, ...);
 
-int kputs(const char* str);
-int kputchar(char c);
+int putsk(const char* str);
+int putchark(char c);
 
 #endif

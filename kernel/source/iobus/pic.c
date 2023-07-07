@@ -1,4 +1,4 @@
-#include <vexos/kprintf.h>
+#include <vexos/printk.h>
 #include <vexos/time.h>
 
 #include <vexos/lib/macros.h>
@@ -7,10 +7,11 @@
 #include <vexos/cpu/io.h>
 #include <vexos/iobus/pic.h>
 
+
 void
 pic_setup() {
 
-    kprintf(KERN_TLOG "Setting up PIC (w/o devices)... ");
+    printk(KERN_TLOG "Setting up PIC (w/o devices)... ");
 
 IRQ_OFF;
 
@@ -18,7 +19,7 @@ IRQ_OFF;
 
 IRQ_ON;
 
-    kprintf(KERN_LOG "[DONE]\n");
+    printk(KERN_LOG "[DONE]\n");
 
     return;
 }

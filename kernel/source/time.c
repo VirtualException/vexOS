@@ -1,6 +1,6 @@
 #include <vexos/time.h>
-#include <vexos/kprintf.h>
-#include <vexos/info/kinfo.h>
+#include <vexos/printk.h>
+#include <vexos/bootinfo.h>
 
 #include <vexos/lib/def.h>
 
@@ -12,7 +12,7 @@ uint64_t current_ms = 0;
 void
 time_get(time_t* time) {
 
-    kinfo->get_time((uefi_time_t*) &efitime, NULL);
+    bootinfo->get_time((uefi_time_t*) &efitime, NULL);
 
     time->year      = efitime.year;
     time->month     = efitime.month;

@@ -19,7 +19,7 @@
 #define TAB_SIZE 8
 
 #define VTTS_N      3
-#define VTTS_MAX    (VTTS_N-1)
+#define VTTS_MAX    (VTTS_N - 1)
 #define VTTS_KLOG   0
 
 /* Transforms finite table coordinates into a 1 dimensional number */
@@ -86,6 +86,7 @@ typedef struct _vtt {
     tchar_t termbuff[M_COLS * M_ROWS];
 
 } vtt;
+
 
 extern vtt vtts[VTTS_N];
 extern size_t vttcurrterm;

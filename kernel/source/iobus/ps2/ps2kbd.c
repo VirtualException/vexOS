@@ -1,14 +1,15 @@
 #include <vexos/vtt.h>
-#include <vexos/kprintf.h>
+#include <vexos/printk.h>
 #include <vexos/kbd.h>
 #include <vexos/lib/macros.h>
 
 #include <vexos/cpu/io.h>
 #include <vexos/cpu/interrupts.h>
 
+#include <vexos/iobus/pic.h>
 #include <vexos/iobus/ps2/ps2.h>
 #include <vexos/iobus/ps2/ps2kbd.h>
-#include <vexos/iobus/pic.h>
+
 
 /*
  * This array is intended to transform every PRESS keycode (everything before
@@ -96,7 +97,7 @@ char KEYMAP_QWERTY_US[0x3A][2] = {
 void
 ps2kbd_setup() {
 
-    kprintf(KERN_TLOG "Setting up PS/2 Keyboard... ");
+    printk(KERN_TLOG "Setting up PS/2 Keyboard... ");
 
     IRQ_OFF;
 
@@ -104,7 +105,7 @@ ps2kbd_setup() {
 
     IRQ_ON;
 
-    kprintf(KERN_LOG "[DONE]\n");
+    printk(KERN_LOG "[DONE]\n");
 
     return;
 

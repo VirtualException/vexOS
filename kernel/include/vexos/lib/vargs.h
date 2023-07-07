@@ -19,11 +19,11 @@ typedef volatile struct {
 
 } va_list;
 
-extern void                 va_save(va_list* vargs);
-extern unsigned long int    va_next(va_list* vargs);
+extern void                 __va_save(va_list* vargs);
+extern unsigned long int    __va_next(va_list* vargs);
 
-#define va_start(vargs)     va_save(&(vargs))
-#define va_arg(vargs)       va_next(&(vargs))
+#define va_start(vargs)     __va_save(&(vargs))
+#define va_arg(vargs)       __va_next(&(vargs))
 #define va_end(vargs)       /* Do nothing */
 
 #endif

@@ -1,4 +1,6 @@
+.gitignore
 .vscode
 mount_and_copy.sh
 serial.log
+out.txt
 **/out

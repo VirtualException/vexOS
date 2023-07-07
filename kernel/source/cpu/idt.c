@@ -1,17 +1,18 @@
-#include <vexos/kprintf.h>
+#include <vexos/printk.h>
 #include <vexos/lib/def.h>
 #include <vexos/cpu/dt.h>
 #include <vexos/cpu/io.h>
 #include <vexos/cpu/interrupts.h>
+
 
 __aligned(0x1000)
 idt_entry_t idt_isr[ISR_N] = { 0 };
 idt_desc_t  idt = { sizeof(idt_isr) - 1, (uint64_t) idt_isr };
 
 uint64_t
-idt_setup(void) {
+idt_setup() {
 
-    kprintf(KERN_TLOG "Setting up IDT... ");
+    printk(KERN_TLOG "Setting up IDT... ");
 
     idt = (idt_desc_t) { sizeof(idt_isr) - 1, (uint64_t) idt_isr };
 
@@ -31,7 +32,7 @@ idt_setup(void) {
 
     IRQ_ON;
 
-    kprintf(KERN_LOG "[DONE]\n");
+    printk(KERN_LOG "[DONE]\n");
 
     return 0;
 }

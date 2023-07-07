@@ -1,5 +1,5 @@
 #include <vexos/mem.h>
-#include <vexos/kprintf.h>
+#include <vexos/printk.h>
 
 #include <vexos/lib/bool.h>
 #include <vexos/lib/def.h>
@@ -37,10 +37,10 @@ mem_setup() {
     mem_total_pages = 0;
     usable_mem_arr_size = 0;
 
-    kprintf(KERN_TLOG "Setting up memory... ");
+    printk(KERN_TLOG "Setting up memory... ");
 
-    uefi_memory_descriptor_t* desc = kinfo->meminfo.map;
-    uint64_t entries = kinfo->meminfo.map_size / kinfo->meminfo.desc_size;
+    uefi_memory_descriptor_t* desc = bootinfo->meminfo.map;
+    uint64_t entries = bootinfo->meminfo.map_size / bootinfo->meminfo.desc_size;
 
     for (size_t i = 0; i < entries; i++) {
 
@@ -51,13 +51,48 @@ mem_setup() {
             usable_mem_arr[usable_mem_arr_size++] = i;
         }
 
-        desc = NEXT_MEMORY_DESCRIPTOR(desc, kinfo->meminfo.desc_size);
+        desc = NEXT_MEMORY_DESCRIPTOR(desc, bootinfo->meminfo.desc_size);
 
     }
 
-    kprintf(KERN_LOG "[DONE]\n");
+    printk(KERN_LOG "[DONE]\n");
 
     return 0;
+}
+
+void
+mem_review() {
+
+    /* Memory review */
+
+    uefi_memory_descriptor_t* desc = bootinfo->meminfo.map;
+    uint64_t entries = bootinfo->meminfo.map_size / bootinfo->meminfo.desc_size;
+
+    printk(KERN_TLOG "Memory Map Info: %d entries (showing conventional):\n", entries);
+
+    for (size_t i = 0; i < entries; i++) {
+
+        if (desc->type != mem_type_conventional_memory) {
+            goto skip;
+        }
+
+        printk(KERN_TLOG "Entry No %3d: %s    \t%8d KB \t0x%010X %c\n",
+                i,
+                uefi_memory_types_str[desc->type],
+                BYTES2KB(PAGES2B(desc->number_of_pages)),
+                desc->physical_start,
+                (desc->type == mem_type_conventional_memory) ? '*' : ' '
+            );
+
+skip:
+        desc = NEXT_MEMORY_DESCRIPTOR(desc, bootinfo->meminfo.desc_size);
+
+    }
+
+    printk(KERN_TLOG "Total memory: %d Megabytes (%d pages)\n",
+        BYTES2MB(mem_total_bytes), mem_total_pages);
+
+    return;
 }
 
 void*
@@ -65,7 +100,7 @@ mem_allocate(size_t bytes) {
 
     for (size_t i = 0; i < usable_mem_arr_size; i++) {
 
-        uefi_memory_descriptor_t* desc = NEXT_MEMORY_DESCRIPTOR(kinfo->meminfo.map, kinfo->meminfo.desc_size * usable_mem_arr[i]);
+        uefi_memory_descriptor_t* desc = NEXT_MEMORY_DESCRIPTOR(bootinfo->meminfo.map, bootinfo->meminfo.desc_size * usable_mem_arr[i]);
 
         if (PAGES2B(desc->number_of_pages) >= bytes) {
             return (void*) desc->physical_start;

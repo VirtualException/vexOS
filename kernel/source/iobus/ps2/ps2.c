@@ -9,7 +9,6 @@ ps2_wait(uint8_t type) {
     if (type == 0) {
 
         while (time_out--) {
-
             if ((inportb(0x64) & 1) == 1) return;
         }
         return;
@@ -21,6 +20,8 @@ ps2_wait(uint8_t type) {
         }
         return;
     }
+
+    return;
 }
 
 void

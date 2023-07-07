@@ -8,9 +8,8 @@
 #include <efi/efi.h>
 #include <efi/efilib.h>
 
-#include <vexos_uefi/efi_info.h>
-
-#include <elf.h>
+#include <vexos_uefi/bootinfo.h>
+#include <vexos_uefi/elf.h>
 
 #define NORMALTXT       L"%N"
 #define WARNINGTXT      L"%E"
@@ -38,7 +37,7 @@ int (SYSVABI  *KernelEntry) (
 );
 
 
-KernelEntry SetupKernel(EFI_FILE* Directory, CHAR16* KernelPath, EFI_HANDLE ImageHandle);
+KernelEntry SetupKernel(CHAR16* KernelPath, EFI_HANDLE ImageHandle);
 EFI_STATUS  SetupMemMap(UINTN* MapKey);
 EFI_STATUS  SetupEnv(KERNEL_INFO** KInfo, UINT32 PrefResX, UINT32 PrefResY);
 

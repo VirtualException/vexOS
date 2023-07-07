@@ -64,7 +64,7 @@ uint64_t (__ms_abi *efi_reset_func) (
 
     uint32_t    reset_type,
     uint64_t    reset_status,
-    uint64_t    data_dize,
+    uint64_t    data_size,
     wchar_t*    reset_data
 
 );
@@ -111,8 +111,11 @@ typedef struct {
 
     font_t font;
 
-} kernel_info_t;
+} boot_info_t;
 
-extern kernel_info_t* kinfo;
+extern boot_info_t* bootinfo;
+
+extern char _k_start;
+extern char _k_end;
 
 #endif
