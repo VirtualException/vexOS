@@ -15,7 +15,7 @@ CFILES="$(find ${SRCDIR} -name \*.${CEXT})"
 ASMFILES="$(find ${SRCDIR} -name \*.${ASMEXT})"
 
 # -Ofast is quite clumsy...
-GCCARGS="-c -O3 -nostdlib
+GCCARGS="-c -O3 -nostdlib -fmacro-prefix-map="kernel/source/"=""
         -Wall -Wextra
         -m64 -mtune=native -mcmodel=large -mno-red-zone
         -mfpmath=sse -mmmx -msse -msse2 -msse3 -mssse3 -msse4 -m3dnow

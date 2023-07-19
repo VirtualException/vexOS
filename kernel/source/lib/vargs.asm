@@ -5,11 +5,11 @@ extern __va_next:   function
 
 section .text
 
-__va_save:
-
 ; x86_64 SysV ABI Calling Convention:
 ;   rdi, rsi, rdx, rcx, r8, r9, [STACK...]
 ;   -> return rax
+
+__va_save:
 
     mov qword [rdi],    rsi
     mov qword [rdi+8],  rdx
@@ -17,12 +17,12 @@ __va_save:
     mov qword [rdi+24], r8
     mov qword [rdi+32], r9
 
-    mov r10, qword [rbp+16]       ; stack argument
-    mov qword [rdi+40], r10 
-    mov r10, qword [rbp+24]       ; stack argument
-    mov qword [rdi+48], r10
-    mov r10, qword [rbp+32]       ; stack argument
-    mov qword [rdi+56], r10
+    mov r11, qword [rbp+16]       ; stack argument
+    mov qword [rdi+40], r11
+    mov r11, qword [rbp+24]       ; stack argument
+    mov qword [rdi+48], r11
+    mov r11, qword [rbp+32]       ; stack argument
+    mov qword [rdi+56], r11
 
     mov qword [rdi+64], 0
 

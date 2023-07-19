@@ -10,7 +10,8 @@
 
 #include <vexos/iobus/serial.h>
 
-char KLOGFMT[] = "[vexOSkernel %02d:%02d:%02d +%09d.%03dms]: ";
+char KLOGFMT[]  = "[%s %02d:%02d:%02d +%09d.%03dms]: ";
+char KLOGNAME[] = "vexOSkernel";
 
 int
 __vsprintk(char* str, const char* fmt, va_list vargs) {
@@ -132,19 +133,17 @@ __vprintk(const char* fmt, va_list vargs) {
     char out_buff[DEF_STR_LEN] = { 0 };
     char logheader[64] = { 0 };
 
-    time_t time;
-
     size_t count = 0;
 
     switch (*fmt) {
 
     case KERN_TLOG_ASCII:
 
+        time_t time;
         time_get(&time);
-
         uint64_t ms = time_ms_boot();
 
-        sprintk(logheader, KLOGFMT, time.hour, time.minute, time.second, (ms - ms % 1000) / 1000, ms % 1000);
+        sprintk(logheader, KLOGFMT, KLOGNAME, time.hour, time.minute, time.second, (ms - ms % 1000) / 1000, ms % 1000);
 
         serial_print(logheader);
         count += putsk(logheader);
@@ -179,13 +178,28 @@ __mprintk(const char* module, const char* fmt, ...) {
     va_list vargs;
     va_start(vargs);
 
-    va_arg(vargs);
+    char out_buff[DEF_STR_LEN] = { 0 };
+    char logheader[64] = { 0 };
 
-    char newfmt[DEF_STR_LEN] = { 0 };
+    size_t count = 0;
 
-    sprintk(newfmt, KERN_TLOG "[%s] : %s", module, fmt);
+    time_t time;
+    time_get(&time);
+    uint64_t ms = time_ms_boot();
 
-    return __vprintk(newfmt, vargs);
+    sprintk(logheader, KLOGFMT, module, time.hour, time.minute, time.second, (ms - ms % 1000) / 1000, ms % 1000);
+
+    serial_print(logheader);
+    count += putsk(logheader);
+
+    __vsprintk(out_buff, ++fmt, vargs); /* ! */
+
+    serial_print(out_buff);
+    count += putsk(out_buff);
+
+    va_end(vargs);
+
+    return count;
 }
 
 int

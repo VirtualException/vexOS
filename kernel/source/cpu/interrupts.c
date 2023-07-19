@@ -122,8 +122,6 @@ EXCEPTION(breakpoint) {
     ASM("1: jmp 1b");
 #endif
 
-    printk(KERN_LOG "Continuing!\n");
-
     return;
 }
 EXCEPTION(overflow) {

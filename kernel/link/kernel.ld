@@ -5,11 +5,11 @@ SECTIONS
 {
     . = 0x1000;
 
-    _k_start = .;
+    _kern_start = .;
 
     .text :
     {
-        _k_code = .;
+        _kern_code = .;
         /* kernel/out/kernel.o = . */
         *(.text)
         *(.rodata*)
@@ -17,18 +17,18 @@ SECTIONS
 
     .data :
     {
-        _k_data = .;
+        _kern_data = .;
         *(.data)
     }
 
     .bss :
     {
-        _k_bss = .;
+        _kern_bss = .;
         *(.bss)
         *(COMMON)
     }
 
-    _k_end = .;
+    _kern_end = .;
 
     /DISCARD/ :
     {

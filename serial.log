@@ -1,133 +1,0 @@
-[2J[01;01H[=3h[2J[01;01H[2J[01;01H[=3h[2J[01;01H[2J[01;01H[=3h[2J[01;01HBdsDxe: loading Boot0001 "UEFI QEMU DVD-ROM QM00003 " from PciRoot(0x0)/Pci(0x1,0x1)/Ata(Secondary,Master,0x0)
-BdsDxe: starting Boot0001 "UEFI QEMU DVD-ROM QM00003 " from PciRoot(0x0)/Pci(0x1,0x1)/Ata(Secondary,Master,0x0)
-[1m[33m[40m
-[ STARTING... ]
-[0m[37m[40m[2J[01;01H[1m[33m[40m ____   ____   ____ _______                   ____   _____
-|  _ \ / __ \ / __ \__   __|                 / __ \ / ____|
-| |_) | |  | | |  | | | |    __   _______  _| |  | | (___
-|  _ <| |  | | |  | | | |    \ \ / / _ \ \/ / |  | |\___ \
-| |_) | |__| | |__| | | |     \ V /  __/>  <| |__| |____) |
-|____/ \____/ \____/  |_|      \_/ \___/_/\_\\____/|_____/
-
-
-[0m[37m[40m[1m[33m[40mPC Info:
-[0m[37m[40mArchitecture: 64-bit x86
-Build: Release
-Kernel Path: [FSX:]\vexos64kernel
-Memory Map: Ok
-(Will exit Boot Services)
-
-[1m[33m[40mGraphics Output Protocol Info:
-[0m[37m[40mResolution: 1920x1080
-Framebuffer addr: 0x80000000
-Framebuffer size: 9216000
-
-[1m[33m[40m
-Press any key to continue[0m[37m[40m[2J[01;01H[1m[33m[40m[ VEXOS KERNEL FILE OPENED FROM "\vexos64kernel" ]
-[ VEXOS KERNEL *ELF* FORMAT SUCCESFULLY VERIFIED ]
-[ LOADING VEXOS KERNEL ]
-[ LOADABLE SEGMENT FOUND ]
-[ DONE. RETURNING ENTRY POINT: 0x00003CC0 ]
-[ BAILING OUT. GOOD LUCK! ]
-[0m[37m[40m[1m[33m[40m
-Press any key to continue
-
-[0m[37m[40m
-COM1 Serial working! (maybe it was already up)
-[vexOSkernel 21:58:01 +000000000.000ms]: Setting up GDT... [DONE]
-[vexOSkernel 21:58:01 +000000000.000ms]: Setting up IDT... [DONE]
-[vexOSkernel 21:58:01 +000000000.000ms]: Setting up Syscalls... [DONE]
-[vexOSkernel 21:58:01 +000000000.000ms]: Setting up PIC (w/o devices)... [DONE]
-[vexOSkernel 21:58:01 +000000000.000ms]: Setting up PIT... [DONE]
-[vexOSkernel 21:58:01 +000000000.001ms]: Setting up PS/2 Keyboard... [DONE]
-[vexOSkernel 21:58:01 +000000000.003ms]: Setting up memory... [DONE]
-[vexOSkernel 21:58:01 +000000000.005ms]: --- Setup complete ---
-[vexOSkernel 21:58:01 +000000000.007ms]: Kernel start: 0x1000, kernel end: 0x93428
-[vexOSkernel 21:58:01 +000000000.010ms]: Random seed: 86
-[vexOSkernel 21:58:01 +000000000.011ms]: Boot date: 07/07/2023 (DD:MM:YYYY)
-[vexOSkernel 21:58:01 +000000000.014ms]: Build Timestamp: Fri Jul  7 23:46:25 2023. Built with gcc-13.1.1
-[vexOSkernel 21:58:01 +000000000.017ms]: Memory Map Info: 101 entries (showing conventional):
-[vexOSkernel 21:58:01 +000000000.019ms]: Entry No   1: conventional_memory    	     636 KB 	0x0000001000 *
-[vexOSkernel 21:58:01 +000000000.022ms]: Entry No   2: conventional_memory    	    7168 KB 	0x0000100000 *
-[vexOSkernel 21:58:01 +000000000.026ms]: Entry No   4: conventional_memory    	      12 KB 	0x0000808000 *
-[vexOSkernel 21:58:01 +000000000.029ms]: Entry No   6: conventional_memory    	      16 KB 	0x000080C000 *
-[vexOSkernel 21:58:01 +000000000.032ms]: Entry No   9: conventional_memory    	  959704 KB 	0x0001600000 *
-[vexOSkernel 21:58:01 +000000000.035ms]: Entry No  11: conventional_memory    	   43196 KB 	0x003BF56000 *
-[vexOSkernel 21:58:01 +000000000.038ms]: Entry No  14: conventional_memory    	     128 KB 	0x003E9AE000 *
-[vexOSkernel 21:58:01 +000000000.041ms]: Entry No  93: conventional_memory    	     880 KB 	0x003FE00000 *
-[vexOSkernel 21:58:01 +000000000.044ms]: Total memory: 1023 Megabytes (262052 pages)
-                 ____   _____          __ _  _
-                / __ \ / ____|        / /| || |
-__   _______  _| |  | | (___   __  __/ /_| || |_
-\ \ / / _ \ \/ / |  | |\___ \  \ \/ / '_ \__   _|
- \ V /  __/>  <| |__| |____) |  >  <| (_) | | |
-  \_/ \___/_/\_\\____/|_____/  /_/\_\\___/  |_|   by VirtualException
-
-[vexOSkernel 21:58:03 +000000001.128ms]: Rebooting in 2... 1... [2J[01;01H[=3h[2J[01;01H[2J[01;01H[=3h[2J[01;01H[2J[01;01H[=3h[2J[01;01HBdsDxe: loading Boot0001 "UEFI QEMU DVD-ROM QM00003 " from PciRoot(0x0)/Pci(0x1,0x1)/Ata(Secondary,Master,0x0)
-BdsDxe: starting Boot0001 "UEFI QEMU DVD-ROM QM00003 " from PciRoot(0x0)/Pci(0x1,0x1)/Ata(Secondary,Master,0x0)
-[1m[33m[40m
-[ STARTING... ]
-[0m[37m[40m[2J[01;01H[1m[33m[40m ____   ____   ____ _______                   ____   _____
-|  _ \ / __ \ / __ \__   __|                 / __ \ / ____|
-| |_) | |  | | |  | | | |    __   _______  _| |  | | (___
-|  _ <| |  | | |  | | | |    \ \ / / _ \ \/ / |  | |\___ \
-| |_) | |__| | |__| | | |     \ V /  __/>  <| |__| |____) |
-|____/ \____/ \____/  |_|      \_/ \___/_/\_\\____/|_____/
-
-
-[0m[37m[40m[1m[33m[40mPC Info:
-[0m[37m[40mArchitecture: 64-bit x86
-Build: Release
-Kernel Path: [FSX:]\vexos64kernel
-Memory Map: Ok
-(Will exit Boot Services)
-
-[1m[33m[40mGraphics Output Protocol Info:
-[0m[37m[40mResolution: 1920x1080
-Framebuffer addr: 0x80000000
-Framebuffer size: 9216000
-
-[1m[33m[40m
-Press any key to continue[0m[37m[40m[2J[01;01H[1m[33m[40m[ VEXOS KERNEL FILE OPENED FROM "\vexos64kernel" ]
-[ VEXOS KERNEL *ELF* FORMAT SUCCESFULLY VERIFIED ]
-[ LOADING VEXOS KERNEL ]
-[ LOADABLE SEGMENT FOUND ]
-[ DONE. RETURNING ENTRY POINT: 0x00003CC0 ]
-[ BAILING OUT. GOOD LUCK! ]
-[0m[37m[40m[1m[33m[40m
-Press any key to continue
-
-[0m[37m[40m[vexOSkernel 21:58:20 +000000000.000ms]: VTT succesfully initializated
-[vexOSkernel 21:58:20 +000000000.000ms]: Setting up serial connection... [DONE]
-
-COM1 Serial working! (maybe it was already up)
-[vexOSkernel 21:58:20 +000000000.000ms]: Setting up GDT... [DONE]
-[vexOSkernel 21:58:20 +000000000.000ms]: Setting up IDT... [DONE]
-[vexOSkernel 21:58:20 +000000000.000ms]: Setting up Syscalls... [DONE]
-[vexOSkernel 21:58:20 +000000000.000ms]: Setting up PIC (w/o devices)... [DONE]
-[vexOSkernel 21:58:20 +000000000.000ms]: Setting up PIT... [DONE]
-[vexOSkernel 21:58:20 +000000000.001ms]: Setting up PS/2 Keyboard... [DONE]
-[vexOSkernel 21:58:20 +000000000.003ms]: Setting up memory... [DONE]
-[vexOSkernel 21:58:20 +000000000.005ms]: --- Setup complete ---
-[vexOSkernel 21:58:20 +000000000.009ms]: Kernel start: 0x1000, kernel end: 0x93428
-[vexOSkernel 21:58:20 +000000000.011ms]: Random seed: 88064
-[vexOSkernel 21:58:20 +000000000.013ms]: Boot date: 07/07/2023 (DD:MM:YYYY)
-[vexOSkernel 21:58:20 +000000000.015ms]: Build Timestamp: Fri Jul  7 23:46:25 2023. Built with gcc-13.1.1
-[vexOSkernel 21:58:20 +000000000.018ms]: Memory Map Info: 101 entries (showing conventional):
-[vexOSkernel 21:58:20 +000000000.021ms]: Entry No   1: conventional_memory    	     636 KB 	0x0000001000 *
-[vexOSkernel 21:58:20 +000000000.024ms]: Entry No   2: conventional_memory    	    7168 KB 	0x0000100000 *
-[vexOSkernel 21:58:20 +000000000.028ms]: Entry No   4: conventional_memory    	      12 KB 	0x0000808000 *
-[vexOSkernel 21:58:20 +000000000.031ms]: Entry No   6: conventional_memory    	      16 KB 	0x000080C000 *
-[vexOSkernel 21:58:20 +000000000.033ms]: Entry No   9: conventional_memory    	  959704 KB 	0x0001600000 *
-[vexOSkernel 21:58:20 +000000000.036ms]: Entry No  11: conventional_memory    	   43196 KB 	0x003BF56000 *
-[vexOSkernel 21:58:20 +000000000.040ms]: Entry No  14: conventional_memory    	     128 KB 	0x003E9AE000 *
-[vexOSkernel 21:58:20 +000000000.043ms]: Entry No  93: conventional_memory    	     880 KB 	0x003FE00000 *
-[vexOSkernel 21:58:20 +000000000.046ms]: Total memory: 1023 Megabytes (262052 pages)
-                 ____   _____          __ _  _
-                / __ \ / ____|        / /| || |
-__   _______  _| |  | | (___   __  __/ /_| || |_
-\ \ / / _ \ \/ / |  | |\___ \  \ \/ / '_ \__   _|
- \ V /  __/>  <| |__| |____) |  >  <| (_) | | |
-  \_/ \___/_/\_\\____/|_____/  /_/\_\\___/  |_|   by VirtualException
-
-

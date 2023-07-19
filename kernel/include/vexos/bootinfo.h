@@ -115,7 +115,7 @@ typedef struct {
 
 extern boot_info_t* bootinfo;
 
-extern char _k_start;
-extern char _k_end;
+extern char _kern_start;
+extern char _kern_end;
 
 #endif

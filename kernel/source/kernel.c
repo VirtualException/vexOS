@@ -26,8 +26,10 @@
 #include <vexos/iobus/ps2/ps2mouse.h>
 
 
-/* TODO (in order of dificulty)
+/* 
+ * TODO (in order of dificulty)
  *  - Modules w/ mprint
+ *  - vargs rewrite?
  *  - Working mouse
  *  - Colors
  *  - Better shell (more like a working shell)
@@ -37,10 +39,10 @@
  * no, but we have +60 fps in vtt
 */
 
-boot_info_t* bootinfo;
-
-static time_t time;
+static time_t   time;
 static uint32_t rng_seed;
+
+boot_info_t* bootinfo;
 
 void
 start_kernel(boot_info_t* boot_info_arg) {
@@ -48,6 +50,7 @@ start_kernel(boot_info_t* boot_info_arg) {
     BREAKPOINT;
 
     /* Initialization */
+
     bootinfo = boot_info_arg;
 
     time_init();
@@ -75,13 +78,16 @@ start_kernel(boot_info_t* boot_info_arg) {
 
     /* End startup */
 
-    printk(KERN_TLOG "--- Setup complete ---\n");
-    printk(KERN_TLOG "Kernel start: 0x%X, kernel end: 0x%X\n", &_k_start, &_k_end);
+    printk(KERN_TLOG ">>> Setup complete <<<\n");
+
+    printk(KERN_TLOG "Kernel start: 0x%X, kernel end: 0x%X (size: 0x%X)\n",
+        &_kern_start, &_kern_end, (uint64_t) &_kern_end - (uint64_t) &_kern_start);
     printk(KERN_TLOG "Random seed: %d\n", rng_seed);
     printk(KERN_TLOG "Boot date: %02d/%02d/%04d (DD:MM:YYYY)\n",
         time.day, time.month, time.year);
-    printk(KERN_TLOG "Build Timestamp: %s. Built with gcc-%s\n",
-        __TIMESTAMP__, GCCVER);
+    printk(KERN_TLOG "Build Timestamp: %s\n", __TIMESTAMP__);
+    printk(KERN_TLOG "Built with GCC %s\n", __VERSION__);
+
     mem_review();
 
     printk(KERN_LOG
@@ -91,10 +97,10 @@ start_kernel(boot_info_t* boot_info_arg) {
         "\\ \\ / / _ \\ \\/ / |  | |\\___ \\  \\ \\/ / '_ \\__   _|\n"
         " \\ V /  __/>  <| |__| |____) |  >  <| (_) | | |\n"
         "  \\_/ \\___/_/\\_\\\\____/|_____/  /_/\\_\\\\___/  |_|   by %s\n\n",
-        AUTHOR
+        __AUTHOR__
     );
 
-    printk("Booted vexOS ! (%s, %s UEFI) @ ", VERSION, ARCH);
+    printk("Booted vexOS ! (%s, %s UEFI) @ ", __BUILDVER__, __ARCH__);
     time_get(&time);
     printk("%02d:%02d:%02d, %02d/%02d/%04d\n\n",
         time.hour, time.minute, time.second, time.day, time.month, time.year);
@@ -105,9 +111,7 @@ start_kernel(boot_info_t* boot_info_arg) {
 
     }
 
-    printk(KERN_TLOG "Rebooting in 2... ");
-    time_sleep(1000);
-    printk(KERN_LOG "1... ");
+    printk(KERN_TLOG "Rebooting in 1 second... ");
     time_sleep(1000);
 
     bootinfo->reset(RESET_REBOOT_COLD, 0, 0, NULL);
