@@ -19,7 +19,7 @@ cmd(vtt* term) {
 
     case KBD_F1_Pressed ... KBD_F1_Pressed + VTTS_MAX:
         vtt_switch_to(kcode - KBD_F1_Pressed);
-        printk("Switched to vtt %d\n", kcode - KBD_F1_Pressed);
+        printk(KERN_TLOG "cmd: Switched to vtt %d\n", kcode - KBD_F1_Pressed);
         break;
 
     case KBD_Tab_Pressed:
@@ -27,7 +27,9 @@ cmd(vtt* term) {
         break;
 
     case KBD_Enter_Pressed:
+
         /**/
+
         term->newline(term);
         break;
 

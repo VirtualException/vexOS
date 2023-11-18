@@ -4,9 +4,8 @@
 #include <vexos/lib/types.h>
 #include <vexos/lib/attributes.h>
 
-#define RESET_REBOOT_COLD   0
-#define RESET_REBOOT_WARM   1
-#define RESET_SHUTDOWN      2
+#define MAGIC_VAL       "VEX64EFI"
+#define MAGIC_VAL_SIZE  8
 
 typedef struct {
 
@@ -67,6 +66,10 @@ uint64_t (__ms_abi *efi_reset_func) (
     uint64_t    data_size,
     wchar_t*    reset_data
 
+#define RESET_REBOOT_COLD   0
+#define RESET_REBOOT_WARM   1
+#define RESET_SHUTDOWN      2
+
 );
 
 typedef
@@ -98,6 +101,8 @@ typedef struct {
 
 typedef struct {
 
+    uint64_t magic;
+
     // Set of video-related data
     video_info_t vinfo;
 
@@ -113,9 +118,9 @@ typedef struct {
 
 } boot_info_t;
 
-extern boot_info_t* bootinfo;
+extern boot_info_t bootinfo;
 
-extern char _kern_start;
-extern char _kern_end;
+extern uint8_t _kern_start;
+extern uint8_t _kern_end;
 
 #endif

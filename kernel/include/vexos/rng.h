@@ -1,7 +1,9 @@
 #ifndef _RNG_H
 #define _RNG_H
 
-void    rng_init(unsigned long int seed);
-int     rng_rand(void);
+#include <vexos/time.h>
+
+void        rng_init(uint32_t seed);
+uint32_t    rng_rand();
 
 #endif

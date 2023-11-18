@@ -35,7 +35,7 @@ enum uefi_memory_types {
 };
 
 uint64_t mem_setup();
-void mem_review();
+void mem_print_info();
 
 void* mem_allocate(size_t bytes);
 

@@ -3,6 +3,9 @@
 
 #include <efi/efi.h>
 
+#define MAGIC_VAL       "VEX64EFI"
+#define MAGIC_VAL_SIZE  8
+
 typedef
 EFI_STATUS (EFIAPI *EfiResetFunction) (
     EFI_RESET_TYPE  ResetType,
@@ -61,6 +64,8 @@ typedef struct {
 } VIDEO_INFO;
 
 typedef struct {
+
+    UINT64 Magic;
 
     // Set of video-related data
     VIDEO_INFO VideoInfo;

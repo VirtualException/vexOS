@@ -11,6 +11,6 @@
     #pragma GCC warning "Compiling in debug mode"
 #endif
 
-#define __AUTHOR__      "VirtualException"
-#define __BUILDVER__    "0.9.58"
+#define __BUILDVER__    "0.9.59"
+
 #endif

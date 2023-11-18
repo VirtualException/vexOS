@@ -17,25 +17,25 @@
 
 typedef struct  {
 
-    uint8_t b;
-    uint8_t g;
     uint8_t r;
+    uint8_t g;
+    uint8_t b;
 
 } __attribute__((aligned(4))) color_t;
 
 typedef struct {
 
-    uint8_t b;
-    uint8_t g;
     uint8_t r;
+    uint8_t g;
+    uint8_t b;
 
     uint8_t a;
 
 } colorwa_t;
 
 void graphics_drawpixel(uint32_t x, uint32_t y, color_t col, video_info_t* vinfo);
-void graphics_drawchar(uint32_t x, uint32_t y, uint c, color_t fg, color_t bg, font_t* font, video_info_t* vinfo);
-
+void graphics_drawchar(uint32_t x, uint32_t y, char c, color_t fg, color_t bg, font_t* font, video_info_t* vinfo);
+void graphics_drawstring(uint32_t x, uint32_t y, char* c, color_t fg, color_t bg, font_t* font, video_info_t* vinfo);
 //void graphics_drawline();
 //void graphics_drawrect();
 //void graphics_fillrect();

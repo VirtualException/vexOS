@@ -1,7 +1,7 @@
 #include <vexos/lib/math.h>
 #include <vexos/lib/types.h>
 
-float cos(float x) { /* Change this aproximation ! */
+double cos(double x) { /* Change this aproximation ! */
 
     double xx;
     int8_t sign = 1;
@@ -17,6 +17,6 @@ float cos(float x) { /* Change this aproximation ! */
 
 }
 
-float sin(float x) {
+double sin(double x) {
     return cos(x - M_PI / 2);
 }

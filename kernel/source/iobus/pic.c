@@ -13,11 +13,11 @@ pic_setup() {
 
     printk(KERN_TLOG "Setting up PIC (w/o devices)... ");
 
-IRQ_OFF;
+    IRQ_OFF;
 
     pic_remap(0x20, 0x28);
 
-IRQ_ON;
+    IRQ_ON;
 
     printk(KERN_LOG "[DONE]\n");
 

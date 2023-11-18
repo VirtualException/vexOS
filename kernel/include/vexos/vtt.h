@@ -68,6 +68,8 @@ typedef struct _vtt {
     bool cursor;
     bool blink;
 
+    bool enabled;
+
     vtt_clear_func      clear;
     vtt_newline_func    newline;
     vtt_tab_func        tab;
@@ -97,7 +99,7 @@ int vtt_handle(void);
 
 /* VTT generic functions */
 
-void vtt_setup(uint32_t cols, uint32_t rows);
+void vtt_setup();
 void vtt_init_term(vtt* term, uint32_t cols, uint32_t rows);
 void vtt_set_handle(size_t vtt_num, vtt_handle_func handle);
 void vtt_switch_to(size_t vtt_num);

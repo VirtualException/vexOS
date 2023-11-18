@@ -7,12 +7,12 @@
 #include <vexos/iobus/serial.h>
 
 volatile uefi_time_t efitime;
-uint64_t current_ms = 0;
+uint64_t ms = 0;
 
 void
 time_get(time_t* time) {
 
-    bootinfo->get_time((uefi_time_t*) &efitime, NULL);
+    bootinfo.get_time((uefi_time_t*) &efitime, NULL);
 
     time->year      = efitime.year;
     time->month     = efitime.month;
@@ -27,7 +27,7 @@ time_get(time_t* time) {
 void
 time_tick() {
 
-    current_ms++;
+    ms++;
 
     return;
 }
@@ -35,9 +35,9 @@ time_tick() {
 void
 time_sleep(uint64_t millisec) {
 
-    volatile uint64_t ms_now = current_ms;
+    volatile uint64_t ms_now = ms;
 
-    while (current_ms - ms_now < millisec) {
+    while (ms - ms_now < millisec) {
         asm volatile("nop"); /* ? */
     };
 
@@ -46,13 +46,13 @@ time_sleep(uint64_t millisec) {
 
 uint64_t
 time_ms_boot() {
-    return current_ms;
+    return ms;
 }
 
 void
 time_init() {
 
-    current_ms = 0;
+    ms = 0;
 
     return;
 }

@@ -172,6 +172,7 @@ __vprintk(const char* fmt, va_list vargs) {
     return count;
 }
 
+/*
 int
 __mprintk(const char* module, const char* fmt, ...) {
 
@@ -192,7 +193,7 @@ __mprintk(const char* module, const char* fmt, ...) {
     serial_print(logheader);
     count += putsk(logheader);
 
-    __vsprintk(out_buff, ++fmt, vargs); /* ! */
+    __vsprintk(out_buff, ++fmt, vargs); 
 
     serial_print(out_buff);
     count += putsk(out_buff);
@@ -201,6 +202,7 @@ __mprintk(const char* module, const char* fmt, ...) {
 
     return count;
 }
+*/
 
 int
 printk(const char* fmt, ...) {

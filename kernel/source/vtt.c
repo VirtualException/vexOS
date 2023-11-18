@@ -15,9 +15,14 @@
 #include <vexos/iobus/ps2/ps2kbd.h>
 #include <vexos/iobus/pit.h>
 
+//#define DEFAULT_COL_FG  RGBCOL(0xEE, 0xEE, 0xEE)
+//#define DEFAULT_COL_BG  RGBCOL(0x20, 0x20, 0x20)
 
-vtt vtts[VTTS_N];
-size_t vttcurrterm;
+#define DEFAULT_COL_FG  RGBCOL(0x40, 0xF0, 0x50) 
+#define DEFAULT_COL_BG  RGBCOL(0x00, 0x15, 0x05)
+
+vtt     vtts[VTTS_N];
+size_t  vttcurrterm;
 
 uint32_t RESX;
 uint32_t RESY;
@@ -25,25 +30,21 @@ uint32_t RESY;
 pixel_t* video_buff;
 
 void
-vtt_setup(uint32_t cols, uint32_t rows) {
+vtt_setup() {
 
-    RESX = bootinfo->vinfo.x_res;
-    RESY = bootinfo->vinfo.y_res;
+    RESX = bootinfo.vinfo.x_res;
+    RESY = bootinfo.vinfo.y_res;
 
-    if (cols == 0 || cols > RESX / CHAR_WDTH) {
-        cols = RESX / CHAR_WDTH;
-    }
-    if (rows == 0 || rows > RESY / CHAR_HGHT) {
-        rows = RESY / CHAR_HGHT;
-    }
+    uint32_t cols = RESX / CHAR_WDTH;
+    uint32_t rows = RESY / CHAR_HGHT;
 
-    video_buff = (pixel_t*) bootinfo->vinfo.vmem;
+    video_buff = (pixel_t*) bootinfo.vinfo.vmem;
 
     for (size_t i = 0; i < VTTS_N; i++) {
         vtt_init_term(&vtts[i], cols, rows);
     }
 
-    memset((void*) bootinfo->vinfo.vmem, bootinfo->vinfo.vmem_size, 0x00);
+    memset((void*) bootinfo.vinfo.vmem, bootinfo.vinfo.vmem_size, 0x00);
 
     vtt_switch_to(VTTS_KLOG);
 
@@ -55,19 +56,13 @@ vtt_setup(uint32_t cols, uint32_t rows) {
 void
 vtt_init_term(vtt* term, uint32_t cols, uint32_t rows) {
 
-/* 0x40, 0xF0, 0x50 - 0x00, 0x15, 0x05 */
-
     term->cols      = cols;
     term->rows      = rows;
     term->curx      = 0;
     term->cury      = 0;
     term->cursor    = false;
     term->blink     = true;
-    term->defchar   = (tchar_t) { '\0',
-                        RGBCOL(0xCC, 0xCC, 0xCC), /* Default        */
-                        RGBCOL(0x00, 0x00, 0x00), /*         colors */
-                        true
-                    };
+    term->defchar   = (tchar_t) { '\0', DEFAULT_COL_FG, DEFAULT_COL_BG, true };
     term->col_fg    = term->defchar.fg;
     term->col_bg    = term->defchar.bg;
 
@@ -87,6 +82,8 @@ vtt_init_term(vtt* term, uint32_t cols, uint32_t rows) {
     term->handle    = cmd;
 
     memset(term->termbuff, M_COLS * M_ROWS * sizeof(tchar_t), 0x0);
+
+    term->enabled   = true;
 
     term->clear(term);
 
@@ -314,7 +311,7 @@ vtt_drawcur(vtt* term, uint32_t x, uint32_t y) {
 void
 vtt_drawtchar(uint32_t x, uint32_t y, tchar_t* tc) {
 
-    graphics_drawchar(x, y, tc->c, tc->fg, tc->bg, &bootinfo->font, &bootinfo->vinfo);
+    graphics_drawchar(x, y, tc->c, tc->fg, tc->bg, &bootinfo.font, &bootinfo.vinfo);
 
     tc->updated = false;
 
@@ -325,6 +322,10 @@ int handle_escape = 0;
 
 void
 vtt_putchar(vtt* term, char c) {
+
+    if (!term->enabled) {
+        return;
+    }
 
     switch (c) {
 

@@ -2,6 +2,7 @@
 
 #include <vexos/lib/bool.h>
 #include <vexos/lib/macros.h>
+#include <vexos/lib/assert.h>
 
 #include <vexos/cpu/io.h>
 
@@ -28,9 +29,12 @@ IRQ_OFF;
     outb(COM_PORT + 0, 0xAE);    // Test serial chip (send byte 0xAE and check if serial returns same byte)
 
     // Check if serial is faulty (i.e: not same byte as sent)
-    if(inb(COM_PORT + 0) != 0xAE) {
-        printk(KERN_LOG "[ERROR]\n");
+    if (inb(COM_PORT + 0) != 0xAE) {
+
+        printk("[ERROR]\n");
+        printk(KERN_TLOG "Serial connection couldn't be established\n");
         serial_enabled = false;
+
         return;
     }
 
@@ -44,7 +48,10 @@ IRQ_ON;
 
     serial_enabled = true;
 
-    serial_print("\nCOM1 Serial working! (maybe it was already up)\n");
+    /* reset all modes */
+    serial_print("\n\x1B[0m");
+
+    serial_print("COM1 Serial up! (maybe it was already working)\n");
 
     return;
 }

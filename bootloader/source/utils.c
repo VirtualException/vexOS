@@ -3,6 +3,9 @@
 #define _FONTDATA
 #include "../../font/font.h"
 
+char magic_val[8] = MAGIC_VAL;
+
+
 EFI_GRAPHICS_OUTPUT_PROTOCOL*   gop;
 
 EFI_GUID gopGuid = EFI_GRAPHICS_OUTPUT_PROTOCOL_GUID;
@@ -180,10 +183,12 @@ skip_video_setup:
 
     *KInfo                  = AllocateZeroPool(sizeof(VIDEO_INFO));
 
+    (*KInfo)->Magic         = *(uint64_t*)magic_val;
+
     (*KInfo)->BackBuffer    = AllocateZeroPool(gop->Mode->FrameBufferSize);
 
     (*KInfo)->VideoInfo     = (VIDEO_INFO) {
-                                gopInfo->HorizontalResolution,
+                                gop->Mode->Info->HorizontalResolution, //gopInfo->HorizontalResolution,
                                 gopInfo->VerticalResolution,
                                 gop->Mode->FrameBufferBase,
                                 gop->Mode->FrameBufferSize,

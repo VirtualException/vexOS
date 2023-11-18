@@ -39,8 +39,8 @@ mem_setup() {
 
     printk(KERN_TLOG "Setting up memory... ");
 
-    uefi_memory_descriptor_t* desc = bootinfo->meminfo.map;
-    uint64_t entries = bootinfo->meminfo.map_size / bootinfo->meminfo.desc_size;
+    uefi_memory_descriptor_t* desc = bootinfo.meminfo.map;
+    uint64_t entries = bootinfo.meminfo.map_size / bootinfo.meminfo.desc_size;
 
     for (size_t i = 0; i < entries; i++) {
 
@@ -51,7 +51,7 @@ mem_setup() {
             usable_mem_arr[usable_mem_arr_size++] = i;
         }
 
-        desc = NEXT_MEMORY_DESCRIPTOR(desc, bootinfo->meminfo.desc_size);
+        desc = NEXT_MEMORY_DESCRIPTOR(desc, bootinfo.meminfo.desc_size);
 
     }
 
@@ -61,12 +61,12 @@ mem_setup() {
 }
 
 void
-mem_review() {
+mem_print_info() {
 
     /* Memory review */
 
-    uefi_memory_descriptor_t* desc = bootinfo->meminfo.map;
-    uint64_t entries = bootinfo->meminfo.map_size / bootinfo->meminfo.desc_size;
+    uefi_memory_descriptor_t* desc = bootinfo.meminfo.map;
+    uint64_t entries = bootinfo.meminfo.map_size / bootinfo.meminfo.desc_size;
 
     printk(KERN_TLOG "Memory Map Info: %d entries (showing conventional):\n", entries);
 
@@ -85,7 +85,7 @@ mem_review() {
             );
 
 skip:
-        desc = NEXT_MEMORY_DESCRIPTOR(desc, bootinfo->meminfo.desc_size);
+        desc = NEXT_MEMORY_DESCRIPTOR(desc, bootinfo.meminfo.desc_size);
 
     }
 
@@ -100,7 +100,7 @@ mem_allocate(size_t bytes) {
 
     for (size_t i = 0; i < usable_mem_arr_size; i++) {
 
-        uefi_memory_descriptor_t* desc = NEXT_MEMORY_DESCRIPTOR(bootinfo->meminfo.map, bootinfo->meminfo.desc_size * usable_mem_arr[i]);
+        uefi_memory_descriptor_t* desc = NEXT_MEMORY_DESCRIPTOR(bootinfo.meminfo.map, bootinfo.meminfo.desc_size * usable_mem_arr[i]);
 
         if (PAGES2B(desc->number_of_pages) >= bytes) {
             return (void*) desc->physical_start;
