@@ -6,30 +6,37 @@ Amateur x64 Operating System (for UEFI)
 This is a basic OS made for x86_64 architectures.
 It is made up of 2 parts: the kernel and the bootloader.
 
-To load the kernel it is needed a bootloader (located under the `bootloader/` directory) that uses UEFI for:
+To load the kernel it is needed a bootloader (located under the `bootloader/` directory) that uses the UEFI environment for:
  - Setting up video
  - Getting time
  - Loading the kernel from the filesystem
- - Starting the kernel execution (calling the `StartKernel()` function)
+ - Loading a pixel-map font (`font.h`)
+ - Starting the kernel execution (calling the `start_kernel()` function)
 
 The vexOS kernel counts with the following features:
- - GDT and IDT setup
+ - Video (efi gop driver)
+ - Terminal (custom implementation called `vtt`)
+ - Keyboard input
  - Interrupt/Exception handling
  - Syscall handling
  - PIC
  - PIT
- - Keyboard input
+ - GDT and IDT setup
  - Random number generator
  - Serial output
- - Video (efi gop driver)
- - Terminal (custom implementation called `vtt`)
- - Custom pixel-by-pixel font (`font.h`)
  - Printf-like family functions
+ - SMBIOS (or at least I'm trying)
  - Some random stuff
 
 ## Building
 **gcc**, **nasm** and **make** are the only tools needed to compile the hole OS.
 For the bootloader, the library **gnu-efi** is also needed.
+
+
+> [!NOTE]
+> `gnu-efi` version ` 3.0.18` breaks for some reason some EFI functionality at least on QEMU. I'm trying to understand why and fix it.
+
+
 In Linux, just run
 ```
 make

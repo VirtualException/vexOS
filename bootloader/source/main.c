@@ -6,7 +6,7 @@
 
 #include <vexos_uefi/utils.h>
 
-KernelEntry     StartKernel;
+KernelEntry     start_kernel;
 KERNEL_INFO*    KInfo;
 CHAR16*         KernelPath = L"\\"KERNELNAME;
 UINTN           MapKey;
@@ -70,9 +70,9 @@ efi_main(EFI_HANDLE ImageHandle, EFI_SYSTEM_TABLE* ST) {
 
     /* Kernel loading and end of efi application */
 
-    StartKernel = SetupKernel(KernelPath, ImageHandle);
+    start_kernel = SetupKernel(KernelPath, ImageHandle);
 
-    if (StartKernel == NULL) {
+    if (start_kernel == NULL) {
 
         PrintPause(WARNINGTXT L"An error ocurred. Press any key to restart" NORMALTXT);
 
@@ -87,7 +87,7 @@ efi_main(EFI_HANDLE ImageHandle, EFI_SYSTEM_TABLE* ST) {
     ST->BootServices->ExitBootServices(ImageHandle, MapKey);
 #endif
 
-    StartKernel(KInfo);
+    start_kernel(KInfo);
 
     return EFI_SUCCESS;
 }
