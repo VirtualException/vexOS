@@ -1,9 +1,9 @@
 # vexOS
-Amateur x64 Operating System (for UEFI)
+Basic x64 Operating System (for UEFI)
 
 ## What is it?
 
-This is a basic OS made for x86_64 architectures.
+This is a basic OS for x86_64 architectures. \
 It is made up of 2 parts: the kernel and the bootloader.
 
 To load the kernel it is needed a bootloader (located under the `bootloader/` directory) that uses the UEFI environment for:
