@@ -154,6 +154,8 @@ SetupMemMap(UINTN* MapKey) {
 EFI_STATUS
 SetupEnv(KERNEL_INFO** KInfo, UINT32 PrefResX, UINT32 PrefResY) {
 
+    /* Graphics Config */
+
     EFI_GRAPHICS_OUTPUT_MODE_INFORMATION* gopInfo;
     UINTN InfoSize, MaxMode;
 
@@ -181,9 +183,25 @@ SetupEnv(KERNEL_INFO** KInfo, UINT32 PrefResX, UINT32 PrefResY) {
 
 skip_video_setup:
 
+    /* SMBIOS Search */
+
+    void *SMBIOSPtr = NULL;
+    UINTN status = LibGetSystemConfigurationTable(&SMBIOS3TableGuid, (void **)(&SMBIOSPtr));
+
+    if (status != EFI_SUCCESS ||
+        SMBIOSPtr == NULL ||
+        CompareMem(SMBIOSPtr, "_SM3_", 5) ) {
+
+        Print(WARNINGTXT L"[ SMBIOS COULDN'T BE LOCATED ]\n" NORMALTXT);
+        Pause();
+
+    }
+
     *KInfo                  = AllocateZeroPool(sizeof(VIDEO_INFO));
 
     (*KInfo)->Magic         = *(uint64_t*)magic_val;
+
+    (*KInfo)->SMBIOSPtr     = SMBIOSPtr;
 
     (*KInfo)->BackBuffer    = AllocateZeroPool(gop->Mode->FrameBufferSize);
 

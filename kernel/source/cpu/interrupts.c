@@ -83,7 +83,6 @@ INTERRUPT(unhandled) {
 
 INTERRUPT(regdump) {
 
-
     printk(KERN_TLOG "Registry dump! [...]\n");
 
     return;

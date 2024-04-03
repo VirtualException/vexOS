@@ -11,6 +11,7 @@
 #include <vexos/rng.h>
 #include <vexos/bootinfo.h>
 #include <vexos/panic.h>
+#include <vexos/smbios.h>
 
 #include <vexos/lib/assert.h>
 #include <vexos/lib/def.h>
@@ -52,19 +53,63 @@ bootinfo_get(boot_info_t* bootinfo_ptr) {
     }
 
     /*
-     * Copy the boot information argument beacouse it may be overwited as we
+     * Copy the boot information argument because it may be overwited as we
      * dont know (and dont care) about where it is.
     */
 
     bootinfo = *bootinfo_ptr;
 
+    /* TODO: support command line kernel arguments */
+
     return;
 };
 
 void
+print_cpu_info() {
+
+    char cpu_id_string[16]      = { 0 };
+    char cpu_brand_string[48]   = { 0 };
+
+    uint32_t eax = 0;
+    uint32_t ebx = 0;
+    uint32_t ecx = 0;
+    uint32_t edx = 0;
+
+    cpuid(0x0, &eax, &ebx, &ecx, &edx);
+
+    memcpy(cpu_id_string,        &ebx, sizeof (uint32_t));
+    memcpy(cpu_id_string + 4,    &ecx, sizeof (uint32_t));
+    memcpy(cpu_id_string + 8,    &edx, sizeof (uint32_t));
+
+    printk(KERN_TLOG "CPU Vendor Identification String: %s\n", cpu_id_string);
+
+    for (size_t i = 0; i < 3; i++) {
+
+        cpuid(0x80000002 + i, &eax, &ebx, &ecx, &edx);
+
+        uint64_t offst = i * 16;
+
+        memcpy(cpu_brand_string + offst,        &eax, sizeof (uint32_t));
+        memcpy(cpu_brand_string + offst + 4,    &ebx, sizeof (uint32_t));
+        memcpy(cpu_brand_string + offst + 8,    &ecx, sizeof (uint32_t));
+        memcpy(cpu_brand_string + offst + 12,   &edx, sizeof (uint32_t));
+
+    }
+
+    printk(KERN_TLOG "CPU Brand String: %s\n", cpu_brand_string);
+
+    /* Doesnt work */
+    cpuid(0x16, &eax, &ebx, &ecx, &edx);
+    printk(KERN_TLOG "CPU Freqs. Base: %d MHz, Max: %d MHz, Bus %d MHz\n", eax, ebx, ecx);
+
+
+    return;
+}
+
+void
 start_kernel(boot_info_t* bootinfo_ptr) {
 
-    STOP;
+    //STOP;
 
     /* Basic init */
 
@@ -73,8 +118,7 @@ start_kernel(boot_info_t* bootinfo_ptr) {
 
     time_init();
     kbd_init();
-
-    rng_init(rng_seed = *(uint32_t*)(&time.day));
+    rng_init(rng_seed = *(uint32_t*) (&time.day));
 
     /* Setup */
 
@@ -87,14 +131,20 @@ start_kernel(boot_info_t* bootinfo_ptr) {
 
     pic_setup();
     pit_setup();
+
     ps2kbd_setup();
     //ps2mouse_setup(); /* *crying in assembly* */
 
     mem_setup();
+    smbios_setup();
 
     /* End of setup */
 
     printk(KERN_TLOG "[Setup completed]\n");
+
+    print_cpu_info();
+
+    mem_print_info();
 
     printk(KERN_TLOG "Boot date: %02d/%02d/%04d (DD:MM:YYYY)\n",
         time.day, time.month, time.year);
@@ -104,9 +154,7 @@ start_kernel(boot_info_t* bootinfo_ptr) {
     printk(KERN_TLOG "Kernel start: 0x%X, kernel end: 0x%X (size: 0x%X)\n",
         &_kern_start, &_kern_end, (uint64_t) &_kern_end - (uint64_t) &_kern_start);
 
-    mem_print_info();
-
-    printk(KERN_LOG
+    printk(
         "                 ____   _____          __ _  _\n"
         "                / __ \\ / ____|        / /| || |\n"
         "__   _______  _| |  | | (___   __  __/ /_| || |_\n"

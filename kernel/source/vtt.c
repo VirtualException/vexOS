@@ -15,11 +15,26 @@
 #include <vexos/iobus/ps2/ps2kbd.h>
 #include <vexos/iobus/pit.h>
 
-//#define DEFAULT_COL_FG  RGBCOL(0xEE, 0xEE, 0xEE)
-//#define DEFAULT_COL_BG  RGBCOL(0x20, 0x20, 0x20)
+#define DEFAULT_COL_FG  RGBCOL(0xCC, 0xCC, 0xCC)
+#define DEFAULT_COL_BG  RGBCOL(0x00, 0x00, 0x00)
 
-#define DEFAULT_COL_FG  RGBCOL(0x40, 0xF0, 0x50) 
-#define DEFAULT_COL_BG  RGBCOL(0x00, 0x15, 0x05)
+//#define DEFAULT_COL_FG  RGBCOL(0x40, 0xF0, 0x50) 
+//#define DEFAULT_COL_BG  RGBCOL(0x00, 0x15, 0x05)
+
+/**
+ * Pseudo-ANSI Sequential Escape Parser
+ *
+ * Each value indicates what the handler expects.
+ * For now, only handles the H escape code (cursor to home position).
+*/
+
+enum {
+    ESCAPE_NONE,
+    ESCAPE_CSI,
+    ESCAPE_ARG,
+
+    ESCAPE_MAX,
+};
 
 vtt     vtts[VTTS_N];
 size_t  vttcurrterm;
@@ -27,7 +42,8 @@ size_t  vttcurrterm;
 uint32_t RESX;
 uint32_t RESY;
 
-pixel_t* video_buff;
+pixel_t* vmem;
+
 
 void
 vtt_setup() {
@@ -38,13 +54,13 @@ vtt_setup() {
     uint32_t cols = RESX / CHAR_WDTH;
     uint32_t rows = RESY / CHAR_HGHT;
 
-    video_buff = (pixel_t*) bootinfo.vinfo.vmem;
+    vmem = (pixel_t*) bootinfo.vinfo.vmem;
 
     for (size_t i = 0; i < VTTS_N; i++) {
         vtt_init_term(&vtts[i], cols, rows);
     }
 
-    memset((void*) bootinfo.vinfo.vmem, bootinfo.vinfo.vmem_size, 0x00);
+    memset((void*)bootinfo.vinfo.vmem, bootinfo.vinfo.vmem_size, 0x00);
 
     vtt_switch_to(VTTS_KLOG);
 
@@ -62,6 +78,7 @@ vtt_init_term(vtt* term, uint32_t cols, uint32_t rows) {
     term->cury      = 0;
     term->cursor    = false;
     term->blink     = true;
+    term->escape    = ESCAPE_NONE;
     term->defchar   = (tchar_t) { '\0', DEFAULT_COL_FG, DEFAULT_COL_BG, true };
     term->col_fg    = term->defchar.fg;
     term->col_bg    = term->defchar.bg;
@@ -176,7 +193,7 @@ vtt_delete(vtt* term) {
 
     term->backward(term);
 
-    term->termbuff[UIDw(term->curx, term->cury, term->cols)] = term->defchar;
+    term->termbuff[XY2L(term->curx, term->cury, term->cols)] = term->defchar;
 
     return;
 }
@@ -187,14 +204,14 @@ vtt_scroll(vtt* term, uint32_t lines) {
     for (size_t l = 0; l < lines; l++) {
         for (size_t y = 0; y < term->rows-1; y++) {
             for (size_t x = 0; x < term->cols; x++) {
-                term->termbuff[UIDw(x, y, term->cols)] = term->termbuff[UIDw(x, y+1, term->cols)];
-                term->termbuff[UIDw(x, y, term->cols)].updated = true;
+                term->termbuff[XY2L(x, y, term->cols)] = term->termbuff[XY2L(x, y+1, term->cols)];
+                term->termbuff[XY2L(x, y, term->cols)].updated = true;
             }
         }
     }
 
     for (size_t x = 0; x < term->cols; x++) {
-        term->termbuff[UIDw(x, term->rows-1, term->cols)] = term->defchar;
+        term->termbuff[XY2L(x, term->rows-1, term->cols)] = term->defchar;
     }
 
     return;
@@ -284,7 +301,7 @@ vtt_renderterm() {
     for (size_t y = 0; y < term->rows; y++) {
         for (size_t x = 0; x < term->cols; x++) {
 
-            tchar_t* tc = &term->termbuff[UIDw(x, y, term->cols)];
+            tchar_t* tc = &term->termbuff[XY2L(x, y, term->cols)];
 
             if (x == term->curx && y == term->cury && term->blink && term->cursor) {
                 vtt_drawcur(term, x * CHAR_WDTH, y * CHAR_HGHT);
@@ -303,7 +320,7 @@ void
 vtt_drawcur(vtt* term, uint32_t x, uint32_t y) {
 
     vtt_drawtchar(x, y, &(tchar_t) { ' ', term->col_bg, term->col_fg, true });
-    term->termbuff[UIDw(term->curx, term->cury, term->cols)].updated = true;
+    term->termbuff[XY2L(term->curx, term->cury, term->cols)].updated = true;
 
     return;
 }
@@ -318,8 +335,6 @@ vtt_drawtchar(uint32_t x, uint32_t y, tchar_t* tc) {
     return;
 }
 
-int handle_escape = 0;
-
 void
 vtt_putchar(vtt* term, char c) {
 
@@ -327,33 +342,69 @@ vtt_putchar(vtt* term, char c) {
         return;
     }
 
-    switch (c) {
+    switch (term->escape) {
 
-        case '\n':
-            term->newline(term);
-            break;
+    case ESCAPE_NONE:
+        break;
 
-        case '\t':
-            term->tab(term);
-            break;
+    case ESCAPE_CSI:
 
-        case '\0':
-            break;
+        if (c == '[')
+            term->escape++;
+        else 
+            term->escape = 0;
 
-        case '\e':
-            handle_escape = c;
-            break;
+        return;
 
-        default:
-            /* !!! */
-            term->termbuff[UIDw(term->curx, term->cury, term->cols)] =
-                (tchar_t) { c, term->col_fg, term->col_bg, true };
-            term->forward(term);
+    case ESCAPE_ARG:
 
-            break;
+        if (c == 'H') {
+            term->curx = 0;
+            term->cury = 0;
+        }
+
+        term->escape = ESCAPE_NONE;
+
+        printk(KERN_TLOG "PANSI Handle\n");
+
+        return;
+
+    default:
+        break;
+
     }
 
-    vtt_renderterm(); /* ...meh */
+    switch (c) {
+
+    case '\0':
+        break;
+
+    case '\e':
+        term->escape = ESCAPE_CSI;
+        break;
+
+    case '\n':
+        term->newline(term);
+        break;
+
+    case '\t':
+        term->tab(term);
+        break;
+
+    /* ... */
+
+    default:
+
+        /* Really important code: Write formatted char into the terminal buffer */
+
+        term->termbuff[XY2L(term->curx, term->cury, term->cols)] =
+            (tchar_t) { c, term->col_fg, term->col_bg, true };
+        term->forward(term);
+
+        vtt_renderterm(); /* ...meh */
+
+        break;
+    }
 
     return;
 }
@@ -361,33 +412,15 @@ vtt_putchar(vtt* term, char c) {
 void
 vtt_putchar_at(vtt* term, char c, uint32_t x, uint32_t y) {
 
-    switch (c) {
+    uint32_t old_curx = term->curx;
+    uint32_t old_cury = term->cury;
 
-        case '\0':
-            break;
+    term->curx = x;
+    term->cury = y;
 
-        case '\n':
-            term->newline(term);
-            break;
+    vtt_putchar(term, c);
 
-        case '\t':
-            term->tab(term);
-            break;
-
-        case '\e':
-            handle_escape = c;
-            break;
-
-        default:
-            /* !!! */
-            term->termbuff[UIDw(x, y, term->cols)] =
-                (tchar_t) { c, term->col_fg, term->col_bg, true };
-
-            break;
-    }
-
-    vtt_renderterm(); /* ...meh */
-
-    return;
+    term->curx = old_curx;
+    term->cury = old_cury;
 
 }

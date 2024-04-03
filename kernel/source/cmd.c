@@ -1,6 +1,8 @@
 #include <vexos/cmd.h>
 #include <vexos/kbd.h>
 #include <vexos/printk.h>
+#include <vexos/iobus/pcspkr.h>
+#include <vexos/time.h>
 #include <vexos/lib/macros.h>
 
 
@@ -28,7 +30,9 @@ cmd(vtt* term) {
 
     case KBD_Enter_Pressed:
 
-        /**/
+        //pcspkr_beep(430);
+        //time_sleep(1000);
+        //pcspkr_stop();
 
         term->newline(term);
         break;

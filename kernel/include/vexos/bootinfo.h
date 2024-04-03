@@ -103,6 +103,8 @@ typedef struct {
 
     uint64_t magic;
 
+    void *smbios_ptr;
+
     // Set of video-related data
     video_info_t vinfo;
 

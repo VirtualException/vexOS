@@ -37,7 +37,7 @@ format:
 
             case '%':
 
-                buff[0] = *fmt;
+                buff[0] = '%';
                 strcat(str, buff);
                 break;
 
@@ -68,10 +68,19 @@ format:
                 strcat(str, buff);
                 break;
 
+            /* Signed Interger */
             case 'd':
             case 'D':
 
-                itoa_f(va_arg(vargs), buff, width, fill);
+                itoa_f((int) va_arg(vargs), buff, width, fill, true);
+                strcat(str, buff);
+                break;
+
+            /* Unsigned Interger */
+            case 'u':
+            case 'U':
+
+                itoa_f((int) va_arg(vargs), buff, width, fill, false);
                 strcat(str, buff);
                 break;
 
@@ -143,7 +152,9 @@ __vprintk(const char* fmt, va_list vargs) {
         time_get(&time);
         uint64_t ms = time_ms_boot();
 
-        sprintk(logheader, KLOGFMT, KLOGNAME, time.hour, time.minute, time.second, (ms - ms % 1000) / 1000, ms % 1000);
+        sprintk(logheader, KLOGFMT, KLOGNAME,
+            time.hour, time.minute, time.second,
+            (ms - ms % 1000) / 1000, ms % 1000);
 
         serial_print(logheader);
         count += putsk(logheader);

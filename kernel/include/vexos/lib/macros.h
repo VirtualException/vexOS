@@ -8,8 +8,8 @@
 #define IRQ_OFF ASM("cli")  /* Disable all interrupts */
 
 #ifdef __DEBUG__
-    #define BREAKPOINT  ASM("int3");
-    #define STOP        ASM("1: pause; jmp 1");
+    #define BREAKPOINT  // ASM("int3");
+    #define STOP        ASM("1: jmp 1b");
 #else
     #define BREAKPOINT
     #define STOP

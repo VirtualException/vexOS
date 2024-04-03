@@ -76,7 +76,7 @@ mem_print_info() {
             goto skip;
         }
 
-        printk(KERN_TLOG "Entry No %3d: %s    \t%8d KB \t0x%010X %c\n",
+        printk(KERN_TLOG "Entry Nº %3d: %s    \t%8d KB \t0x%010X %c\n",
                 i,
                 uefi_memory_types_str[desc->type],
                 BYTES2KB(PAGES2B(desc->number_of_pages)),

@@ -36,8 +36,8 @@ typedef struct {
 void graphics_drawpixel(uint32_t x, uint32_t y, color_t col, video_info_t* vinfo);
 void graphics_drawchar(uint32_t x, uint32_t y, char c, color_t fg, color_t bg, font_t* font, video_info_t* vinfo);
 void graphics_drawstring(uint32_t x, uint32_t y, char* c, color_t fg, color_t bg, font_t* font, video_info_t* vinfo);
-//void graphics_drawline();
-//void graphics_drawrect();
-//void graphics_fillrect();
+void graphics_drawline(uint32_t x0, uint32_t y0, uint32_t x1, uint32_t y1, color_t col, video_info_t* vinfo);
+void graphics_drawrect(uint32_t x0, uint32_t y0, uint32_t x1, uint32_t y1, color_t col, video_info_t* vinfo);
+void graphics_fillrect(uint32_t x0, uint32_t y0, uint32_t x1, uint32_t y1, color_t col, video_info_t* vinfo);
 
 #endif

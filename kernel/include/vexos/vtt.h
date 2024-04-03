@@ -18,12 +18,12 @@
 
 #define TAB_SIZE 8
 
-#define VTTS_N      3
+#define VTTS_N      2
 #define VTTS_MAX    (VTTS_N - 1)
 #define VTTS_KLOG   0
 
-/* Transforms finite table coordinates into a 1 dimensional number */
-#define UIDw(x, y, w) ((x) + ((y) * (w)))
+/* X,Y TO LINEAR. Convert (x, y), with y <= w into a linear value */
+#define XY2L(x, y, w) ((x) + ((y) * (w)))
 
 typedef struct _vtt vtt;
 
@@ -69,6 +69,8 @@ typedef struct _vtt {
     bool blink;
 
     bool enabled;
+
+    int escape;
 
     vtt_clear_func      clear;
     vtt_newline_func    newline;

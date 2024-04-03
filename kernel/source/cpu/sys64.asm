@@ -23,7 +23,7 @@ syscall_entry_64:
     ; IMPORTANT!
     ; If we return using "sysret", we will crash, as privilege/segment stuff
     ; is broken/unimplemented. We need to return using normal "ret", like a
-    ; normal function.
+    ; normal procedure.
 
 %if !SYSRET
     ret
@@ -31,7 +31,7 @@ syscall_entry_64:
     o64 sysret
 %endif
 
-; C-only syscall implementation
+; C (std) syscall implementation
 syscall:
 
     ; Change args order

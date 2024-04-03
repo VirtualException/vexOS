@@ -16,23 +16,32 @@ atoi(const char* str) {
 
 char*
 itoa(long int n, char* str) {
-    return itoa_f(n, str, 0, '0');
+    return itoa_f(n, str, 0, '0', true);
 }
 
 char*
-itoa_f(long int n, char* str, size_t width, char fill) {
+utoa(unsigned long int n, char* str) {
+    return itoa_f(n, str, 0, '0', false);
+}
 
+char*
+itoa_f(long int n, char* str, size_t width, char fill, bool is_signed) {
+
+    unsigned long int un = 0;
     size_t i = 0;
     bool neg = false;
 
-    if (n < 0) {
-        n = -n;
-        neg = 1;
+    if (n < 0 && is_signed) {
+        un = (unsigned long int) -n;
+        neg = true;
+    }
+    else {
+        un = (unsigned long int) n;
     }
 
     do {
-        str[i++] = n % 10 + '0';
-    } while ((n /= 10) > 0);
+        str[i++] = un % 10 + '0';
+    } while ((un /= 10) > 0);
 
     if (neg) {
         str[i++] = '-';

@@ -67,6 +67,8 @@ typedef struct {
 
     UINT64 Magic;
 
+    VOID *SMBIOSPtr;
+
     // Set of video-related data
     VIDEO_INFO VideoInfo;
 
