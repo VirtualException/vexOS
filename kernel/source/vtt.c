@@ -39,6 +39,21 @@ enum {
 vtt     vtts[VTTS_N];
 size_t  vttcurrterm;
 
+vtt_vtable vtt_f = {
+    vtt_clear,
+    vtt_newline,
+    vtt_tab,
+    vtt_delete,
+    vtt_scroll,
+    vtt_forward,
+    vtt_backward,
+    vtt_setcurpos,
+    vtt_setcur,
+    vtt_setfgcol,
+    vtt_setbgcol,
+    vtt_resetcol,
+};
+
 uint32_t RESX;
 uint32_t RESY;
 
@@ -83,26 +98,14 @@ vtt_init_term(vtt* term, uint32_t cols, uint32_t rows) {
     term->col_fg    = term->defchar.fg;
     term->col_bg    = term->defchar.bg;
 
-    term->clear     = vtt_clear;
-    term->newline   = vtt_newline;
-    term->tab       = vtt_tab;
-    term->delete    = vtt_delete;
-    term->scroll    = vtt_scroll;
-    term->forward   = vtt_forward;
-    term->backward  = vtt_backward;
-    term->setcurpos = vtt_setcurpos;
-    term->setcur    = vtt_setcur;
-    term->resetcol  = vtt_resetcol;
-    term->setfgcol  = vtt_setfgcol;
-    term->setbgcol  = vtt_setbgcol;
-
+    term->f = &vtt_f;
     term->handle    = cmd;
 
     memset(term->termbuff, M_COLS * M_ROWS * sizeof(tchar_t), 0x0);
 
     term->enabled   = true;
 
-    term->clear(term);
+    term->f->clear(term);
 
     return;
 }
@@ -165,7 +168,7 @@ void
 vtt_newline(vtt* term) {
 
     if (term->cury >= term->rows-1) {
-        term->scroll(term, 1);
+        term->f->scroll(term, 1);
     }
     else term->cury++;
 
@@ -182,7 +185,7 @@ vtt_tab(vtt* term) {
     if (n == TAB_SIZE) return;
 
     for (size_t i = 0; i < n; i++) {
-        term->forward(term);
+        term->f->forward(term);
     }
 
     return;
@@ -191,7 +194,7 @@ vtt_tab(vtt* term) {
 void
 vtt_delete(vtt* term) {
 
-    term->backward(term);
+    term->f->backward(term);
 
     term->termbuff[XY2L(term->curx, term->cury, term->cols)] = term->defchar;
 
@@ -221,13 +224,13 @@ void
 vtt_forward(vtt* term) {
 
     if (term->curx >= term->cols-1) {
-        term->newline(term);
+        term->f->newline(term);
         term->curx = 0;
     }
     else term->curx++;
 
     if (term->cury >= term->rows) {
-        term->scroll(term, 1);
+        term->f->scroll(term, 1);
         term->cury--;
     }
 
@@ -319,7 +322,9 @@ vtt_renderterm() {
 void
 vtt_drawcur(vtt* term, uint32_t x, uint32_t y) {
 
-    vtt_drawtchar(x, y, &(tchar_t) { ' ', term->col_bg, term->col_fg, true });
+    tchar_t cursor = { ' ', term->col_bg, term->col_fg, true };
+
+    vtt_drawtchar(x, y, &cursor);
     term->termbuff[XY2L(term->curx, term->cury, term->cols)].updated = true;
 
     return;
@@ -384,11 +389,11 @@ vtt_putchar(vtt* term, char c) {
         break;
 
     case '\n':
-        term->newline(term);
+        term->f->newline(term);
         break;
 
     case '\t':
-        term->tab(term);
+        term->f->tab(term);
         break;
 
     /* ... */
@@ -399,7 +404,7 @@ vtt_putchar(vtt* term, char c) {
 
         term->termbuff[XY2L(term->curx, term->cury, term->cols)] =
             (tchar_t) { c, term->col_fg, term->col_bg, true };
-        term->forward(term);
+        term->f->forward(term);
 
         vtt_renderterm(); /* ...meh */
 

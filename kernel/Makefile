@@ -26,7 +26,8 @@ DEBUG = 0
 OPT_LEVEL = 3
 
 CFLAGS = -Wall -Wextra -nostdlib -fmacro-prefix-map="kernel/source/"="" \
-		-m64 -mtune=native -mcmodel=large -mno-red-zone -mfpmath=sse \
+		-m64 -mtune=native -mcmodel=large -mno-red-zone -mlarge-data-threshold=64 \
+		-mfpmath=sse \
 		-mmmx -msse -msse2 -msse3 -mssse3 -msse4 -m3dnow \
 		-fno-stack-protector -fno-stack-check -fno-builtin \
 		-ffreestanding -fpic -fpie

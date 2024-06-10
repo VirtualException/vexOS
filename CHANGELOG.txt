@@ -1,0 +1,3 @@
+Format: RELEASE.MAJOR.MINOR
+
+0.9.60: Added changelog, Makefile, SMBIOS and various fixes, including an updated README.md

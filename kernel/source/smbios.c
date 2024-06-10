@@ -21,7 +21,6 @@ smbios_setup() {
     printk(KERN_LOG "smbios table struct max size: %d\n", smbios_entry->struct_max_size);
     printk(KERN_LOG "smbios table doc_rev: %u\n", smbios_entry->doc_rev);
 
-    printk(KERN_LOG "hehe...");
     //volatile int i = *((int*) smbios_entry->table_addr);
 
     //smbios_get_table();

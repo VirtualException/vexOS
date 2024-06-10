@@ -201,6 +201,8 @@ EXCEPTION(general_protection_fault) {
 
     BREAKPOINT;
 
+    while (1) { };
+
     return;
 }
 EXCEPTION(page_fault) {

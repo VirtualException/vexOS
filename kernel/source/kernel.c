@@ -6,7 +6,7 @@
 #include <vexos/vtt.h>
 #include <vexos/printk.h>
 #include <vexos/time.h>
-#include <vexos/mem.h>
+#include <vexos/kmem.h>
 #include <vexos/kbd.h>
 #include <vexos/rng.h>
 #include <vexos/bootinfo.h>
@@ -109,8 +109,6 @@ print_cpu_info() {
 void
 start_kernel(boot_info_t* bootinfo_ptr) {
 
-    //STOP;
-
     /* Basic init */
 
     bootinfo_get(bootinfo_ptr);
@@ -135,8 +133,8 @@ start_kernel(boot_info_t* bootinfo_ptr) {
     ps2kbd_setup();
     //ps2mouse_setup(); /* *crying in assembly* */
 
-    mem_setup();
-    smbios_setup();
+    kmem_setup();
+    //smbios_setup();   /* *crying in hexadecimal* */
 
     /* End of setup */
 
@@ -144,15 +142,15 @@ start_kernel(boot_info_t* bootinfo_ptr) {
 
     print_cpu_info();
 
-    mem_print_info();
+    kmem_print_info();
 
     printk(KERN_TLOG "Boot date: %02d/%02d/%04d (DD:MM:YYYY)\n",
         time.day, time.month, time.year);
     printk(KERN_TLOG "Random seed: %d\n", rng_seed);
     printk(KERN_TLOG "Build Timestamp: %s\n", __TIMESTAMP__);
     printk(KERN_TLOG "Built with GCC %s\n", __VERSION__);
-    printk(KERN_TLOG "Kernel start: 0x%X, kernel end: 0x%X (size: 0x%X)\n",
-        &_kern_start, &_kern_end, (uint64_t) &_kern_end - (uint64_t) &_kern_start);
+    printk(KERN_TLOG "Kernel start: 0x%X, kernel end: 0x%X (size: %d bytes)\n",
+        &_kern_start, &_kern_end, &_kern_end - &_kern_start);
 
     printk(
         "                 ____   _____          __ _  _\n"
@@ -169,6 +167,14 @@ start_kernel(boot_info_t* bootinfo_ptr) {
     time_get(&time);
     printk("%02d:%02d:%02d, %02d/%02d/%04d\n\n",
         time.hour, time.minute, time.second, time.day, time.month, time.year);
+
+    void *a = kmem_allocate_pages(10);
+    void *b = kmem_allocate_pages(10);
+    void *c = kmem_allocate_pages(10);
+
+    kmem_deallocate(a);
+    kmem_deallocate(c);
+    kmem_deallocate(b);
 
     while (!vtt_handle()) {
 

@@ -18,11 +18,11 @@
 
 #define TAB_SIZE 8
 
-#define VTTS_N      2
+#define VTTS_N      3
 #define VTTS_MAX    (VTTS_N - 1)
 #define VTTS_KLOG   0
 
-/* X,Y TO LINEAR. Convert (x, y), with y <= w into a linear value */
+/* X,Y TO LINEAR. Convert (x, y), with y <= w into a 1D value */
 #define XY2L(x, y, w) ((x) + ((y) * (w)))
 
 typedef struct _vtt vtt;
@@ -52,6 +52,23 @@ typedef struct {
 
 } tchar_t;
 
+typedef struct _vtt_vtable {
+
+    vtt_clear_func      clear;
+    vtt_newline_func    newline;
+    vtt_tab_func        tab;
+    vtt_delete_func     delete;
+    vtt_scroll_func     scroll;
+    vtt_forward_func    forward;
+    vtt_backward_func   backward;
+    vtt_setcurpos_func  setcurpos;
+    vtt_setcur_func     setcur;
+    vtt_setfgcol_func   setfgcol;
+    vtt_setbgcol_func   setbgcol;
+    vtt_resetcol_func   resetcol;
+
+} vtt_vtable;
+
 typedef struct _vtt {
 
     uint32_t cols;
@@ -72,19 +89,7 @@ typedef struct _vtt {
 
     int escape;
 
-    vtt_clear_func      clear;
-    vtt_newline_func    newline;
-    vtt_tab_func        tab;
-    vtt_delete_func     delete;
-    vtt_scroll_func     scroll;
-    vtt_forward_func    forward;
-    vtt_backward_func   backward;
-    vtt_setcurpos_func  setcurpos;
-    vtt_setcur_func     setcur;
-    vtt_setfgcol_func   setfgcol;
-    vtt_setbgcol_func   setbgcol;
-    vtt_resetcol_func   resetcol;
-
+    vtt_vtable *f;
     vtt_handle_func     handle;
 
     tchar_t termbuff[M_COLS * M_ROWS];

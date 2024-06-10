@@ -25,7 +25,7 @@ cmd(vtt* term) {
         break;
 
     case KBD_Tab_Pressed:
-        term->tab(term);
+        term->f->tab(term);
         break;
 
     case KBD_Enter_Pressed:
@@ -34,11 +34,12 @@ cmd(vtt* term) {
         //time_sleep(1000);
         //pcspkr_stop();
 
-        term->newline(term);
+        term->f->newline(term);
         break;
 
     case KBD_Backspace_Pressed:
-        term->delete(term);
+
+        term->f->delete(term);
         break;
 
     case KBD_K_8_Up_Pressed:
@@ -46,11 +47,11 @@ cmd(vtt* term) {
         break;
 
     case KBD_K_4_Left_Pressed:
-        term->backward(term);
+        term->f->backward(term);
         break;
 
     case KBD_K_6_Right_Pressed:
-        term->forward(term);
+        term->f->forward(term);
         break;
 
     case KBD_K_2_Down_Pressed:
@@ -58,7 +59,7 @@ cmd(vtt* term) {
         break;
 
     case KBD_F12_Pressed:
-        term->clear(term);
+        term->f->clear(term);
         break;
 
     case KBD_Esc_Released:

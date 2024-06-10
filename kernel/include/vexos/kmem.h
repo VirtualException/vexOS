@@ -10,8 +10,8 @@
 #define PAGE_SIZE   4096
 #define PAGES2B(p)  ((p) * PAGE_SIZE)
 
-#define BYTES2KB(b) ((b) / 1024)
-#define BYTES2MB(b) ((b) / 1048576)
+#define BYTES2KiB(b) ((b) / 1024)
+#define BYTES2MiB(b) ((b) / 1048576)
 
 extern char uefi_memory_types_str[14][256];
 
@@ -34,9 +34,11 @@ enum uefi_memory_types {
 
 };
 
-uint64_t mem_setup();
-void mem_print_info();
+uint64_t kmem_setup();
+void kmem_print_info();
 
-void* mem_allocate(size_t bytes);
+void *kmem_allocate_pages(size_t pages);
+void *kmem_allocate(size_t bytes);
+void kmem_deallocate(void *ptr);
 
 #endif
