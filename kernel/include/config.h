@@ -11,6 +11,6 @@
     #pragma GCC warning "Compiling in debug mode"
 #endif
 
-#define __BUILDVER__    "0.9.59"
+#define __BUILDVER__    "0.9.60"
 
 #endif

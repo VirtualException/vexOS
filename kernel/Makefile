@@ -11,6 +11,8 @@ OUTPUT_DIR = out
 SOURCES_C := $(shell find source/ -name '*.c')
 SOURCES_ASM := $(shell find source/ -name '*.asm')
 
+HEADERS := $(shell find include/ -name '*.h')
+
 # Files to exclude from being optimized
 SOURCES_NO_OPT = source/printk.c
 
@@ -46,7 +48,7 @@ debug: clean kernel
 $(OBJECTS_C_NO_OPT): OPT_LEVEL = 0
 
 # Compile each .c file
-$(OBJECTS_C): $(OUTPUT_DIR)/%.o: $(SOURCE_DIR)/%.c
+$(OBJECTS_C): $(OUTPUT_DIR)/%.o: $(SOURCE_DIR)/%.c $(HEADERS)
 	$(CC) -c $(CFLAGS) -O$(OPT_LEVEL) $< -o $@ -I $(HEADER_DIR)
 
 # Compile each .asm file
